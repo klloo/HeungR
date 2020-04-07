@@ -27,6 +27,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -34,7 +35,9 @@ import android.widget.Toast;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.midisheetmusic.drawerItems.ExpandableSwitchDrawerItem;
+import com.midisheetmusic.sheets.ChordSymbol;
 import com.midisheetmusic.sheets.ClefSymbol;
+import com.midisheetmusic.sheets.MusicSymbol;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.StringHolder;
@@ -144,7 +147,57 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         Log.d("TAG", "3");
         createViews();
+
+        Button testButton = findViewById(R.id.up_button);
+        testButton.setOnClickListener(v -> upNote());
+
+        Button downButton = findViewById(R.id.down_button);
+        downButton.setOnClickListener(v -> downNote());
+
+
     }
+
+
+    public void downNote()
+    {
+        MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
+        int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
+        System.out.println(midiNote);
+        ((ChordSymbol) nextNote).changeNote(midiNote - 1);
+
+        for(int i=0;i<midifile.getTracks().size();i++){
+            for(int j=0;j<midifile.getTracks().get(i).getNotes().size();j++){
+                if (midifile.getTracks().get(i).getNotes().get(j).getStartTime() == (int)player.currentPulseTime) {
+                    midifile.getTracks().get(i).getNotes().get(j).setNumber(midiNote - 1);
+                    break;
+                }
+            }
+        }
+
+        createSheetMusic(options);
+    }
+
+    public void upNote()
+    {
+        MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
+        int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
+        System.out.println(midiNote);
+        ((ChordSymbol) nextNote).changeNote(midiNote + 1);
+
+        for(int i=0;i<midifile.getTracks().size();i++){
+            for(int j=0;j<midifile.getTracks().get(i).getNotes().size();j++){
+                if (midifile.getTracks().get(i).getNotes().get(j).getStartTime() == (int)player.currentPulseTime) {
+                    midifile.getTracks().get(i).getNotes().get(j).setNumber(midiNote + 1);
+                    break;
+                }
+            }
+        }
+
+
+        createSheetMusic(options);
+    }
+
+
 
     /* Create the MidiPlayer and Piano views */
     void createViews() {

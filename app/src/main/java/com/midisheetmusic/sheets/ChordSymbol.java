@@ -999,6 +999,12 @@ public class ChordSymbol implements MusicSymbol {
     public NoteData[] getNotedata() {
         return notedata;
     }
+
+    public void changeNote(int nnote)
+    {
+        notedata[0].number = nnote;
+    }
+
 }
 
 

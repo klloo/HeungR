@@ -185,6 +185,8 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
             AddLyricsToStaffs(staffs, lyrics);
         }
 
+
+
         /* After making chord pairs, the stem directions can change,
          * which affects the staff height.  Re-calculate the staff height.
          */

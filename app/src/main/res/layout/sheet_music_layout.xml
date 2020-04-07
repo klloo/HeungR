@@ -3,4 +3,17 @@
     android:id="@+id/sheet_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" />
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/up_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ㅅ" />
+
+    <Button
+        android:id="@+id/down_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="v" />
+</LinearLayout>

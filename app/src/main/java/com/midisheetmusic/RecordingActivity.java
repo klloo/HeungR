@@ -28,8 +28,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.GenericArrayType;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.List;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -67,7 +69,6 @@ public class RecordingActivity extends AppCompatActivity implements
     ArrayList<Integer> arr = new ArrayList<>();
     ImageView imageview;
     ImageView countview;
-    ToggleButton playNstop;
     boolean done = true;
     int spinnerBPM = 60;
     int count = 0;
@@ -75,6 +76,7 @@ public class RecordingActivity extends AppCompatActivity implements
     SoundPool soundPool;
     int clap;
 
+    List<Integer> humming = new ArrayList<>();
 
 
     public int[] countArray = {R.drawable.count3, R.drawable.count2, R.drawable.count1};
@@ -97,7 +99,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         //tarsoDSP 객체 설정
         tarsosDSPAudioFormat=new TarsosDSPAudioFormat(TarsosDSPAudioFormat.Encoding.PCM_SIGNED, //encoding형식
-                22050, //sampleRate
+                60, //sampleRate
                 2 * 8, // SampleSizeInBit
                 1, // Channels
                 2 * 1, // frameSize
@@ -259,7 +261,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
         imageview = findViewById(R.id.imageView);
 
-        playNstop = (ToggleButton) findViewById(R.id.toggleButton);
 
         //bpm 설정
         spinner = findViewById(R.id.bpmSpinner);
@@ -282,35 +283,6 @@ public class RecordingActivity extends AppCompatActivity implements
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
-
-        //메트로놈 설정
-        playNstop.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //metronomeThread = new MetronomeThread();
-
-                if (playNstop.isChecked()) {
-                    metronomeThread = new MetronomeThread();
-
-                    metronomeThread.setBpm(spinnerBPM);
-                    metronomeThread.setImageView(imageview);
-                    metronomeThread.start();
-
-                    playNstop.setChecked(true);
-
-                } else {
-                    if (metronomeThread.isPlaying()) {
-                        metronomeThread.setPlaying(false);
-                        metronomeThread.interrupt();
-                        metronomeThread = null;
-                        playNstop.setChecked(false);
-                    }
-
-                    imageview.setImageResource(R.drawable.a1);
-                }
             }
         });
 
@@ -350,7 +322,7 @@ public class RecordingActivity extends AppCompatActivity implements
     public void recordAudio(){
         releaseDispatcher();
         dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050,1024,0);
-
+        humming.clear();
         try {
             RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
             AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
@@ -364,6 +336,9 @@ public class RecordingActivity extends AppCompatActivity implements
                         @Override
                         public void run() {
                             pitchTextView.setText(pitchInHz + "");
+                            humming.add((int) pitchInHz
+                            );
+
                         }
                     });
                 }
@@ -383,6 +358,8 @@ public class RecordingActivity extends AppCompatActivity implements
     public void stopRecording()
     {
         releaseDispatcher();
+
+        Log.d("TAG","humming\n"+ humming.toString());
     }
 
     public void releaseDispatcher(){

@@ -518,24 +518,24 @@ public class MidiFile {
         int denom = 0;
         for (ArrayList<MidiEvent> list : allevents) {
             for (MidiEvent mevent : list) {
-                if (mevent.Metaevent == MetaEventTempo) {
+                if (mevent.Metaevent == MetaEventTempo) { //tempo 평균내기위해서
                     // Take average of all tempos
                     tempo += mevent.Tempo;
                     tempoCount++;
                 }
                 if (mevent.Metaevent == MetaEventTimeSignature && numer == 0) {
                     numer = mevent.Numerator;
-                    denom = mevent.Denominator;
+                    denom = mevent.Denominator; // 박자 체크 3/4 이런거..
                 }
             }
         }
-        if (tempo == 0) {
+        if (tempo == 0) { //기본값인가?
             tempo = 500000; /* 500,000 microseconds = 0.05 sec */
         }
-        else {
+        else { //평균내기
             tempo = tempo / tempoCount;
         }
-        if (numer == 0) {
+        if (numer == 0) { // 기본값
             numer = 4; denom = 4;
         }
         timesig = new TimeSignature(numer, denom, quarternote, (int)tempo);
