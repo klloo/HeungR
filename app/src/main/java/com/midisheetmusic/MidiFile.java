@@ -432,6 +432,8 @@ public class MidiFile {
     /** Get the list of tracks */
     public ArrayList<MidiTrack> getTracks() { return tracks; }
 
+    public  ArrayList<ArrayList<MidiEvent>> getAllEvents (){ return allevents ; }
+
     /** Get the time signature */
     public TimeSignature getTime() { return timesig; }
 

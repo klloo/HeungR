@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.zip.CRC32;
 
 /**
@@ -162,42 +163,69 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     {
         MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
         int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
-        System.out.println(midiNote);
-        ((ChordSymbol) nextNote).changeNote(midiNote - 1);
 
-        for(int i=0;i<midifile.getTracks().size();i++){
-            for(int j=0;j<midifile.getTracks().get(i).getNotes().size();j++){
-                if (midifile.getTracks().get(i).getNotes().get(j).getStartTime() == (int)player.currentPulseTime) {
-                    midifile.getTracks().get(i).getNotes().get(j).setNumber(midiNote - 1);
-                    break;
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
+
+        for(int i=0;i<tracks.size();i++){
+            ArrayList<MidiEvent> events = allevents.get(i);
+
+            //i가 track num임
+            for (MidiTrack track : tracks) {
+                if (track.trackNumber() == i) {
+                    ArrayList<MidiNote> notes = track.getNotes();
+                    for(MidiNote note : notes){
+                        if(note.getStartTime() == (int)player.currentPulseTime){
+                            note.setNumber(midiNote -1);
+                            for (MidiEvent event : events) {
+                                if(event.StartTime == (int)player.currentPulseTime){
+                                    event.Notenumber = (byte)(midiNote -1);
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
 
         createSheetMusic(options);
+
     }
 
     public void upNote()
     {
         MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
         int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
-        System.out.println(midiNote);
-        ((ChordSymbol) nextNote).changeNote(midiNote + 1);
 
-        for(int i=0;i<midifile.getTracks().size();i++){
-            for(int j=0;j<midifile.getTracks().get(i).getNotes().size();j++){
-                if (midifile.getTracks().get(i).getNotes().get(j).getStartTime() == (int)player.currentPulseTime) {
-                    midifile.getTracks().get(i).getNotes().get(j).setNumber(midiNote + 1);
-                    break;
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
+
+        for(int i=0;i<tracks.size();i++){
+            ArrayList<MidiEvent> events = allevents.get(i);
+
+            //i가 track num임
+            for (MidiTrack track : tracks) {
+                if (track.trackNumber() == i) {
+                    ArrayList<MidiNote> notes = track.getNotes();
+                    for(MidiNote note : notes){
+                        if(note.getStartTime() == (int)player.currentPulseTime){
+                            note.setNumber(midiNote +1);
+                            for (MidiEvent event : events) {
+                                if(event.StartTime == (int)player.currentPulseTime){
+                                    event.Notenumber = (byte)(midiNote +1);
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-
         createSheetMusic(options);
+
     }
-
-
 
     /* Create the MidiPlayer and Piano views */
     void createViews() {
@@ -309,7 +337,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
 
-    /** Always display this activity in landscape mode. */
+
+
+
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

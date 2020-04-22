@@ -73,10 +73,18 @@ public class RecordingActivity extends AppCompatActivity implements
     int spinnerBPM = 60;
     int count = 0;
 
+    int sampleNumber = 0;
+    long startTime;
+    long now;
+    long length;
+    int gap1=0;
+    int gap2=0;
+
+
     SoundPool soundPool;
     int clap;
 
-    List<Integer> humming = new ArrayList<>();
+    List<Double> humming = new ArrayList<>();
 
 
     public int[] countArray = {R.drawable.count3, R.drawable.count2, R.drawable.count1};
@@ -98,12 +106,13 @@ public class RecordingActivity extends AppCompatActivity implements
         clap = soundPool.load(this, R.raw.clap, 1);
 
         //tarsoDSP 객체 설정
-        tarsosDSPAudioFormat=new TarsosDSPAudioFormat(TarsosDSPAudioFormat.Encoding.PCM_SIGNED, //encoding형식
-                60, //sampleRate
+        tarsosDSPAudioFormat=new TarsosDSPAudioFormat(
+                TarsosDSPAudioFormat.Encoding.PCM_SIGNED, //encoding형식
+                22050, //sampleRate
                 2 * 8, // SampleSizeInBit
                 1, // Channels
                 2 * 1, // frameSize
-                22050, //frameRate
+                22050*2,//frameRate
                 ByteOrder.BIG_ENDIAN.equals(ByteOrder.nativeOrder())); // 바이트 순서 형식
 
         pitchTextView = findViewById(R.id.pitchTextView);
@@ -229,6 +238,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
                                 mRecordingSampler.startRecording();
                                 //tarsoDSP
+                                now= SystemClock.currentThreadTimeMillis();
                                 recordAudio();
 
 
@@ -316,34 +326,43 @@ public class RecordingActivity extends AppCompatActivity implements
     @Override
     public void onCalculateVolume(int volume) {
         // for custom implement
-        Log.d(TAG, String.valueOf(volume));
+ //       Log.d(TAG, String.valueOf(volume));
     }
 
     public void recordAudio(){
         releaseDispatcher();
         dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050,1024,0);
+
         humming.clear();
+        startTime = SystemClock.currentThreadTimeMillis();
+
         try {
             RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
-            AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
-            dispatcher.addAudioProcessor(recordProcessor);
+          //  AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
+           // dispatcher.addAudioProcessor(recordProcessor);
 
             PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
                 @Override
                 public void handlePitch(PitchDetectionResult res, AudioEvent e){
                     final float pitchInHz = res.getPitch();
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            pitchTextView.setText(pitchInHz + "");
-                            humming.add((int) pitchInHz
-                            );
 
+                            pitchTextView.setText(pitchInHz + "");
+                            humming.add((double) pitchInHz);
+                            sampleNumber++;
+                            long temp = SystemClock.currentThreadTimeMillis() - now;
+                            Log.d("TAG", "Time : " + temp);
+                            now = SystemClock.currentThreadTimeMillis();
+                            gap1 += temp;
                         }
                     });
                 }
             };
 
+            //Algorithm 체크 해야할듯함 ( 잡음 제거라던지..)
             AudioProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pitchDetectionHandler);
             dispatcher.addAudioProcessor(pitchProcessor);
 
@@ -358,8 +377,26 @@ public class RecordingActivity extends AppCompatActivity implements
     public void stopRecording()
     {
         releaseDispatcher();
+        length = SystemClock.currentThreadTimeMillis() - startTime;
+        Log.d("TAG",sampleNumber +"개의 sample");
+        Log.d("TAG",length+"초 지남");
 
-        Log.d("TAG","humming\n"+ humming.toString());
+        gap1 /= sampleNumber;
+        gap2 = (int)(length/sampleNumber);
+
+        int  idx = 30;
+        for( int i = 0 ; i < humming.size() ; i++){
+            System.out.print(humming.get(i)+",");
+            idx--;
+            if( idx == 0 ){
+                idx = 30;
+                System.out.println();
+            }
+        }
+        Log.d("TAG","gap1 : " + gap1);
+        Log.d("TAG","gap2 : "+ gap2);
+
+
     }
 
     public void releaseDispatcher(){

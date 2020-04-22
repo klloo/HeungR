@@ -20,8 +20,11 @@ import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.ContactsContract;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebStorage;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -36,6 +39,7 @@ import com.mikepenz.materialdrawer.Drawer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -307,6 +311,7 @@ public class MidiPlayer extends LinearLayout {
         /* If we're paused, and using the same midi file, redraw the
          * highlighted notes.
          */
+
         if ((file == midifile && midifile != null && playstate == paused)) {
             options = opt;
             sheet = s;
@@ -317,6 +322,7 @@ public class MidiPlayer extends LinearLayout {
              */
             timer.removeCallbacks(TimerCallback);
             timer.postDelayed(ReShade, 500);
+
         }
         else {
             Reset();
@@ -324,8 +330,12 @@ public class MidiPlayer extends LinearLayout {
             options = opt;
             sheet = s;
             ScrollToStart();
+
         }
     }
+
+
+
 
     /** If we're paused, reshade the sheet music and piano. */
     Runnable ReShade = new Runnable() {
@@ -481,7 +491,6 @@ public class MidiPlayer extends LinearLayout {
             currentPulseTime = options.shifttime;
             prevPulseTime = options.shifttime - midifile.getTime().getQuarter();
         }
-
         CreateMidiFile();
         playstate = playing;
         PlaySound(tempSoundFile);

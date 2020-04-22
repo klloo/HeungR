@@ -34,14 +34,14 @@ import java.util.TimerTask;
  */
 public class RecordingSampler {
 
-    private static final int RECORDING_SAMPLE_RATE = 8000;
+    private static final int RECORDING_SAMPLE_RATE = 22050;
 
     private AudioRecord mAudioRecord;
     private boolean mIsRecording;
     private int mBufSize;
 
     private CalculateVolumeListener mVolumeListener;
-    private int mSamplingInterval = 100;
+    private int mSamplingInterval = 0;
     private Timer mTimer;
 
     private List<VisualizerView> mVisualizerViews = new ArrayList<>();
