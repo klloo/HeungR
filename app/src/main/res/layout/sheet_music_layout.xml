@@ -5,15 +5,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/up_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ㅅ" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/down_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="v" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/up_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ㅅ" />
+
+            <Button
+                android:id="@+id/down_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="v" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/save_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="save" />
+    </LinearLayout>
+
 </LinearLayout>

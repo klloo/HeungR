@@ -383,6 +383,25 @@ public class MidiPlayer extends LinearLayout {
         }
     }
 
+    public  void save(FileOutputStream fos){
+
+        double inverse_tempo = 1.0 / midifile.getTime().getTempo();
+        double inverse_tempo_scaled = inverse_tempo * speedBar.getProgress() / 100.0;
+        // double inverse_tempo_scaled = inverse_tempo * 100.0 / 100.0;
+        options.tempo = (int)(1.0 / inverse_tempo_scaled);
+        pulsesPerMsec = midifile.getTime().getQuarter() * (1000.0 / options.tempo);
+
+        try {
+            midifile.ChangeSound(fos, options);
+            fos.close();
+            // checkFile(tempSoundFile);
+        }
+        catch (IOException e) {
+            Toast toast = Toast.makeText(activity, "Error", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
     private void checkFile(String name) {
         try {
             FileInputStream in = activity.openFileInput(name);

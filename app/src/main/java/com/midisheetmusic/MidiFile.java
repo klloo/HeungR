@@ -924,6 +924,8 @@ public class MidiFile {
     }
 
 
+
+
     /** Clone the list of MidiEvents */
     private static ArrayList<ArrayList<MidiEvent>> 
     CloneMidiEvents(ArrayList<ArrayList<MidiEvent>> origlist) {
@@ -1022,6 +1024,8 @@ public class MidiFile {
      * before performing the write.
      * Return true if the file was saved successfully, else false.
      */
+
+
     public void ChangeSound(FileOutputStream destfile, MidiOptions options)
       throws IOException {
         Write(destfile, options);
@@ -1841,6 +1845,7 @@ public class MidiFile {
         System.out.print(f.toString());
         */
     }
+
 
 }  /* End class MidiFile */
 

@@ -48,10 +48,12 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.zip.CRC32;
@@ -70,14 +72,17 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     public static final int ID_LOOP_ENABLE = 10;
     public static final int ID_LOOP_START = 11;
     public static final int ID_LOOP_END = 12;
+    public Uri uri;
+    public String title;
 
     private MidiPlayer player;   /* The play/stop/rewind toolbar */
     private SheetMusic sheet;    /* The sheet music */
     private LinearLayout layout; /* The layout */
     private MidiFile midifile;   /* The midi file to play */
-    private MidiOptions options; /* The options for sheet music and sound */
+    public MidiOptions options; /* The options for sheet music and sound */
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
+
 
      /** Create this SheetMusicActivity.
       * The Intent should have two parameters:
@@ -103,13 +108,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         // Parse the MidiFile from the raw bytes
 
-        Uri uri = this.getIntent().getData();
+        uri = this.getIntent().getData();
         if (uri == null) {
             this.finish();
             return;
         }
 
-        String title = this.getIntent().getStringExtra(MidiTitleID);
+        title = this.getIntent().getStringExtra(MidiTitleID);
         if (title == null) {
             title = uri.getLastPathSegment();
         }
@@ -155,7 +160,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         Button downButton = findViewById(R.id.down_button);
         downButton.setOnClickListener(v -> downNote());
 
-
+        Button saveButton = findViewById(R.id.save_btn);
+        saveButton.setOnClickListener( v -> save());
     }
 
 
@@ -224,6 +230,27 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         }
 
         createSheetMusic(options);
+
+    }
+
+    public void save(){
+
+
+        FileOutputStream fos = null;
+        File file = new File( uri.getPath() );
+        Log.d("TAG", uri.getPath().toString());
+
+        try {
+            fos = new FileOutputStream(file);
+            Log.d("TAG", "heere");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d("TAG", e.toString() +"error");
+
+        }
+
+        player.save(fos);
 
     }
 
