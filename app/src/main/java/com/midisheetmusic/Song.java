@@ -1,14 +1,14 @@
 package com.midisheetmusic;
 
-
+/*
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.IgnoreExtraProperties;*/
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@IgnoreExtraProperties
+//@IgnoreExtraProperties
 public class Song {
 
     public String id;
@@ -40,7 +40,7 @@ public class Song {
         this.midi = midi;
     }
 
-    @Exclude
+   // @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("id", id);

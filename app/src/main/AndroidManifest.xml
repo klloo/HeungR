@@ -27,7 +27,6 @@
         <activity android:name=".FileBrowserActivity" />
         <activity android:name=".AllSongsActivity" />
         <activity android:name=".RecentSongsActivity" />
-        <activity android:name=".PlayActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
