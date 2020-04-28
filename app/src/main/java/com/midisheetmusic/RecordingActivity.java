@@ -730,6 +730,19 @@ public class RecordingActivity extends AppCompatActivity implements
 
         gap = (int)(length/sampleNumber);
 
+        int line = 0;
+        for(int i = 0 ; i < humming.size() ; i++){
+
+            System.out.print(humming.get(i) +",");
+            if( line == 20 ){
+                line = 0;
+                System.out.println("");
+            }
+            line ++;
+
+        }
+
+
 
         //MidiFile 생성
         MidiFileMaker midiFileMaker = new MidiFileMaker();
