@@ -240,10 +240,13 @@ public class RecordingActivity extends AppCompatActivity implements
 
                                 countview.setVisibility(View.GONE);
 
-                                mRecordingSampler.startRecording();
                                 //tarsoDSP
                                 now= SystemClock.currentThreadTimeMillis();
                                 recordAudio();
+
+
+                                mRecordingSampler.startRecording();
+
 
 
                                 //메트로놈
@@ -304,7 +307,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
     }
 
-    /* 아래 함수는 frequence를 Sequence로 만들기 위한 함수들 */
+
     public static int freq2MidiNum(double freq){
         int MidiNum = 0;
         int octa = 0;
@@ -326,26 +329,22 @@ public class RecordingActivity extends AppCompatActivity implements
         //계산
 
         //setp 1 옥타브 계산
-
-        {
-            if (C <= freq && freq < 2 * C)
-                octa = 1;
-            else if (2 * C <= freq && freq < 4 * C)
-                octa = 2;
-            else if (4 * C <= freq && freq < 8 * C)
-                octa = 3;
-            else if (8 * C <= freq && freq < 16 * C)
-                octa = 4;
-            else if (16 * C <= freq && freq < 32 * C)
-                octa = 5;
-            else if (32 * C <= freq && freq < 64 * C)
-                octa = 6;
-            else if (64 * C <= freq && freq < 128 * C)
-                octa = 7;
-            else if (128 * C <= freq && freq < 256 * C)
-                octa = 8;
-
-        }
+        if( C <= freq && freq < 2 * C)
+            octa = 1;
+        else if( 2 * C <= freq && freq < 4* C)
+            octa = 2;
+        else if( 4 * C <= freq && freq < 8 * C)
+            octa = 3;
+        else if(8 * C <= freq && freq < 16 * C)
+            octa = 4;
+        else if(16 * C <= freq && freq < 32 * C)
+            octa = 5;
+        else if(32 * C <= freq && freq < 64 * C)
+            octa = 6;
+        else if(64 * C <= freq && freq < 128 * C)
+            octa = 7;
+        else if(128 * C <= freq && freq < 256 * C)
+            octa = 8;
 
         mul = (int) pow(2, octa-1); // 1옥타브는 C 2옥타브는 C*2 3옥타브는 C * 2^2 4옥타브는 C*2^3
 
@@ -441,7 +440,7 @@ public class RecordingActivity extends AppCompatActivity implements
     }
 
     //음계 변환해서 list에 담고 return하는 함수
-    public static ArrayList<Integer> store(ArrayList<Double>  freq){
+    public static ArrayList<Integer> store(ArrayList<Double> freq){
         ArrayList<Integer> list = new ArrayList();
 
         for(int i =0; i<freq.size(); i++){
@@ -457,11 +456,15 @@ public class RecordingActivity extends AppCompatActivity implements
 
         return list;
     }
+
     // 녹음 된 시간 측정...
     public static double CalSec(double size){
+
         double sec = size/60.0;
         return  sec;
     }
+
+
     //음계저장한 리스트를 개수 뽑아서 "1차 시퀀스(음계, 개수)" 로 나타내기
     public static ArrayList<Integer> CountMidiNum(ArrayList<Integer> scalelist) {
 
@@ -504,6 +507,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         return Sequence1; //{음계, 음계개수}
     }
+
     //2차 시퀀스(1차 시퀀스 정리 및 개수를 노트로 변환)
     public static ArrayList<Integer> ReturnSequence(ArrayList<Integer> Sequence1, int gap, int bpm){
 
@@ -770,7 +774,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         midiFileMaker.setTempo(60);
-        midiFileMaker.setTimeSignature(4,4);
+        midiFileMaker.setTimeSignature(2,4);
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
 
