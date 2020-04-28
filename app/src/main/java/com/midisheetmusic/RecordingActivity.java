@@ -326,6 +326,7 @@ public class RecordingActivity extends AppCompatActivity implements
         //계산
 
         //setp 1 옥타브 계산
+
         {
             if (C <= freq && freq < 2 * C)
                 octa = 1;
@@ -344,98 +345,116 @@ public class RecordingActivity extends AppCompatActivity implements
             else if (128 * C <= freq && freq < 256 * C)
                 octa = 8;
 
-            mul = (int) pow(2, octa - 1); // 1옥타브는 C 2옥타브는 C*2 3옥타브는 C * 2^2 4옥타브는 C*2^3
-
-            //setp 2 음정 계산
-
-            if (freq >= (C * mul) && freq < (Db * mul)) {
-                //C
-                if ((freq - (C * mul)) <= ((Db * mul) - freq))
-                    MidiNum = 12 * octa + 12;
-                else // Db
-                    MidiNum = 12 * octa + 12 + 1;
-            } else if (freq >= (Db * mul) && freq < (D * mul)) {
-                //Db
-                if ((freq - (Db * mul)) <= ((D * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 1;
-                else //D
-                    MidiNum = 12 * octa + 12 + 2;
-            } else if (freq >= (D * mul) && freq < (Eb * mul)) {
-                //D
-                if ((freq - (D * mul)) <= ((Eb * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 2;
-                else // Eb
-                    MidiNum = 12 * octa + 12 + 3;
-            } else if (freq >= (Eb * mul) && freq < (E * mul)) {
-                //Eb
-                if ((freq - (Eb * mul)) <= ((E * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 3;
-                else // E
-                    MidiNum = 12 * octa + 12 + 4;
-            } else if (freq >= (E * mul) && freq < (F * mul)) {
-                //E
-                if ((freq - (E * mul)) <= ((F * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 4;
-                else // F
-                    MidiNum = 12 * octa + 12 + 5;
-            } else if (freq >= (F * mul) && freq <= (Gb * mul)) {
-                //F
-                if ((freq - (F * mul)) <= ((Gb * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 5;
-                else // Gb
-                    MidiNum = 12 * octa + 12 + 6;
-            } else if (freq >= (Gb * mul) && freq < (G * mul)) {
-                //Gb
-                if ((freq - (Gb * mul)) <= ((G * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 6;
-                else // G
-                    MidiNum = 12 * octa + 12 + 7;
-            } else if (freq >= (G * mul) && freq < (Ab * mul)) {
-                //G
-                if ((freq - (G * mul)) <= ((Ab * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 7;
-                else // Ab
-                    MidiNum = 12 * octa + 12 + 8;
-            } else if (freq >= (Ab * mul) && freq < (A * mul)) {
-                //Ab
-                if ((freq - (Ab * mul)) <= ((A * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 8;
-                else // A
-                    MidiNum = 12 * octa + 12 + 9;
-            } else if (freq >= (A * mul) && freq < (Bb * mul)) {
-                //A
-                if ((freq - (A * mul)) <= ((Bb * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 9;
-                else
-                    MidiNum = 12 * octa + 12 + 10;
-            } else if (freq >= (Bb * mul) && freq < (B * mul)) {
-                //Bb
-                if ((freq - (Bb * mul)) <= ((B * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 10;
-                else // B
-                    MidiNum = 12 * octa + 12 + 11;
-            } else if (freq >= (B * mul) && freq < (2 * C * mul)) {
-                //B
-                if ((freq - (B * mul)) <= ((2 * C * mul) - freq))
-                    MidiNum = 12 * octa + 12 + 11;
-                else // C
-                    MidiNum = 12 * octa + 12 + 12;
-            }
         }
-        //       System.out.println("octa " + octa + " freq  "+freq + " || MidiNum" + MidiNum);
 
+        mul = (int) pow(2, octa-1); // 1옥타브는 C 2옥타브는 C*2 3옥타브는 C * 2^2 4옥타브는 C*2^3
+
+        //setp 2 음정 계산
+
+        if(freq >= (C * mul) && freq < ( Db* mul )) {
+            //C
+            if( (freq - (C* mul)) <= ((Db*mul) - freq) )
+                MidiNum = 12 * octa + 12;
+            else // Db
+                MidiNum = 12 * octa + 12 + 1;
+        }
+        else if(freq >= (Db * mul)  && freq < (D* mul)) {
+            //Db
+            if( (freq - (Db* mul)) <= ((D*mul) - freq) )
+                MidiNum = 12 * octa + 12 + 1 ;
+            else //D
+                MidiNum = 12 * octa + 12 + 2;
+        }
+        else if(freq >= (D * mul) && freq < (Eb* mul)) {
+            //D
+            if( (freq - (D* mul)) <= ((Eb*mul) - freq) )
+                MidiNum = 12 * octa + 12 + 2 ;
+            else // Eb
+                MidiNum = 12 * octa + 12 + 3;
+        }
+        else if(freq >= (Eb * mul) && freq < (E* mul)) {
+            //Eb
+            if( (freq - (Eb* mul)) <= ((E*mul) - freq) )
+                MidiNum = 12 * octa + 12 + 3 ;
+            else // E
+                MidiNum = 12 * octa + 12 + 4;
+        }
+        else if(freq >= (E * mul) && freq < (F* mul)) {
+            //E
+            if( (freq - (E* mul)) <= ((F*mul) - freq) )
+                MidiNum = 12 * octa + 12 + 4 ;
+            else // F
+                MidiNum = 12 * octa + 12 + 5;
+        }
+        else if(freq >= (F * mul) && freq <= (Gb* mul)) {
+            //F
+            if( (freq - (F* mul)) <= ((Gb*mul) - freq) )
+                MidiNum = 12 * octa +12 + 5 ;
+            else // Gb
+                MidiNum = 12 *octa + 12 + 6;
+        }
+        else if(freq >= (Gb * mul) && freq < (G* mul)) {
+            //Gb
+            if( (freq - (Gb* mul)) <= ((G*mul) - freq) )
+                MidiNum = 12 * octa +12 + 6 ;
+            else // G
+                MidiNum = 12 * octa + 12 + 7;
+        }
+        else if(freq >= (G * mul)  && freq < (Ab * mul)) {
+            //G
+            if( (freq - (G* mul)) <= ((Ab*mul) - freq) )
+                MidiNum = 12 * octa +12 + 7 ;
+            else // Ab
+                MidiNum = 12 * octa + 12 + 8;
+        }
+        else if(freq >= (Ab * mul) && freq < (A* mul)) {
+            //Ab
+            if( (freq - (Ab* mul)) <= ((A*mul) - freq) )
+                MidiNum = 12 * octa +12 + 8 ;
+            else // A
+                MidiNum = 12 * octa + 12 + 9;
+        }
+        else if(freq >= (A * mul) && freq < (Bb* mul)) {
+            //A
+            if( (freq - (A* mul)) <= ((Bb*mul) - freq) )
+                MidiNum = 12 * octa +12 + 9 ;
+            else
+                MidiNum = 12 * octa + 12 +10;
+        }
+        else if(freq >= (Bb * mul) && freq < (B* mul)) {
+            //Bb
+            if( (freq - (Bb* mul)) <= ((B*mul) - freq) )
+                MidiNum = 12 * octa +12 + 10 ;
+            else // B
+                MidiNum = 12 * octa + 12 + 11;
+        }
+        else if(freq >= (B * mul) && freq < (2 * C * mul)) {
+            //B
+            if( (freq - (B* mul)) <= ((C*mul) - freq) )
+                MidiNum = 12 * octa +12 + 11 ;
+            else // C
+                MidiNum = 12 * octa + 12 + 12;
+        }
+
+        //       System.out.println("octa " + octa + " freq  "+freq + " || MidiNum" + MidiNum);
         return MidiNum;
     }
+
     //음계 변환해서 list에 담고 return하는 함수
-    public static ArrayList<Integer> store( ArrayList<Double>  freq){
+    public static ArrayList<Integer> store(ArrayList<Double>  freq){
         ArrayList<Integer> list = new ArrayList();
+
         for(int i =0; i<freq.size(); i++){
-            if( freq.get(i) == -1){
-                list.add(0);
+            if(freq.get(i) == -1){
+                list.add(-1);
+                System.out.println(list.get(i)+" ");
                 continue;
             }
+
             list.add(freq2MidiNum(freq.get(i)));
+            System.out.println(list.get(i));
         }
+
         return list;
     }
     // 녹음 된 시간 측정...
@@ -536,7 +555,6 @@ public class RecordingActivity extends AppCompatActivity implements
         for (int i = 1; i < Sequence2.size(); i += 2) {
             System.out.println("Second - MidiNum:" + Sequence2.get(i - 1) + " || Counts:" + Sequence2.get(i));
         }
-/*
         System.out.println("\n");
 
         System.out.println("온음표 개수:"+white_note+" note:"+SEMIBREVE);
@@ -547,7 +565,6 @@ public class RecordingActivity extends AppCompatActivity implements
         System.out.println("점8분음표 개수:"+dot_eighth_note+" note:"+(QUAVER + SEMIQUAVER));
         System.out.println("8분음표 개수:"+eighth_note+" note:"+QUAVER);
         System.out.println("16분음표 개수:"+sixteenth_note+" note:"+SEMIQUAVER);
-*/
 
         int midi;
         int i = -1;
@@ -642,7 +659,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         }
         for ( i = 1; i < Sequence2.size(); i += 2) {
-            //          System.out.println("Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
+            System.out.println("Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
         }
 
         return Sequence2;
