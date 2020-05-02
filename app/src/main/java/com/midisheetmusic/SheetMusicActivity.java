@@ -141,7 +141,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         crc.update(data);
         midiCRC = crc.getValue();
         SharedPreferences settings = getPreferences(0);
-        options.scrollVert = settings.getBoolean("scrollVert", false);
+        options.scrollVert = settings.getBoolean("scrollVert", true);
         options.shade1Color = settings.getInt("shade1Color", options.shade1Color);
         options.shade2Color = settings.getInt("shade2Color", options.shade2Color);
         String json = settings.getString("" + midiCRC, null);
@@ -151,7 +151,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         }
 
 
-        Log.d("TAG", "3");
         createViews();
 
         Button testButton = findViewById(R.id.up_button);
@@ -318,7 +317,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 )
                 .inflateMenu(R.menu.sheet_menu)
                 .withOnDrawerItemClickListener((view, i, item) -> drawerItemClickListener(item))
-                .withDrawerGravity(Gravity.RIGHT)
+                .withDrawerGravity(Gravity.LEFT)
                 .build();
 
 

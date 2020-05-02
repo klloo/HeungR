@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
@@ -21,10 +22,15 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,13 +56,7 @@ public class RecordingActivity extends AppCompatActivity implements
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final int RequestPermissionCode = 1;
 
-    // Recording Info
-    private RecordingSampler mRecordingSampler;
 
-    // View
-    private VisualizerView mVisualizerView;
-    private VisualizerView mVisualizerView2;
-    private VisualizerView mVisualizerView3;
     private FloatingActionButton mFloatingActionButton;
 
 
@@ -72,20 +72,14 @@ public class RecordingActivity extends AppCompatActivity implements
     public int[] countArray = {R.drawable.count3, R.drawable.count2, R.drawable.count1};
 
 
-    //tarsoDSP
-    TarsosDSPAudioFormat tarsosDSPAudioFormat;
-    AudioDispatcher dispatcher;
-    File file;
-    TextView pitchTextView;
-    String filename = "recorded_sound.wav";
-
+    boolean isRecording = false;
 
     int spinnerBPM = 60;
     int count = 0;
     int sampleNumber = 0;
-    long startTime;
+    Long startTime;
     long now;
-    long length;
+    Long length;
     int gap=0;
 
 
@@ -103,6 +97,28 @@ public class RecordingActivity extends AppCompatActivity implements
     private Context context;
 
 
+
+    //tarsoDSP
+  //  TarsosDSPAudioFormat tarsosDSPAudioFormat;
+  //  AudioDispatcher dispatcher;
+ //   File file;
+    TextView pitchTextView;
+  //  String filename = "recorded_sound.wav";
+
+
+
+
+    AudioDispatcher dispatcher;
+    AudioProcessor pitchProcessor;
+    Thread audioThread;
+    GraphView realTimeGraph;
+    Boolean recordState = false;
+
+    private LineGraphSeries<DataPoint> realTimeSeries; //Series for real-time realTimeGraph
+    private double graphLastXValue = 1d;
+    ArrayList<Point> recordedPoints;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,21 +126,9 @@ public class RecordingActivity extends AppCompatActivity implements
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.clap, 1);
-
-        //tarsoDSP 객체 설정
-        tarsosDSPAudioFormat=new TarsosDSPAudioFormat(
-                TarsosDSPAudioFormat.Encoding.PCM_SIGNED, //encoding형식
-                22050, //sampleRate
-                2 * 8, // SampleSizeInBit
-                1, // Channels
-                2 * 1, // frameSize
-                22050*2,//frameRate
-                ByteOrder.BIG_ENDIAN.equals(ByteOrder.nativeOrder()) // 바이트 순서 형식
-        );
-
         pitchTextView = findViewById(R.id.pitchTextView);
-        File sdCard = Environment.getExternalStorageDirectory();
-        file = new File(sdCard, filename);
+
+
 
         countview = findViewById(R.id.countView);
         imageview = findViewById(R.id.imageView);
@@ -138,47 +142,9 @@ public class RecordingActivity extends AppCompatActivity implements
             readyThread.setImageView( (ImageView) countview);
         }
 
-        {
-            mVisualizerView = (VisualizerView) findViewById(R.id.visualizer);
-            ViewTreeObserver observer = mVisualizerView.getViewTreeObserver();
-            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    mVisualizerView.setBaseY(mVisualizerView.getHeight());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
-                        mVisualizerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    } else {
-                        mVisualizerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    }
-                }
-            });
-        }
-        {
-            mVisualizerView2 = (VisualizerView) findViewById(R.id.visualizer2);
-            ViewTreeObserver observer = mVisualizerView2.getViewTreeObserver();
-            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    mVisualizerView2.setBaseY(mVisualizerView2.getHeight() / 5);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        mVisualizerView2.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    } else {
-                        mVisualizerView2.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    }
-                }
-            });
-        }
-        mVisualizerView3 = (VisualizerView) findViewById(R.id.visualizer3);
+
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-
-        // create AudioRecord
-        mRecordingSampler = new RecordingSampler();
-        mRecordingSampler.setVolumeListener(this);
-        mRecordingSampler.setSamplingInterval(100);
-        mRecordingSampler.link(mVisualizerView);
-        mRecordingSampler.link(mVisualizerView2);
-        mRecordingSampler.link(mVisualizerView3);
 
 
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -188,14 +154,12 @@ public class RecordingActivity extends AppCompatActivity implements
                 Log.d("TAG", "Icon Clicked");
                 if(checkPermission()) {
 
-                    Log.d("TAG", "OK");
-                    if (mRecordingSampler.isRecording()) {
+                    if (isRecording) {
 
-                        //녹음 끝나고 바로 넘길거면 여기다가 다음 액티비티로 넘기는 코드 넣으면 됨 그리고 어떤 파일 형식을 원하는지 몰라서 일단 놔뒀음 RecordingSampler 함수에서 뭐 getAudioSource이런거 만들어서 넘기면 될듯
+                        isRecording = false;
 
 
                         mFloatingActionButton.setImageResource(R.drawable.ic_mic);
-                        mRecordingSampler.stopRecording();
 
                         //tasroDSP
                         stopRecording();
@@ -208,10 +172,12 @@ public class RecordingActivity extends AppCompatActivity implements
                         }
 
                         imageview.setImageResource(R.drawable.a1);
+                    }
 
 
+                    else { // 녹음 시작
 
-                    } else { // 녹음 시작
+                        isRecording = true;
 
                         metronomeThread = new MetronomeThread();
                         metronomeThread.setBpm(spinnerBPM);
@@ -231,23 +197,14 @@ public class RecordingActivity extends AppCompatActivity implements
                                 count++;
                                 Log.d("TAG", "Count "+ (count+1) );
 
-
                             }
 
                             public void onFinish() {
-                                //mTextField.setText("done!");
-                                // mTextField.setVisibility(View.GONE);
-
                                 countview.setVisibility(View.GONE);
 
                                 //tarsoDSP
                                 now= SystemClock.currentThreadTimeMillis();
-                                recordAudio();
-
-
-                                mRecordingSampler.startRecording();
-
-
+                                initPitcher();
 
                                 //메트로놈
                                 metronomeThread.start();
@@ -255,20 +212,13 @@ public class RecordingActivity extends AppCompatActivity implements
                             }
                         }.start();
 
-
-
                     }
-
 
                 } else {
 
                     Log.d("TAG", "No");
                     requestPermission();
                 }
-
-
-
-
 
             }
         });
@@ -302,6 +252,27 @@ public class RecordingActivity extends AppCompatActivity implements
 
             }
         });
+
+
+
+
+
+
+        realTimeGraph = findViewById(R.id.realTimeGraph);
+
+        realTimeSeries = new LineGraphSeries<>();
+        realTimeSeries.setColor(Color.rgb(0xF1,0x70,0x68));
+        realTimeSeries.setDataPointsRadius(50);
+        realTimeSeries.setThickness(10);
+        realTimeGraph.addSeries(realTimeSeries);
+        realTimeGraph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        realTimeGraph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+
+        realTimeGraph.getViewport().setXAxisBoundsManual(true);
+        realTimeGraph.getViewport().setMinX(0);
+        realTimeGraph.getViewport().setMaxX(100);
+        realTimeGraph.getViewport().setMinY(-1);
+        realTimeGraph.getViewport().setMaxY(300);
 
 
 
@@ -511,13 +482,22 @@ public class RecordingActivity extends AppCompatActivity implements
     //2차 시퀀스(1차 시퀀스 정리 및 개수를 노트로 변환)
     public static ArrayList<Integer> ReturnSequence(ArrayList<Integer> Sequence1, int gap, int bpm){
 
+        int quarter_len ; // 4분음표의 길이 단위 : Milli second
         int quarter_note; //4분음표 결정개수
         int sixteenth_note;
+
+        quarter_len = 60 / bpm *1000;
+
+        quarter_note = quarter_len / gap;
+
+        /*
         if(bpm ==180){
             quarter_note = 25/gap;
         }
-        else if(bpm == 120) quarter_note = 50/gap;
-        else quarter_note = 100/gap;//(bpm == 60)
+        else if(bpm == 120)
+            quarter_note = 50/gap;
+        else
+            quarter_note = 100/gap;//(bpm == 60)*/
 
         int white_note = quarter_note*4; //온음표
         int dot_half_note = quarter_note*3;
@@ -684,7 +664,6 @@ public class RecordingActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
 
-        mRecordingSampler.release();
 
      /*   //메트로놈 정지
         metronomeThread.setPlaying(false);
@@ -700,57 +679,21 @@ public class RecordingActivity extends AppCompatActivity implements
  //       Log.d(TAG, String.valueOf(volume));
     }
 
-    public void recordAudio(){
-        releaseDispatcher();
-        dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050,1024,0);
 
-        humming.clear();
-        startTime = SystemClock.currentThreadTimeMillis();
-        try {
-            RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
-          //  AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
-           // dispatcher.addAudioProcessor(recordProcessor);
-
-            PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
-                @Override
-                public void handlePitch(PitchDetectionResult res, AudioEvent e){
-                    final float pitchInHz = res.getPitch();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            pitchTextView.setText(pitchInHz + "");
-                            humming.add((double) pitchInHz);
-                            sampleNumber++;
-                            now = SystemClock.currentThreadTimeMillis();
-
-                        }
-                    });
-                }
-            };
-
-            //Algorithm 체크 해야할듯함 ( 잡음 제거라던지..)
-            AudioProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pitchDetectionHandler);
-            dispatcher.addAudioProcessor(pitchProcessor);
-
-            Thread audioThread = new Thread(dispatcher, "Audio Thread");
-            audioThread.start();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void stopRecording(){
+        length = SystemClock.elapsedRealtime() - startTime;
+        Log.d("TAG", "clock END!!! ");
+
         releaseDispatcher();
-        length = SystemClock.currentThreadTimeMillis() - startTime;
-        Log.d("TAG",sampleNumber +"개의 sample");
-        Log.d("TAG",length+"초 지남");
-
-
         gap = (int)(length/sampleNumber);
 
+
+        Log.d("TAG",sampleNumber +"개의 sample");
+        Log.d("TAG",length+" MiilliSec");
+        Log.d("TAG", "gap : "+ gap);
+
+        //출력
         int line = 0;
         for(int i = 0 ; i < humming.size() ; i++){
 
@@ -814,6 +757,106 @@ public class RecordingActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         releaseDispatcher();
+    }
+
+
+    /*
+        public void recordAudio(){
+            releaseDispatcher();
+            dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050,1024,0);
+
+            humming.clear();
+            startTime = SystemClock.currentThreadTimeMillis();
+            try {
+                RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
+              //  AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
+               // dispatcher.addAudioProcessor(recordProcessor);
+
+                PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
+                    @Override
+                    public void handlePitch(PitchDetectionResult res, AudioEvent e){
+                        final float pitchInHz = res.getPitch();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                pitchTextView.setText(pitchInHz + "");
+                                humming.add((double) pitchInHz);
+                                sampleNumber++;
+                                now = SystemClock.currentThreadTimeMillis();
+
+                            }
+                        });
+                    }
+                };
+
+                //Algorithm 체크 해야할듯함 ( 잡음 제거라던지..)
+                AudioProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pitchDetectionHandler);
+                dispatcher.addAudioProcessor(pitchProcessor);
+
+                Thread audioThread = new Thread(dispatcher, "Audio Thread");
+                audioThread.start();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+    public void initPitcher()
+    {
+        humming.clear();
+
+        dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 2048 , 1024);
+
+        PitchDetectionHandler pdh = new PitchDetectionHandler() {
+            @Override
+            public void handlePitch(PitchDetectionResult res, AudioEvent e){
+                final float pitchInHz = res.getPitch();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        processPitch(pitchInHz);
+                    }
+                });
+            }
+        };
+        pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 2048, pdh);
+        dispatcher.addAudioProcessor(pitchProcessor);
+        audioThread = new Thread(dispatcher, "Audio Thread");
+
+        startTime = SystemClock.elapsedRealtime();
+        Log.d("TAG", "clock Start!!! ");
+        audioThread.start();
+    }
+
+
+    public void processPitch(float pitchInHz){
+
+
+
+        pitchTextView.setText(pitchInHz +"" );
+        humming.add((double) pitchInHz);
+        sampleNumber++;
+
+
+        if (pitchInHz < 0)
+            pitchInHz = 20;
+
+        graphLastXValue += 1d;
+        realTimeSeries.appendData(new DataPoint(graphLastXValue, pitchInHz), true, 300);
+    }
+
+    class Point{
+        public double t;
+        public float x;
+
+        public Point(double t, float x)
+        {
+            this.t = t;
+            this.x = x;
+        }
     }
 
 }

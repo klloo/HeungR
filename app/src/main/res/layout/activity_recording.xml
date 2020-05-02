@@ -17,47 +17,20 @@
         <LinearLayout
             android:id="@+id/vLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.midisheetmusic.VisualizerView
-                android:id="@+id/visualizer"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:background="@android:color/black"
-                app:numColumns="4"
-                app:renderColor="@color/renderColor"
-                app:renderRange="top"
-                app:renderType="bar|fade" />
-
-
-            <com.midisheetmusic.VisualizerView
-                android:id="@+id/visualizer2"
-                android:layout_width="50dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center_horizontal|top"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:background="@android:color/background_light"
-                app:numColumns="10"
-                app:renderColor="@color/renderColor2"
-                app:renderRange="bottom"
-                app:renderType="pixel|fade" />
-
-            <com.midisheetmusic.VisualizerView
-                android:id="@+id/visualizer3"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_gravity="center_horizontal|bottom"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:background="@android:color/darker_gray"
-                app:numColumns="100"
-                app:renderColor="@color/renderColor3"
-                app:renderRange="both"
-                app:renderType="bar">
+                android:layout_height="400dp">
 
-            </com.midisheetmusic.VisualizerView>
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/realTimeGraph"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/pitchTextView"
@@ -68,14 +41,14 @@
 
             <Spinner
                 android:id="@+id/bpmSpinner"
-                android:layout_width="409dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="MissingConstraints" />
 
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="300dp"
                 app:srcCompat="@drawable/a1" />
 
 

@@ -58,4 +58,6 @@ dependencies {
 
     //tarsoDSP
     implementation files('libs/TarsosDSP-latest.jar')
+    implementation 'com.jjoe64:graphview:4.1.0'
+
 }
