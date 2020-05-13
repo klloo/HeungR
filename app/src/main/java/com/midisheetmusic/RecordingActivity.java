@@ -710,13 +710,12 @@ public class RecordingActivity extends AppCompatActivity implements
 
         //MidiFile 생성
         MidiFileMaker midiFileMaker = new MidiFileMaker();
-        //ArrayList<Integer> scalelist = store(humming);
-        //ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
+        ArrayList<Integer> scalelist = store(humming);
+        ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
 
-        //ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
 
-        ArrayList<Integer> sequence = new ArrayList<>();
-        sequence.add(60); sequence.add(65); sequence.add(68); sequence.add(70);
+        ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
+
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(2,4);
@@ -728,11 +727,9 @@ public class RecordingActivity extends AppCompatActivity implements
             dir.mkdirs();
         }
 
-        ArrayList<Integer> banju = new ArrayList<>();
-        banju.add(62); banju.add(64);
 
         File file = new File(dir, "file.mid") ;
-        midiFileMaker.writeToFile (file,banju,127);
+        midiFileMaker.writeToFile (file);
 
 
 
