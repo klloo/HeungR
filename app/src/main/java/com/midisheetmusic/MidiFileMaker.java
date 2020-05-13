@@ -53,9 +53,9 @@ class MidiFileMaker {
 
                     0x4d, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06,
 
-                    0x00, 0x00, // single-track format
+                    0x00, 0x01, // single-track format -> format 1
 
-                    0x00, 0x01, // one track
+                    0x00, 0x03, // one track -> three tracks
 
                     0x00, 0x10, // 16 ticks per quarter
 
@@ -132,6 +132,7 @@ class MidiFileMaker {
 // The collection of events to play, in time order
 
     protected Vector<int[]> playEvents;
+    protected Vector<int[]> bplayEvents;
 
 
     /**
@@ -141,7 +142,7 @@ class MidiFileMaker {
     public MidiFileMaker() {
 
         playEvents = new Vector<int[]>();
-
+        bplayEvents = new Vector<int[]>();
     }
 
 
@@ -149,7 +150,14 @@ class MidiFileMaker {
      * Write the stored MIDI events to a file
      */
 
-    public void writeToFile(File file) { //throws IOException {
+
+    static final int trackHeader[] = new int[]
+            {
+
+                    0x4d, 0x54, 0x72, 0x6B
+            };
+
+    public void writeToFile(File file, ArrayList<Integer> sequence, int velocity) { //throws IOException {
 
 
         FileOutputStream fos = null;
@@ -162,6 +170,7 @@ class MidiFileMaker {
 
 
         try {
+
             fos.write(intArrayToByteArray(header));
 
             // Calculate the amount of track data
@@ -175,10 +184,6 @@ class MidiFileMaker {
 
                     + footer.length;
 
-
-            for (int i = 0; i < playEvents.size(); i++)
-
-                size += playEvents.elementAt(i).length;
 
 
             // Write out the track data size in big-endian format
@@ -210,12 +215,112 @@ class MidiFileMaker {
 
             fos.write(intArrayToByteArray(timeSigEvent));
 
+            fos.write(intArrayToByteArray(footer));
 
-            // Write out the note, etc., events
+
+
+            // 멜로디 작성
+
+            fos.write(intArrayToByteArray(trackHeader));
+            size = footer.length;
+            for (int i = 0; i < playEvents.size(); i++)
+                size += playEvents.elementAt(i).length;
+            high = size / 256;
+
+            low = size - (high * 256);
+
+            fos.write((byte) 0);
+
+            fos.write((byte) 0);
+
+            fos.write((byte) high);
+
+            fos.write((byte) low);
 
             for (int i = 0; i < playEvents.size(); i++) {
 
                 fos.write(intArrayToByteArray(playEvents.elementAt(i)));
+
+            }
+            // Write the footer
+            fos.write(intArrayToByteArray(footer));
+
+
+            //반주 이벤트
+            boolean lastWasRest = false;
+
+            int restDelta = 0;
+
+            for (int i = 0; i < sequence.size(); i += 2) {
+
+                int note = sequence.get(i);
+
+                int duration = sequence.get(i + 1);
+
+                if (note < 0) {
+
+                    // This is a rest
+
+                    restDelta += duration;
+
+                    lastWasRest = true;
+
+                } else {
+
+                    // A note, not a rest
+
+                    if (lastWasRest) {
+
+                        bnoteOn(restDelta, note, velocity);
+
+                        bnoteOff(duration, note);
+
+                    } else {
+
+                        bnoteOn(0, note, velocity);
+
+                        bnoteOff(duration, note);
+
+                    }
+
+                    restDelta = 0;
+
+                    lastWasRest = false;
+
+                }
+
+            }
+
+            //반주 작성
+
+
+            // Write the standard metadata — tempo, etc
+
+            // At present, tempo is stuck at crotchet=60
+
+
+
+            // Write out the note, etc., events
+
+            fos.write(intArrayToByteArray(trackHeader));
+            size = footer.length;
+            for (int i = 0; i < bplayEvents.size(); i++)
+                size += bplayEvents.elementAt(i).length;
+            high = size / 256;
+
+            low = size - (high * 256);
+
+            fos.write((byte) 0);
+
+            fos.write((byte) 0);
+
+            fos.write((byte) high);
+
+            fos.write((byte) low);
+
+            for (int i = 0; i < bplayEvents.size(); i++) {
+
+                fos.write(intArrayToByteArray(bplayEvents.elementAt(i)));
 
             }
 
@@ -234,6 +339,48 @@ class MidiFileMaker {
 
 
     }
+
+
+
+    public void bnoteOn(int delta, int note, int velocity) {
+
+        int[] data = new int[4];
+
+        data[0] = delta;
+
+        data[1] = 0x90;
+
+        data[2] = note;
+
+        data[3] = velocity;
+
+        bplayEvents.add(data);
+
+    }
+
+
+    /**
+     * Store a note-off event
+     */
+
+    public void bnoteOff(int delta, int note) {
+
+        int[] data = new int[4];
+
+        data[0] = delta;
+
+        data[1] = 0x80;
+
+        data[2] = note;
+
+        data[3] = 0;
+
+        bplayEvents.add(data);
+
+    }
+
+
+
 
 
     /**
