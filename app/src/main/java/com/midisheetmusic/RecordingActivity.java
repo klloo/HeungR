@@ -761,6 +761,7 @@ public class RecordingActivity extends AppCompatActivity implements
         releaseDispatcher();
     }
 
+//Yujin Branch
 
     /*
         public void recordAudio(){
