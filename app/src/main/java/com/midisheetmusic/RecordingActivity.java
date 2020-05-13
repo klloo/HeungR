@@ -718,7 +718,7 @@ public class RecordingActivity extends AppCompatActivity implements
         ArrayList<Integer> sequence = new ArrayList<>();
         sequence.add(60); sequence.add(65); sequence.add(68); sequence.add(70);
 
-        midiFileMaker.setTempo(60);
+        midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(2,4);
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
@@ -821,12 +821,13 @@ public class RecordingActivity extends AppCompatActivity implements
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         processPitch(pitchInHz);
                     }
                 });
             }
         };
+
+
         pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 2048, pdh);
         dispatcher.addAudioProcessor(pitchProcessor);
         audioThread = new Thread(dispatcher, "Audio Thread");
@@ -844,7 +845,6 @@ public class RecordingActivity extends AppCompatActivity implements
         pitchTextView.setText(pitchInHz +"" );
         humming.add((double) pitchInHz);
         sampleNumber++;
-
 
         if (pitchInHz < 0)
             pitchInHz = 20;
