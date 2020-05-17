@@ -39,17 +39,40 @@
                 android:text="TextView"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-            <Spinner
-                android:id="@+id/bpmSpinner"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:ignore="MissingConstraints" />
+                android:layout_height="64dp">
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="wrap_content"
-                android:layout_height="300dp"
-                app:srcCompat="@drawable/a1" />
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="215dp"
+                    android:layout_height="108dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/sleep" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="110dp"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/bpmSpinner"
+                    android:layout_width="199dp"
+                    android:layout_height="43dp"
+                    tools:ignore="MissingConstraints" />
+
+                <Spinner
+                    android:id="@+id/measureSpinner"
+                    android:layout_width="258dp"
+                    android:layout_height="43dp"
+                    android:layout_weight="1"
+                    tools:ignore="MissingConstraints" />
+
+            </LinearLayout>
 
 
         </LinearLayout>

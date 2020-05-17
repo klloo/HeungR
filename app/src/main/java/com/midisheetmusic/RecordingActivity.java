@@ -63,8 +63,10 @@ public class RecordingActivity extends AppCompatActivity implements
     //Metronome
     ReadyThread readyThread = new ReadyThread();
     MetronomeThread metronomeThread; //= new MetronomeThread();
-    Spinner spinner;
+    Spinner spinnerBpm;
+    Spinner spinnerMeasure;
     ArrayList<Integer> arr = new ArrayList<>();
+    ArrayList<String> arr2 = new ArrayList<>();
     ImageView imageview;
     ImageView countview;
     SoundPool soundPool;
@@ -74,7 +76,10 @@ public class RecordingActivity extends AppCompatActivity implements
 
     boolean isRecording = false;
 
-    int spinnerBPM = 60;
+    int nn, dd;
+    int measure;
+    String spinnerMSR = "4/4"; //박자
+    int spinnerBPM = 60; //BPM
     int count = 0;
     int sampleNumber = 0;
     Long startTime;
@@ -171,7 +176,7 @@ public class RecordingActivity extends AppCompatActivity implements
                             metronomeThread = null;
                         }
 
-                        imageview.setImageResource(R.drawable.a1);
+                        imageview.setImageResource(R.drawable.sleep);
                     }
 
 
@@ -181,6 +186,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
                         metronomeThread = new MetronomeThread();
                         metronomeThread.setBpm(spinnerBPM);
+                        metronomeThread.setMeasure(measure);
                         metronomeThread.setImageView(imageview);
                         mFloatingActionButton.setImageResource(R.drawable.ic_mic_off);
 
@@ -230,17 +236,14 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         //bpm 설정
-        spinner = findViewById(R.id.bpmSpinner);
+        spinnerBpm = findViewById(R.id.bpmSpinner);
         arr.add(60);
-        arr.add(80);
-        arr.add(100);
-        arr.add(110);
         arr.add(120);
-        arr.add(130);
+        arr.add(180);
         ArrayAdapter<Integer> arrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr);
-        spinner.setAdapter(arrayAdapter);
+        spinnerBpm.setAdapter(arrayAdapter);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerBpm.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
@@ -253,7 +256,36 @@ public class RecordingActivity extends AppCompatActivity implements
             }
         });
 
+        spinnerMeasure = findViewById(R.id.measureSpinner);
+        arr2.add("3/4");
+        arr2.add("4/4");
 
+        ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr2);
+        spinnerMeasure.setAdapter(arrayAdapter2);
+
+        spinnerMeasure.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                spinnerMSR = ((String) parent.getSelectedItem());
+
+                if(spinnerMSR == "4/4"){ //4분의4박자(4/2^2)
+                    nn = 4;
+                    dd = 2;
+                    measure = 4;
+                }
+                else{ //4분의 3박자(3/2^2)
+                    nn = 3;
+                    dd = 2;
+                    measure = 3;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
 
@@ -466,10 +498,17 @@ public class RecordingActivity extends AppCompatActivity implements
 
         }
 
-        if(Sequence1.get(0) == 0){
+        while(Sequence1.get(0) == -1){
             Sequence1.remove(0);
             Sequence1.remove(0);
         }
+
+/*        if(Sequence1.get(0) == -1){
+            Sequence1.remove(0);
+            Sequence1.remove(0);
+        }
+*/
+        System.out.println("맨 앞 -1 지우기");
 
         for(int i=1; i<Sequence1.size();i+=2){
             System.out.println("MidiNum : " + Sequence1.get(i-1) + " || Counts : "+ Sequence1.get(i));
@@ -718,7 +757,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         midiFileMaker.setTempo(spinnerBPM);
-        midiFileMaker.setTimeSignature(2,4);
+        midiFileMaker.setTimeSignature(dd,nn);
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
 
@@ -743,6 +782,8 @@ public class RecordingActivity extends AppCompatActivity implements
         intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
         startActivity(intent);
+
+        recreate();
 
     }
 
