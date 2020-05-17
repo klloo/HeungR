@@ -153,88 +153,10 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         createViews();
 
-        Button testButton = findViewById(R.id.up_button);
-        testButton.setOnClickListener(v -> upNote());
-
-        Button downButton = findViewById(R.id.down_button);
-        downButton.setOnClickListener(v -> downNote());
-
-        Button saveButton = findViewById(R.id.save_btn);
-        saveButton.setOnClickListener( v -> save());
-
-        Button chordButton = findViewById(R.id.chord);
-        chordButton.setOnClickListener( v -> getSequence());
 
     }
 
 
-    public void downNote()
-    {
-        MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
-        int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
-
-        ArrayList<MidiTrack> tracks = midifile.getTracks();
-        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
-
-        for(int i=0;i<tracks.size();i++){
-            ArrayList<MidiEvent> events = allevents.get(i);
-
-            //i가 track num임
-            for (MidiTrack track : tracks) {
-                if (track.trackNumber() == i) {
-                    ArrayList<MidiNote> notes = track.getNotes();
-                    for(MidiNote note : notes){
-                        if(note.getStartTime() == (int)player.currentPulseTime){
-                            note.setNumber(midiNote -1);
-                            for (MidiEvent event : events) {
-                                if(event.StartTime == (int)player.currentPulseTime){
-                                    event.Notenumber = (byte)(midiNote -1);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        createSheetMusic(options);
-
-    }
-
-    public void upNote()
-    {
-        MusicSymbol nextNote = this.sheet.getCurrentNote((int) player.currentPulseTime);
-        int midiNote = ((ChordSymbol) nextNote).getNotedata()[0].number;
-
-        ArrayList<MidiTrack> tracks = midifile.getTracks();
-        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
-
-        for(int i=0;i<tracks.size();i++){
-            ArrayList<MidiEvent> events = allevents.get(i);
-
-            //i가 track num임
-            for (MidiTrack track : tracks) {
-                if (track.trackNumber() == i) {
-                    ArrayList<MidiNote> notes = track.getNotes();
-                    for(MidiNote note : notes){
-                        if(note.getStartTime() == (int)player.currentPulseTime){
-                            note.setNumber(midiNote +1);
-                            for (MidiEvent event : events) {
-                                if(event.StartTime == (int)player.currentPulseTime){
-                                    event.Notenumber = (byte)(midiNote +1);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        createSheetMusic(options);
-
-    }
 
     public void save(){
 
@@ -260,7 +182,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     /* Create the MidiPlayer and Piano views */
     void createViews() {
 
-        layout = findViewById(R.id.sheet_content);
+        layout = findViewById(R.id.sheet_content2);
 
         SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
                 .withName(R.string.scroll_vertically)
