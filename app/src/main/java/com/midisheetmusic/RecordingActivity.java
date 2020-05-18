@@ -108,6 +108,7 @@ public class RecordingActivity extends AppCompatActivity implements
   //  AudioDispatcher dispatcher;
  //   File file;
     TextView pitchTextView;
+    TextView progressTimeTextView;
   //  String filename = "recorded_sound.wav";
 
 
@@ -132,7 +133,7 @@ public class RecordingActivity extends AppCompatActivity implements
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.clap, 1);
         pitchTextView = findViewById(R.id.pitchTextView);
-
+        progressTimeTextView = findViewById(R.id.progressTextView);
 
 
         countview = findViewById(R.id.countView);
@@ -257,8 +258,9 @@ public class RecordingActivity extends AppCompatActivity implements
         });
 
         spinnerMeasure = findViewById(R.id.measureSpinner);
-        arr2.add("3/4");
+
         arr2.add("4/4");
+        arr2.add("3/4");
 
         ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr2);
         spinnerMeasure.setAdapter(arrayAdapter2);
@@ -884,6 +886,12 @@ public class RecordingActivity extends AppCompatActivity implements
         pitchTextView.setText(pitchInHz +"" );
         humming.add((double) pitchInHz);
         sampleNumber++;
+
+
+        long outTime = SystemClock.elapsedRealtime() - startTime;
+        String viewOutTime = String.format("%02d:%02d:%02d", (outTime/1000)/60,(outTime/1000)%60,(outTime%1000)/10);
+        progressTimeTextView.setText(viewOutTime);
+
 
         if (pitchInHz < 0)
             pitchInHz = 20;
