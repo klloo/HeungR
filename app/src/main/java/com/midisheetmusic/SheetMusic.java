@@ -73,6 +73,8 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     private ArrayList<Staff> staffs;  /** The array of staffs to display (from top to bottom) */
     private KeySignature mainkey;     /** The main key signature */
 
+    private KeySignature keySignature;
+
     private String   filename;        /** The midi filename */
     private int      numtracks;       /** The number of tracks */
     private float    zoom;            /** The zoom level to draw at (1.0 == 100%) */
