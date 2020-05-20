@@ -21,6 +21,8 @@ import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 /**
  *  The ListAdapter for displaying the list of songs,
  *  and for displaying the list of files in a directory.
@@ -47,7 +49,7 @@ class IconArrayAdapter<T> extends ArrayAdapter<T> {
     public IconArrayAdapter(Context context, int resourceId, List<T> objects) {
         super(context, resourceId, objects);
         LoadImages(context);
-        inflater = LayoutInflater.from(context); 
+        inflater = LayoutInflater.from(context);
     }
 
     /** Create a view for displaying a song in the ListView.
@@ -60,23 +62,23 @@ class IconArrayAdapter<T> extends ArrayAdapter<T> {
         if (convertView == null) {
             // TODO: Make linter happy (Avoid passing null as the view root)
             convertView = inflater.inflate(R.layout.choose_song_item, null);
-         }
-         TextView text = convertView.findViewById(R.id.choose_song_name);
-         ImageView image = convertView.findViewById(R.id.choose_song_icon);
-         text.setHighlightColor(Color.WHITE);
-         FileUri file = (FileUri) this.getItem(position);
-         if (file != null) {
-             if (file.isDirectory()) {
-                 image.setImageBitmap(directoryIcon);
-                 text.setText(file.getUri().getPath());
-             } else {
-                 image.setImageBitmap(midiIcon);
-                 text.setText(file.toString());
-             }
-         } else {
-             text.setText(R.string.err_file_not_found);
-         }
-         return convertView;
+        }
+        TextView text = convertView.findViewById(R.id.choose_song_name);
+        ImageView image = convertView.findViewById(R.id.choose_song_icon);
+        text.setHighlightColor(Color.WHITE);
+        FileUri file = (FileUri) this.getItem(position);
+        if (file != null) {
+            if (file.isDirectory()) {
+                image.setImageBitmap(directoryIcon);
+                text.setText(file.getUri().getPath());
+            } else {
+                image.setImageBitmap(midiIcon);
+                text.setText(file.toString());
+            }
+        } else {
+            text.setText(R.string.err_file_not_found);
+        }
+        return convertView;
     }
 }
 
