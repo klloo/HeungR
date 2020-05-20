@@ -72,7 +72,7 @@ public class FileUri implements Comparator<FileUri> {
     /** Return the file contents as a byte array.
      *  If any IO error occurs, return null.
      */
-    public byte[] getData(Activity activity) {
+    public byte[] getData() {
         try {
             byte[] data;
             int totallen, len, offset;
@@ -81,18 +81,7 @@ public class FileUri implements Comparator<FileUri> {
             data = new byte[4096];
             InputStream file;
             String uriString = uri.toString();
-            if (uriString.startsWith("file:///android_asset/")) {
-                AssetManager asset = activity.getResources().getAssets();
-                String filepath = uriString.replace("file:///android_asset/", "");
-                file = asset.open(filepath);
-            }
-            else if (uriString.startsWith("content://")) {
-                ContentResolver resolver = activity.getContentResolver(); 
-                file = resolver.openInputStream(uri);
-            }
-            else {
-                file = new FileInputStream(uri.getPath());
-            }
+            file = new FileInputStream(uri.getPath());
             totallen = 0;
             len = file.read(data, 0, 4096);
             while (len > 0) {
@@ -105,18 +94,7 @@ public class FileUri implements Comparator<FileUri> {
             offset = 0;
             data = new byte[totallen];
 
-            if (uriString.startsWith("file:///android_asset/")) {
-                AssetManager asset = activity.getResources().getAssets();
-                String filepath = uriString.replace("file:///android_asset/", "");
-                file = asset.open(filepath);
-            }
-            else if (uriString.startsWith("content://")) {
-                ContentResolver resolver = activity.getContentResolver(); 
-                file = resolver.openInputStream(uri);
-            }
-            else {
-                file = new FileInputStream(uri.getPath());
-            }
+            file = new FileInputStream(uri.getPath());
             while (offset < totallen) {
                 len = file.read(data, offset, totallen - offset);
                 if (len <= 0) {

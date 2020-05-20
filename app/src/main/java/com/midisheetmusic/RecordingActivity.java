@@ -118,11 +118,16 @@ public class RecordingActivity extends AppCompatActivity implements
     private double graphLastXValue = 1d;
     ArrayList<Point> recordedPoints;
 
+    String folderName;
+    String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording);
+
+        folderName = getIntent().getStringExtra("folderName");
+        fileName = getIntent().getStringExtra("fileName");
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.clap, 1);
@@ -723,7 +728,7 @@ public class RecordingActivity extends AppCompatActivity implements
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone");
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
         if(!dir.exists()){
             dir.mkdirs();
         }
@@ -731,7 +736,7 @@ public class RecordingActivity extends AppCompatActivity implements
         ArrayList<Integer> banju = new ArrayList<>();
         banju.add(62); banju.add(64);
 
-        File file = new File(dir, "file.mid") ;
+        File file = new File(dir, fileName+".mid") ;
         midiFileMaker.writeToFile (file,banju,127);
 
 

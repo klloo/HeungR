@@ -101,4 +101,4 @@
         android:src="@drawable/ic_settings"
         android:contentDescription="@string/settings" />
 </LinearLayout>
-<!--</merge>-->
+    <!--</merge>-->
