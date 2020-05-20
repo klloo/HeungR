@@ -143,6 +143,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         countview = findViewById(R.id.countView);
         imageview = findViewById(R.id.imageView);
+
         if( countview == null){
             Log.d("TAG","countView is NULL");
         }
@@ -280,11 +281,13 @@ public class RecordingActivity extends AppCompatActivity implements
                     nn = 4;
                     dd = 2;
                     measure = 4;
+                    imageview.setImageResource(R.drawable.fourth_1);
                 }
                 else{ //4분의 3박자(3/2^2)
                     nn = 3;
                     dd = 2;
                     measure = 3;
+                    imageview.setImageResource(R.drawable.third_1);
                 }
             }
 

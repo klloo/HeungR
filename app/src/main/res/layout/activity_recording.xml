@@ -39,6 +39,22 @@
                 android:text="TextView"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="65dp">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="185dp"
+                    android:layout_height="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/fourth_1" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/progressTextView"
                 android:layout_width="match_parent"
@@ -46,18 +62,6 @@
                 android:gravity="center_horizontal"
                 android:text="00:00:00"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="185dp"
-                android:layout_height="60dp"
-                app:srcCompat="@drawable/fourth_1" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="65dp">
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TableLayout
                 android:layout_width="match_parent"
