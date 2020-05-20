@@ -12,6 +12,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
         <activity android:name=".SetFileNameActivity"
             android:theme="@android:style/Theme.Dialog"></activity>
         <activity android:name=".ChooseSongActivity" />
@@ -42,7 +43,7 @@
         <activity
             android:name=".SheetMusicActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:theme="@style/PlayerTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -56,6 +57,25 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".SheetMusicActivity2"
+
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/PlayerTheme">
+            <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+
+            <data
+                android:host="*"
+                android:mimeType="*/*"
+                android:pathPattern=".*\\.mid"
+                android:scheme="file" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

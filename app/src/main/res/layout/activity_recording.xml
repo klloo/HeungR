@@ -22,7 +22,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="400dp">
+                android:layout_height="355dp">
 
                 <com.jjoe64.graphview.GraphView
                     android:id="@+id/realTimeGraph"
@@ -39,17 +39,82 @@
                 android:text="TextView"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-            <Spinner
-                android:id="@+id/bpmSpinner"
+            <TextView
+                android:id="@+id/progressTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:ignore="MissingConstraints" />
+                android:gravity="center_horizontal"
+                android:text="00:00:00"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="wrap_content"
-                android:layout_height="300dp"
-                app:srcCompat="@drawable/a1" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="65dp">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="185dp"
+                    android:layout_height="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.122"
+                    app:srcCompat="@drawable/sleep" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp">
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:text="BPM"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:text="BEAT"
+                        android:textSize="18sp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <Spinner
+                        android:id="@+id/bpmSpinner"
+                        android:layout_width="199dp"
+                        android:layout_height="43dp"
+                        android:spinnerMode="dropdown"
+                        tools:ignore="MissingConstraints" />
+
+                    <Spinner
+                        android:id="@+id/measureSpinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="43dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:spinnerMode="dropdown"
+                        tools:ignore="MissingConstraints" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </TableLayout>
 
 
         </LinearLayout>
