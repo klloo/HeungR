@@ -9,7 +9,7 @@
     <ListView
         android:id="@+id/folderList"
         android:layout_width="match_parent"
-        android:layout_height="612dp">
+        android:layout_height="500dp">
 
 
     </ListView>
