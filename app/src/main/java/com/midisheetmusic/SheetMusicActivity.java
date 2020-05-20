@@ -161,6 +161,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         Button saveButton = findViewById(R.id.save_btn);
         saveButton.setOnClickListener( v -> save());
+
+        Button chordButton = findViewById(R.id.chord);
+        chordButton.setOnClickListener( v -> goSheet2());
+
     }
 
 
@@ -364,8 +368,82 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
 
 
+    public  ArrayList<Integer> getSequence(){
+        ArrayList<Integer> sequence = new ArrayList<Integer>();
+
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
 
 
+        MidiTrack track = tracks.get(0);
+        ArrayList<MidiNote> notes = track.getNotes();
+        for (MidiNote note : notes) {
+            sequence.add(note.getNumber());
+            sequence.add(note.getDuration());
+        }
+        System.out.println("track0");
+        printSequence(sequence);
+
+
+
+
+        return sequence;
+    }
+
+    public void goSheet2 (){
+
+
+        ArrayList<Integer> sequence = getSequence();
+        ArrayList<Integer> banju = new ArrayList<>();
+        banju.add(60);
+        banju.add(10);
+
+        banju.add(62);
+        banju.add(10);
+
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/temp");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+
+        //MidiFile 생성
+        MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
+
+        TimeSignature timeSignature = midifile.getTimesig();
+        /**  timesig.tempo : Number of microseconds per quarter note */
+        int bpm = (60 * 1000000) / timeSignature.getTempo();
+        midiFileMaker.setTempo( bpm );
+        midiFileMaker.setTimeSignature(2,4);
+        midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
+
+
+        File file = new File(dir, title+"chord.mid") ;
+        midiFileMaker.writeToFile (file , banju,127);
+
+
+
+
+
+        Uri uri = Uri.parse(file.getPath());
+
+        FileUri fileUri = new FileUri(uri, file.getPath());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
+        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
+
+        startActivity(intent);
+
+
+    }
+
+
+    public void printSequence(ArrayList<Integer> seq ){
+        for(int i = 0 ; i < seq.size() ; i++){
+            System.out.print(seq.get(i) + " ");
+            if(i%2 == 1)
+                System.out.println();
+        }
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

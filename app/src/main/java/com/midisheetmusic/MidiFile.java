@@ -1604,6 +1604,10 @@ public class MidiFile {
     }
 
 
+    public TimeSignature getTimesig() {
+        return timesig;
+    }
+
     /** We want note durations to span up to the next note in general.
      * The sheet music looks nicer that way.  In contrast, sheet music
      * with lots of 16th/32nd notes separated by small rests doesn't
