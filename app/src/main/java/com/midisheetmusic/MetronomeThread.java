@@ -41,8 +41,6 @@ public class MetronomeThread extends Thread {
         this.imageView = imageView;
     }
 
-
-
     public void setPlaying(boolean playing){
         this.playing = playing;
     }
@@ -68,6 +66,7 @@ public class MetronomeThread extends Thread {
            });
            try{
                sleep(60000/bpm);
+
            }catch (InterruptedException e){
                e.printStackTrace();
            }

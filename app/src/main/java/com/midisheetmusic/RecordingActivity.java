@@ -50,7 +50,8 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static java.lang.Math.pow;
 
-public class RecordingActivity extends AppCompatActivity implements RecordingSampler.CalculateVolumeListener {
+public class RecordingActivity extends AppCompatActivity implements
+        RecordingSampler.CalculateVolumeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final int RequestPermissionCode = 1;
@@ -103,12 +104,12 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
 
 
     //tarsoDSP
-  //  TarsosDSPAudioFormat tarsosDSPAudioFormat;
-  //  AudioDispatcher dispatcher;
- //   File file;
+    //  TarsosDSPAudioFormat tarsosDSPAudioFormat;
+    //  AudioDispatcher dispatcher;
+    //   File file;
     TextView pitchTextView;
     TextView progressTimeTextView;
-  //  String filename = "recorded_sound.wav";
+    //  String filename = "recorded_sound.wav";
 
 
 
@@ -721,7 +722,7 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
     @Override
     public void onCalculateVolume(int volume) {
         // for custom implement
- //       Log.d(TAG, String.valueOf(volume));
+        //       Log.d(TAG, String.valueOf(volume));
     }
 
 
@@ -755,15 +756,12 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
 
         //MidiFile 생성
         MidiFileMaker midiFileMaker = new MidiFileMaker();
-        //ArrayList<Integer> scalelist = store(humming);
-        //ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
+        ArrayList<Integer> scalelist = store(humming);
+        ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
 
 
-        //ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
+        ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
 
-
-        ArrayList<Integer> sequence = new ArrayList<>();
-        sequence.add(60); sequence.add(62); sequence.add(65); sequence.add(67);
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
@@ -779,8 +777,6 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
         File file = new File(dir, fileName+".mid") ;
         midiFileMaker.writeToFile (file);
 
-        ((MainActivity)MainActivity.mContext).loadFolder();
-        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
 
 
@@ -892,9 +888,7 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
     public void processPitch(float pitchInHz){
 
 
-
-        pitchTextView.setText(pitchInHz +"" );
-        humming.add((double) pitchInHz);
+        humming.add((double) pitchInHz); // 배열에 정보저장
         sampleNumber++;
 
 
@@ -907,7 +901,8 @@ public class RecordingActivity extends AppCompatActivity implements RecordingSam
             pitchInHz = 20;
 
         graphLastXValue += 1d;
-        realTimeSeries.appendData(new DataPoint(graphLastXValue, pitchInHz), true, 300);
+        realTimeSeries.appendData(new DataPoint(graphLastXValue, pitchInHz), true, 150);
+
     }
 
     class Point{

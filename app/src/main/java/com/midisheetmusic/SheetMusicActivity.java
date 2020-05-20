@@ -399,7 +399,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         banju.add(10);
 
         banju.add(62);
-        banju.add(10);
+        banju.add(10); //반주시퀀스  임의로
 
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/temp");
         if(!dir.exists()){
