@@ -29,14 +29,15 @@ public class ChooseSongActivity extends AppCompatActivity {
 
     String folderName;
     String fileName;
+    public static Context cContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_song);
+        cContext = this;
         folderName = getIntent().getStringExtra("folderName");
-
         loadFile();
-
 
 
     }

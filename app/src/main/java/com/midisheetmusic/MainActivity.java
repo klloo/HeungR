@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    public  static Context mContext;
 
     public void loadFolder()
     {
@@ -61,10 +63,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
         loadFolder();
 
         //폴더 추가 버튼
-        FloatingActionButton addBtn = findViewById(R.id.addBtn);
+        Button addBtn = findViewById(R.id.addBtn);
+        //퀵버튼
+        Button quickBtn = findViewById(R.id.quickBtn);
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +79,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 1);
             }
         });
+        quickBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SetFileNameActivity.class);
+                intent.putExtra("folderName","Quick");
+                startActivity(intent);
+            }
+        });
+
     }
 
     //새로 추가한 폴더명과 사진을 리스트에 추가하기

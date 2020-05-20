@@ -50,8 +50,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static java.lang.Math.pow;
 
-public class RecordingActivity extends AppCompatActivity implements
-        RecordingSampler.CalculateVolumeListener {
+public class RecordingActivity extends AppCompatActivity implements RecordingSampler.CalculateVolumeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final int RequestPermissionCode = 1;
@@ -756,12 +755,15 @@ public class RecordingActivity extends AppCompatActivity implements
 
         //MidiFile 생성
         MidiFileMaker midiFileMaker = new MidiFileMaker();
-        ArrayList<Integer> scalelist = store(humming);
-        ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
+        //ArrayList<Integer> scalelist = store(humming);
+        //ArrayList<Integer> sequence1 = CountMidiNum(scalelist);
 
 
-        ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
+        //ArrayList<Integer> sequence = ReturnSequence(sequence1, gap, spinnerBPM );
 
+
+        ArrayList<Integer> sequence = new ArrayList<>();
+        sequence.add(60); sequence.add(62); sequence.add(65); sequence.add(67);
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
@@ -777,6 +779,8 @@ public class RecordingActivity extends AppCompatActivity implements
         File file = new File(dir, fileName+".mid") ;
         midiFileMaker.writeToFile (file);
 
+        ((MainActivity)MainActivity.mContext).loadFolder();
+        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
 
 
