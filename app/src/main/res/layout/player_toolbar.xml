@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<merge xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--xmlns:tools="http://schemas.android.com/tools"-->
-<!--tools:parentTag="android.widget.LinearLayout">-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,44 +6,39 @@
     android:layout_height="@dimen/toolbar_height"
     android:layout_marginStart="8dp"
     android:layout_marginTop="4dp"
-    android:layout_marginEnd="8dp">
-
-    <ImageButton
-        android:id="@+id/btn_settings"
-        style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/settings"
-        android:src="@drawable/ic_settings" />
+    android:layout_marginEnd="8dp"
+    android:orientation="horizontal">
 
     <ImageButton
         android:id="@+id/btn_back"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/back"
-        android:src="@drawable/ic_back" />
+        android:src="@drawable/ic_back"
+        android:contentDescription="@string/back" />
 
     <ImageButton
         android:id="@+id/btn_replay"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/replay"
-        android:src="@drawable/ic_replay" />
+        android:src="@drawable/ic_replay"
+        android:contentDescription="@string/replay" />
 
     <ImageButton
         android:id="@+id/btn_play"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/play"
         android:scaleY="1.5"
-        android:src="@drawable/ic_play" />
+        android:src="@drawable/ic_play"
+        android:contentDescription="@string/play" />
 
     <ImageButton
         android:id="@+id/btn_rewind"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/rewind"
-        android:src="@drawable/ic_rewind" />
+        android:src="@drawable/ic_rewind"
+        android:contentDescription="@string/rewind" />
 
     <ImageButton
         android:id="@+id/btn_forward"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/forward"
-        android:src="@drawable/ic_forward" />
+        android:src="@drawable/ic_forward"
+        android:contentDescription="@string/forward" />
 
     <TextView
         android:id="@+id/txt_speed"
@@ -70,9 +61,9 @@
     <Button
         android:id="@+id/btn_midi"
         style="@style/DisabledToolbarButton"
-        android:layout_width="80dp"
-        android:enabled="false"
         android:text="MIDI"
+        android:enabled="false"
+        android:layout_width="80dp"
         android:textSize="16sp" />
 
     <View
@@ -97,8 +88,12 @@
     <ImageButton
         android:id="@+id/btn_piano"
         style="@style/ToolbarButtonStyle"
-        android:contentDescription="@string/show_hide_piano"
-        android:src="@drawable/ic_piano" />
+        android:src="@drawable/ic_piano"
+        android:contentDescription="@string/show_hide_piano" />
 
+    <ImageButton
+        android:id="@+id/btn_settings"
+        style="@style/ToolbarButtonStyle"
+        android:src="@drawable/ic_settings"
+        android:contentDescription="@string/settings" />
 </LinearLayout>
-<!--</merge>-->

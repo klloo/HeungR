@@ -123,7 +123,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         this.setTitle("MidiSheetMusic: " + title);
         byte[] data;
         try {
-            data = file.getData(this);
+            data = file.getData();
             midifile = new MidiFile(data, title);
         }
         catch (MidiFileException e) {

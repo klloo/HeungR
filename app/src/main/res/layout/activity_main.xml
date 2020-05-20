@@ -7,33 +7,27 @@
     android:orientation="vertical"
     >
 
-    <View
-        android:id="@+id/divider3"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:background="?android:attr/listDivider" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/data_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="SAVE DATA" />
+        <ListView
+            android:id="@+id/folderList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/guitar_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="GO GUITAR" />
-
-    <Button
-        android:id="@+id/choose_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose Song" />
-
-    <Button
-        android:id="@+id/recording_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recording" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginEnd="317dp"
+            android:layout_marginBottom="149dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@android:drawable/ic_input_add" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

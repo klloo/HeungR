@@ -12,6 +12,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+        <activity android:name=".SetFileNameActivity"
+            android:theme="@android:style/Theme.Dialog"></activity>
+        <activity android:name=".ChooseSongActivity" />
+        <activity android:name=".AddFolderPopupActivity" />
         <activity android:name=".RecordingActivity" />
         <activity android:name=".MainActivity" />
         <activity
@@ -23,10 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChooseSongActivity" />
-        <activity android:name=".FileBrowserActivity" />
         <activity android:name=".AllSongsActivity" />
-        <activity android:name=".RecentSongsActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
