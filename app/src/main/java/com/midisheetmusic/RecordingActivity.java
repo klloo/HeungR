@@ -775,7 +775,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         File file = new File(dir, fileName+".mid") ;
-        midiFileMaker.writeToFile (file,banju,127);
+        midiFileMaker.writeToFile (file);
 
 
 
