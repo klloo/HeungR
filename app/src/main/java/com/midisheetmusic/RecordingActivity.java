@@ -791,7 +791,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity.class);
         intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
-
         startActivity(intent);
 
         recreate();

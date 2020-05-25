@@ -145,6 +145,14 @@ public class MidiTrack {
         result.append("End Track\n");
         return result.toString();
     }
-}
 
+    public int getLength(){
+
+        int sum = 0;
+        for( MidiNote note :notes){
+            sum+= note.getDuration();
+        }
+        return sum;
+    }
+}
 

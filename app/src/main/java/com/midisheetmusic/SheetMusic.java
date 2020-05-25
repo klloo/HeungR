@@ -268,7 +268,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     
 
     /** Get the best key signature given the midi notes in all the tracks. */
-    private KeySignature GetKeySignature(ArrayList<MidiTrack> tracks) {
+    public static KeySignature GetKeySignature(ArrayList<MidiTrack> tracks) {
         ListInt notenums = new ListInt();
         for (MidiTrack track : tracks) {
             for (MidiNote note : track.getNotes()) {

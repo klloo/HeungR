@@ -561,8 +561,6 @@ class MidiFileMaker2 {
         n2 = tempo / ((int)pow(16,2)) % (int)pow(16,2);
         n1 = tempo / ((int)pow(16, 4)) % (int)pow(16,2);
 
-        System.out.println(temp);
-        System.out.println( Integer.toHexString(n1) +" " + Integer.toHexString(n2) + " "+Integer.toHexString(n3));
 
         tempoEvent =  new int[]
 
