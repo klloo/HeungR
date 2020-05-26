@@ -728,7 +728,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
 
-    int guses( ArrayList<Integer> seq){
+    int guess( ArrayList<Integer> seq){
         //민주
         return 0;
     }
@@ -776,7 +776,7 @@ public class RecordingActivity extends AppCompatActivity implements
         ArrayList<Integer> sequence2 = ReturnSequence(sequence1, gap, spinnerBPM );
 
         //KeySIgnature 추정
-        int key = guses(sequence2);
+        int key = guess(sequence2);
 
         ArrayList<Integer> sequence = smoothing(sequence2, key);
 

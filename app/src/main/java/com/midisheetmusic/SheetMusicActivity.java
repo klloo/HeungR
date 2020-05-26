@@ -531,7 +531,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return banju;//  ( 마디별로 코드 하나씩 )
     }
 
-    int guses( ArrayList<Integer> seq){
+    int guess( ArrayList<Integer> seq){
         //민주
         return 0;
     }
@@ -544,7 +544,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         int nn = timeSignature.getNumerator();
         int dd = timeSignature.getDenominator();
         int bpm = (60 * 1000000) / timeSignature.getTempo();
-        int key = guses(sequence);
+        int key = guess(sequence);
 
         MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
 
