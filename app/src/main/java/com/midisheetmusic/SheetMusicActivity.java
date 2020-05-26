@@ -542,7 +542,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         TimeSignature timeSignature = midifile.getTimesig();
         int nn = timeSignature.getNumerator();
-        int dd = timeSignature.getDenominator();
         int bpm = (60 * 1000000) / timeSignature.getTempo();
         int key = guess(sequence);
 
@@ -550,7 +549,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
 
         midiFileMaker.setTempo(bpm);
-        midiFileMaker.setTimeSignature(dd, nn);
+        midiFileMaker.setTimeSignature(2, nn);
         midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity(sequence, 127);
 
