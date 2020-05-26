@@ -157,7 +157,7 @@ class MidiFileMaker2 {
                     0x4d, 0x54, 0x72, 0x6B
             };
 
-    public void writeToFile(File file, ArrayList<Integer> chords,  int nn, int velocity) { //throws IOException {
+    public void writeToFile(File file, ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity) { //throws IOException {
 
 
         FileOutputStream fos = null;
@@ -247,7 +247,7 @@ class MidiFileMaker2 {
 
 
             //반주 이벤트
-            makebPlayEvents(chords, nn);
+            makebPlayEvents(chords, key,  nn);
 
             //반주 작성
 
@@ -337,21 +337,91 @@ class MidiFileMaker2 {
 
 
 
-    public void makebPlayEvents(ArrayList<Integer> chords, int nn){
+    public void writeChord(int nn, int num, boolean is7, boolean isMinor7){
 
-        for(int i=0;i<chords.size();i++){
+        if(is7){
+
+            int c1 = 60; //도
+            int c2 = 64; //미
+            int c3 = 67; //솔
+            int c4 = 70; //시b
+            c1 += num;
+            c2 += num;
+            c3 += num;
+            c4 += num;
+
+
+            //4/4박 C7코드
+            bnoteOn(0, c1, 100);
+            bnoteOn(0, c2, 100);
+            bnoteOn(0, c3, 100);
+            bnoteOn(0, c4, 100);
+            bnoteOff(nn*16, c1);
+            bnoteOff(0, c2);
+            bnoteOff(0, c3);
+            bnoteOff(0, c4);
+        }
+        else if( isMinor7){
+            int c1 = 60; //도
+            int c2 = 63; //미b
+            int c3 = 67; //솔
+            int c4 = 70; //시b
+            c1 += num;
+            c2 += num;
+            c3 += num;
+            c4 += num;
+
+
+            //4/4박 C-7코드
+            bnoteOn(0, c1, 100);
+            bnoteOn(0, c2, 100);
+            bnoteOn(0, c3, 100);
+            bnoteOn(0, c4, 100);
+            bnoteOff(nn*16, c1);
+            bnoteOff(0, c2);
+            bnoteOff(0, c3);
+            bnoteOff(0, c4);
+        }
+        else{
+            int c1 = 60;
+            int c2 = 64;
+            int c3 = 67;
+
+            c1 += num;
+            c2 += num;
+            c3 += num;
 
             //4/4박 C코드
-            bnoteOn(0, 67, 100);
-            bnoteOn(0, 64, 100);
-            bnoteOn(0, 60, 100);
-            bnoteOff(nn*16, 60);
-            bnoteOff(0, 64);
-            bnoteOff(0, 67);
-
-
+            bnoteOn(0, c1, 100);
+            bnoteOn(0, c2, 100);
+            bnoteOn(0, c3, 100);
+            bnoteOff(nn*16, c1);
+            bnoteOff(0, c2);
+            bnoteOff(0, c3);
 
         }
+
+    }
+
+    public void makebPlayEvents(ArrayList<ArrayList<Integer>> chords, int key,  int nn){
+
+        int Ckey[] = {0,2,4,5,7,9};
+
+        int num;
+        boolean isMinor7 , is7;
+
+        Log.d("TAG", "key : " + key);
+
+
+        for (ArrayList<Integer> chord : chords){
+            int index = chord.get(0);
+            num = Ckey[index] + key;
+            is7 = (index== 4);
+            isMinor7 = ( index == 1 || index ==2 || index ==5 );
+
+            writeChord(nn, num, is7, isMinor7);
+        }
+
 
 
     }
