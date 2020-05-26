@@ -341,15 +341,15 @@ class MidiFileMaker2 {
 
         for(int i=0;i<chords.size();i++){
 
-            //도 미 솔 (4/4박일 때)
-            if(chords.get(i) == 'C'){
-                bnoteOn(0, 67, 100);
-                bnoteOn(0, 64, 100);
-                bnoteOn(0, 60, 100);
-                bnoteOff(nn*16, 60);
-                bnoteOff(0, 64);
-                bnoteOff(0, 67);
-            }
+            //4/4박 C코드
+            bnoteOn(0, 67, 100);
+            bnoteOn(0, 64, 100);
+            bnoteOn(0, 60, 100);
+            bnoteOff(nn*16, 60);
+            bnoteOff(0, 64);
+            bnoteOff(0, 67);
+
+
 
         }
 
