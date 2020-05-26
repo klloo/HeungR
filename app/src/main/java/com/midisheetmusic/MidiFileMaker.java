@@ -94,7 +94,7 @@ class MidiFileMaker {
 
 //  playback, but necessary for editing applications
 
-    static final int keySigEvent[] = new int[]
+    static int[] keySigEvent = new int[]
 
             {
 
@@ -105,6 +105,8 @@ class MidiFileMaker {
                     0x00  // major
 
             };
+
+
 
 
 // A MIDI event to set the time signature. This is irrelent to
@@ -415,9 +417,9 @@ class MidiFileMaker {
         n3 = tempo % (16*16);
         n2 = tempo / ((int)pow(16,2)) % (int)pow(16,2);
         n1 = tempo / ((int)pow(16, 4)) % (int)pow(16,2);
-
+/*
         System.out.println(temp);
-        System.out.println( Integer.toHexString(n1) +" " + Integer.toHexString(n2) + " "+Integer.toHexString(n3));
+        System.out.println( Integer.toHexString(n1) +" " + Integer.toHexString(n2) + " "+Integer.toHexString(n3));*/
 
         tempoEvent =  new int[]
 
@@ -442,6 +444,22 @@ class MidiFileMaker {
                         0x60, // ticks per click (not used)
 
                         0x08  // 32nd notes per crotchet
+
+                };
+    }
+
+    public void setKeySignature(int key){
+
+
+        keySigEvent = new int[]
+
+                {
+
+                        0x00, 0xFF, 0x59, 0x02,
+
+                        key ,
+
+                        0x00  // major
 
                 };
     }

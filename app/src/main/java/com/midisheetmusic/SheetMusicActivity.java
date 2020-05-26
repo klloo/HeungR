@@ -53,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -83,8 +84,11 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
 
+    String folderName;
+    String fileName;
 
-     /** Create this SheetMusicActivity.
+
+    /** Create this SheetMusicActivity.
       * The Intent should have two parameters:
       * - data: The uri of the midi file to open.
       * - MidiTitleID: The title of the song (String)
@@ -163,7 +167,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         saveButton.setOnClickListener( v -> save());
 
         Button chordButton = findViewById(R.id.chord);
-        chordButton.setOnClickListener( v -> goSheet2());
+        chordButton.setOnClickListener( v -> makeMidiFile());
+
+        Log.d("TAG", "create : title  : " +  title);
+        Log.d("TAG", "create : uri  : " + uri);
 
     }
 
@@ -372,7 +379,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         ArrayList<Integer> sequence = new ArrayList<Integer>();
 
         ArrayList<MidiTrack> tracks = midifile.getTracks();
-        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
 
 
         MidiTrack track = tracks.get(0);
@@ -381,6 +387,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             sequence.add(note.getNumber());
             sequence.add(note.getDuration());
         }
+
+
         System.out.println("track0");
         printSequence(sequence);
 
@@ -390,46 +398,183 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return sequence;
     }
 
-    public void goSheet2 (){
+    int getKeySignature(){
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        KeySignature key = SheetMusic.GetKeySignature(tracks);
+        int new_key = key.getNumber();
+        Log.v("TAG", "getkeySignature은 " + key.toString());
+        return new_key;
+    }
+
+    ArrayList<ArrayList<Integer>> getBars(){
+        ArrayList<Integer> temp = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> bars = new ArrayList<>();
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        MidiTrack track = tracks.get(0);
+        ArrayList<MidiNote> notes = track.getNotes();
+        TimeSignature timeSignature = midifile.getTimesig();
+        int nn = timeSignature.getNumerator();
+        int gap = (nn==3) ? 16*3 : 16*2;
+        int len = track.getLength();
+        int count = 0;
+
+        for(int time = 0 ; time <= len ; time+=gap){
+            for(MidiNote note : notes){
+                if(note.isPlaying(time)){
+                    //추가
+
+                    temp.add(note.getNumber());
+                    count ++;
+
+                    if( ( (count % (nn-2) ) == 0 ) ){ //새로운 마디이면
+                        if( temp.size() != 0){
+                            bars.add(temp);
+                            temp = new ArrayList<>();
+                        }
+                    }
+
+                    break;
+                }
+
+            }
+
+        }
+
+        if(temp.size() != 0)
+            bars.add(temp);
 
 
-        ArrayList<Integer> sequence = getSequence();
+        Log.d("TAG", "bars : " + bars.toString());
+        return  bars;
+    }
+
+
+    ArrayList<Integer> makeChords(){
+        int[] score = {0, 0, 0, 0, 0,0};
+        int max = -100;
+        int maxidx = 0;
+
         ArrayList<Integer> banju = new ArrayList<>();
-        banju.add(60);
-        banju.add(10);
+        int  key = getKeySignature();
+        ArrayList<ArrayList<Integer>> bars = getBars();
+        //ex { 0, 4, 0, 4};
+                            // 가중치는 순서대로 11, 9 ,7, 5
+        int[][] ChordTable = {  {0,4,7} ,        // C
+                                {2,5,0,9} ,    // D-7
+                                {4,7,2,11},     // E-7
+                                {5,9,0},          // F
+                                {7,11,5,2} ,    // G7
+                                {9,0,7,4}     // A-7
+         } ;
+                            // 가중치는 - 100
+        int[][] AvoidTable ={   {5} ,        // C
+                                {11} ,    // D-7
+                                { 4, 0},     // E-7
+                                { 11},          // F
+                                {0} ,    // G7
+                                {5 }     // A-7
+        } ;
+        //값 업데이트
+        for(int i = 0 ; i < 6 ; i++){
+            for(int j= 0 ; j < ChordTable[i].length ; j++)
+                ChordTable[i][j] = (ChordTable[i][j] +=key)%12;
 
-        banju.add(62);
-        banju.add(10); //반주시퀀스  임의로
+            for(int j= 0 ; j < AvoidTable[i].length ; j++)
+                AvoidTable[i][j] = (AvoidTable[i][j] +=key)%12;
+        }
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/temp");
+        for (ArrayList<Integer> bar : bars){
+            // score 계산
+
+            for( int ele : bar){
+
+                for(int i = 0 ; i < 6 ; i++){
+                    //Avoid Table 계산
+
+                    for(int j = 0 ; j < AvoidTable[i].length ; j++){
+                        if(AvoidTable[i][j] == (ele%12) )
+                            score[i] -= 100;
+                    }
+                    // Chord table 계산
+                    if( score[i] < 0)
+                        continue; //Avoid 있으면 계산할 가치없음 그냥 x
+
+                    for(int j = 0 ; j < ChordTable[i].length ; j++){
+                        if(ChordTable[i][j] == (ele%12) )
+                            score[i] += (11 - (j*2));
+                    }
+                }
+            }
+
+
+            //score  max값 찾으면서 초기화
+            for(int idx = 0 ; idx <6 ; idx++){
+                if( max <= score[idx]) {
+                    max = score[idx];
+                    maxidx = idx;
+                }
+                score[idx] = 0;
+            }
+            //반주에
+            banju.add(maxidx);
+            //초가화
+            max = -100;
+            maxidx = 0;
+
+        }
+        Log.d("TAG", "banju total: " + banju.toString());
+
+
+
+
+
+        return banju;//  ( 마디별로 코드 하나씩 )
+    }
+
+    int guses( ArrayList<Integer> seq){
+        //민주
+        return 0;
+    }
+
+    public void makeMidiFile(){
+        ArrayList<Integer> sequence = getSequence();
+        ArrayList<Integer> banju = makeChords();
+
+        TimeSignature timeSignature = midifile.getTimesig();
+        int nn = timeSignature.getNumerator();
+        int dd = timeSignature.getDenominator();
+        int bpm = (60 * 1000000) / timeSignature.getTempo();
+        int key = guses(sequence);
+
+        MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
+
+
+        midiFileMaker.setTempo(bpm);
+        midiFileMaker.setTimeSignature(dd, nn);
+        midiFileMaker.setKeySignature(key);
+        midiFileMaker.noteSequenceFixedVelocity(sequence, 127);
+
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/" + folderName);
+
         if(!dir.exists()){
             dir.mkdirs();
         }
 
-        //MidiFile 생성
-        MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
 
-        TimeSignature timeSignature = midifile.getTimesig();
-        /**  timesig.tempo : Number of microseconds per quarter note */
-        int bpm = (60 * 1000000) / timeSignature.getTempo();
-        midiFileMaker.setTempo( bpm );
-        midiFileMaker.setTimeSignature(2,4);
-        midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
+        Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
 
-
-        File file = new File(dir, title+"chord.mid") ;
-        midiFileMaker.writeToFile (file , banju,127);
+        String newtitle = "chord_" +uri.getLastPathSegment();
+        File file = new File(dir, newtitle) ;
+        midiFileMaker.writeToFile(file, banju, nn, 127);
 
 
 
 
-
-        Uri uri = Uri.parse(file.getPath());
-
-        FileUri fileUri = new FileUri(uri, file.getPath());
+        Uri uri2 = Uri.parse(file.getPath());
+        FileUri fileUri = new FileUri(uri2, file.getPath());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
-        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
+        intent.putExtra(newtitle, file.toString());
 
         startActivity(intent);
 
@@ -444,6 +589,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 System.out.println();
         }
     }
+
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

@@ -92,7 +92,7 @@ class MidiFileMaker2 {
 
 //  playback, but necessary for editing applications
 
-    static final int keySigEvent[] = new int[]
+    static int[] keySigEvent = new int[]
 
             {
 
@@ -157,7 +157,7 @@ class MidiFileMaker2 {
                     0x4d, 0x54, 0x72, 0x6B
             };
 
-    public void writeToFile(File file, ArrayList<Integer> sequence,  int velocity) { //throws IOException {
+    public void writeToFile(File file, ArrayList<Integer> chords,  int nn, int velocity) { //throws IOException {
 
 
         FileOutputStream fos = null;
@@ -247,49 +247,7 @@ class MidiFileMaker2 {
 
 
             //반주 이벤트
-            boolean lastWasRest = false;
-
-            int restDelta = 0;
-
-            for (int i = 0; i < sequence.size(); i += 2) {
-
-                int note = sequence.get(i);
-
-                int duration = sequence.get(i + 1);
-
-                if (note < 0) {
-
-                    // This is a rest
-
-                    restDelta += duration;
-
-                    lastWasRest = true;
-
-                } else {
-
-                    // A note, not a rest
-
-                    if (lastWasRest) {
-
-                        bnoteOn(restDelta, note, velocity);
-
-                        bnoteOff(duration, note);
-
-                    } else {
-
-                        bnoteOn(0, note, velocity);
-
-                        bnoteOff(duration, note);
-
-                    }
-
-                    restDelta = 0;
-
-                    lastWasRest = false;
-
-                }
-
-            }
+            makebPlayEvents(chords, nn);
 
             //반주 작성
 
@@ -340,8 +298,6 @@ class MidiFileMaker2 {
 
     }
 
-
-
     public void bnoteOn(int delta, int note, int velocity) {
 
         int[] data = new int[4];
@@ -379,6 +335,26 @@ class MidiFileMaker2 {
 
     }
 
+
+
+    public void makebPlayEvents(ArrayList<Integer> chords, int nn){
+
+        for(int i=0;i<chords.size();i++){
+
+            //도 미 솔 (4/4박일 때)
+            if(chords.get(i) == 'C'){
+                bnoteOn(0, 67, 100);
+                bnoteOn(0, 64, 100);
+                bnoteOn(0, 60, 100);
+                bnoteOff(nn*16, 60);
+                bnoteOff(0, 64);
+                bnoteOff(0, 67);
+            }
+
+        }
+
+
+    }
 
 
 
@@ -561,8 +537,6 @@ class MidiFileMaker2 {
         n2 = tempo / ((int)pow(16,2)) % (int)pow(16,2);
         n1 = tempo / ((int)pow(16, 4)) % (int)pow(16,2);
 
-        System.out.println(temp);
-        System.out.println( Integer.toHexString(n1) +" " + Integer.toHexString(n2) + " "+Integer.toHexString(n3));
 
         tempoEvent =  new int[]
 
@@ -591,4 +565,19 @@ class MidiFileMaker2 {
                 };
     }
 
+    public void setKeySignature(int key){
+
+
+        keySigEvent = new int[]
+
+                {
+
+                        0x00, 0xFF, 0x59, 0x02,
+
+                        key ,
+
+                        0x00  // major
+
+                };
+    }
 }

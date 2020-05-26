@@ -96,6 +96,10 @@ public class MidiNote implements Comparator<MidiNote> {
 
     }
 
+     public boolean isPlaying(int time){
+        return ( (starttime <= time)  && (time <= getEndTime() ));
+     }
+
 }
 
 

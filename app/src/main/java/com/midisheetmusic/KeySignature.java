@@ -411,6 +411,12 @@ public class KeySignature {
         else
             return bass;
     }
+    public int getNumber(){
+        int new_key = Notescale();
+
+        return new_key;
+    }
+
 
     /** Given a midi note number, return the accidental (if any) 
      * that should be used when displaying the note in this key signature.
