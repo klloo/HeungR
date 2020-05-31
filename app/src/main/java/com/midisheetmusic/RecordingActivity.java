@@ -783,7 +783,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
-        midiFileMaker.setKeySignature(key);
+     //   midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
 
