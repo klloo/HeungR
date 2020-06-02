@@ -250,6 +250,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         File file = new File( uri.getPath() );
         Log.d("TAG", uri.getPath().toString());
 
+
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        KeySignature key = SheetMusic.GetKeySignature(tracks);
+        int new_key = key.getNumber();
+        Log.v("TAG", "getkeySignature은 " + key.toString());
+
+
         try {
             fos = new FileOutputStream(file);
             Log.d("TAG", "heere");
@@ -448,90 +455,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return  bars;
     }
 
-/*  원본
-    ArrayList<Integer> makeChords(){
-        int[] score = {0, 0, 0, 0, 0,0};
-        int max = -100;
-        int maxidx = 0;
-
-        ArrayList<Integer> banju = new ArrayList<>();
-        int  key = getKeySignature();
-        ArrayList<ArrayList<Integer>> bars = getBars();
-        //ex { 0, 4, 0, 4};
-                            // 가중치는 순서대로 11, 9 ,7, 5
-        int[][] ChordTable = {  {0,4,7} ,        // C
-                                {2,5,0,9} ,    // D-7
-                                {4,7,2,11},     // E-7
-                                {5,9,0},          // F
-                                {7,11,5,2} ,    // G7
-                                {9,0,7,4}     // A-7
-         } ;
-                            // 가중치는 - 100
-        int[][] AvoidTable ={   {5} ,        // C
-                                {11} ,    // D-7
-                                { 4, 0},     // E-7
-                                { 11},          // F
-                                {0} ,    // G7
-                                {5 }     // A-7
-        } ;
-        //값 업데이트
-        for(int i = 0 ; i < 6 ; i++){
-            for(int j= 0 ; j < ChordTable[i].length ; j++)
-                ChordTable[i][j] = (ChordTable[i][j] +=key)%12;
-
-            for(int j= 0 ; j < AvoidTable[i].length ; j++)
-                AvoidTable[i][j] = (AvoidTable[i][j] +=key)%12;
-        }
-
-        for (ArrayList<Integer> bar : bars){
-            // score 계산
-
-            for( int ele : bar){
-
-                for(int i = 0 ; i < 6 ; i++){
-                    //Avoid Table 계산
-
-                    for(int j = 0 ; j < AvoidTable[i].length ; j++){
-                        if(AvoidTable[i][j] == (ele%12) )
-                            score[i] -= 100;
-                    }
-                    // Chord table 계산
-                    if( score[i] < 0)
-                        continue; //Avoid 있으면 계산할 가치없음 그냥 x
-
-                    for(int j = 0 ; j < ChordTable[i].length ; j++){
-                        if(ChordTable[i][j] == (ele%12) )
-                            score[i] += (11 - (j*2));
-                    }
-                }
-            }
-
-
-            //score  max값 찾으면서 초기화
-            for(int idx = 0 ; idx <6 ; idx++){
-                if( max <= score[idx]) {
-                    max = score[idx];
-                    maxidx = idx;
-                }
-                score[idx] = 0;
-            }
-            //반주에
-            banju.add(maxidx);
-            //초가화
-            max = -100;
-            maxidx = 0;
-
-        }
-        Log.d("TAG", "banju total: " + banju.toString());
-
-
-
-
-
-        return banju;//  ( 마디별로 코드 하나씩 )
-    }
-*/
-
     ArrayList<ArrayList<Integer>> makeChords(){ // 연주 희영 수정
         int[] score = {0, 0, 0, 0, 0,0};
         int max = -100;
@@ -591,7 +514,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             }
             Log.d("TAG", "-----");
             Log.d("TAG", "ele : "+ bar);
-            Log.d("TAG", "score : " + score[0] +" " + score[1] + score[2] +" " + score[3] + score[4] +" " + score[5]);
+            Log.d("TAG", "score : " + score[0] +", " + score[1] +", "+ score[2] +", " + score[3]+ " ," + score[4] +" , " + score[5]);
 
 
             //score  max값 찾으면서 초기화
@@ -617,6 +540,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
 
+    public boolean isFlat(int key, int midinum){
+        int notFlat[] = { 0,2,4,5,7,9,11}; //Ckey
+
+        for(int i = 0 ; i < notFlat.length ; i++){
+            notFlat[i] = (notFlat[i] +key)%12;
+        }
+
+        for(int i = 0 ; i < notFlat.length ; i++){
+            if(notFlat[i] == midinum%12)
+                return false;
+        }
+        return true;
+    }
 
 
     public void makeMidiFile(){

@@ -427,8 +427,6 @@ class MidiFileMaker2 {
     }
 
 
-
-
     /**
      * Convert an array of integers which are assumed to contain
      * <p>

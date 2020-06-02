@@ -778,8 +778,12 @@ public class RecordingActivity extends AppCompatActivity implements
         //KeySIgnature 추정
         int key = guess(sequence2);
 
-        ArrayList<Integer> sequence = smoothing(sequence2, key);
+        int first_key = KeySignature.Record_guess(sequence2).Notescale();
+        Log.v("TAG", "first_key signature은 " + KeySignature.KeyToString(first_key));
 
+
+
+        ArrayList<Integer> sequence = smoothing(sequence2, key);
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
