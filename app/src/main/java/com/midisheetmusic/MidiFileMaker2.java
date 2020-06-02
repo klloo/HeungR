@@ -248,7 +248,7 @@ class MidiFileMaker2 extends MidiFileMaker{
                 c4 -= 12;
 
 
-            //4/4박 C7코드
+            // nn/4박 C7코드
             bnoteOn(0, c1, 100);
             bnoteOn(0, c2, 100);
             bnoteOn(0, c3, 100);
