@@ -44,6 +44,7 @@ public class SetFileNameActivity extends Activity {
                 Intent intent = new Intent(SetFileNameActivity.this, RecordingActivity.class);
                 intent.putExtra("fileName",fileName.getText().toString());
                 intent.putExtra("folderName",folderName);
+
                 startActivity(intent);
                 finish();
             }

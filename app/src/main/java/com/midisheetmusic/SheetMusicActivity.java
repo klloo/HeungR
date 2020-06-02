@@ -20,9 +20,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +34,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.midisheetmusic.drawerItems.ExpandableSwitchDrawerItem;
@@ -57,6 +60,7 @@ import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.zip.CRC32;
 
 /**
@@ -249,13 +253,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         FileOutputStream fos = null;
         File file = new File( uri.getPath() );
         Log.d("TAG", uri.getPath().toString());
-
-
-        ArrayList<MidiTrack> tracks = midifile.getTracks();
-        KeySignature key = SheetMusic.GetKeySignature(tracks);
-        int new_key = key.getNumber();
-        Log.v("TAG", "getkeySignature은 " + key.toString());
-
 
         try {
             fos = new FileOutputStream(file);
@@ -455,13 +452,14 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return  bars;
     }
 
-    ArrayList<ArrayList<Integer>> makeChords(){ // 연주 희영 수정
-        int[] score = {0, 0, 0, 0, 0,0};
-        int max = -100;
-        int maxidx = 0;
 
-        ArrayList<ArrayList<Integer>>  banju = new ArrayList<>();
-        int  key = getKeySignature() - 3 ;
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    ArrayList<ArrayList<Integer>> makeChords(){
+        int[] score = {0, 0, 0, 0, 0,0};
+
+        ArrayList<ArrayList<Integer>> banjuList = new ArrayList<>();
+        ArrayList<Integer> banju = new ArrayList<>();
+        int  key = getKeySignature();
         ArrayList<ArrayList<Integer>> bars = getBars();
         //ex { 0, 4, 0, 4};
         // 가중치는 순서대로 11, 9 ,7, 5
@@ -489,7 +487,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 AvoidTable[i][j] = (AvoidTable[i][j] +=key)%12;
         }
 
-
         for (ArrayList<Integer> bar : bars){
             // score 계산
 
@@ -497,64 +494,45 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
                 for(int i = 0 ; i < 6 ; i++){
                     //Avoid Table 계산
+
                     for(int j = 0 ; j < AvoidTable[i].length ; j++){
                         if(AvoidTable[i][j] == (ele%12) )
                             score[i] -= 100;
                     }
-
                     // Chord table 계산
                     if( score[i] < 0)
                         continue; //Avoid 있으면 계산할 가치없음 그냥 x
 
                     for(int j = 0 ; j < ChordTable[i].length ; j++){
                         if(ChordTable[i][j] == (ele%12) )
-                            score[i] += (13 - (j*2));
+                            score[i] += (11 - (j*2));
                     }
                 }
             }
-            Log.d("TAG", "-----");
-            Log.d("TAG", "ele : "+ bar);
-            Log.d("TAG", "score : " + score[0] +", " + score[1] +", "+ score[2] +", " + score[3]+ " ," + score[4] +" , " + score[5]);
 
+            ArrayList<Pair<Integer,Integer>> scores = new ArrayList<>();
+            for(int i = 0; i<6; i++)
+                scores.add(new Pair<Integer, Integer>(score[i],i));
 
-            //score  max값 찾으면서 초기화
-            for(int idx = 0 ; idx <6 ; idx++){
-                if( max <= score[idx]) {
-                    max = score[idx];
-                    maxidx = idx;
-                }
-                score[idx] = 0;
+            //sort
+            scores.sort(new mycmp());
+            System.out.println(bar + "  " + scores.toString());
+
+            for(int i=0;i<6;i++){
+                if(scores.get(i).first >= 0)
+                    banju.add(scores.get(i).second);
             }
             //반주에
-            ArrayList<Integer> hey = new ArrayList<>();
-            hey.add(maxidx);
-            banju.add(hey);
-            //초가화
-            max = -100;
-            maxidx = 0;
-
+            banjuList.add(banju);
+            banju = new ArrayList<>();
         }
-        Log.d("TAG", "banju total: " + banju.toString());
+        System.out.println("banjuList : " + banjuList.toString());
 
-        return banju;//  ( 마디별로 코드 하나씩 )
+
+        return banjuList;//  ( 마디별로 코드 하나씩 )
     }
 
-
-    public boolean isFlat(int key, int midinum){
-        int notFlat[] = { 0,2,4,5,7,9,11}; //Ckey
-
-        for(int i = 0 ; i < notFlat.length ; i++){
-            notFlat[i] = (notFlat[i] +key)%12;
-        }
-
-        for(int i = 0 ; i < notFlat.length ; i++){
-            if(notFlat[i] == midinum%12)
-                return false;
-        }
-        return true;
-    }
-
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void makeMidiFile(){
         ArrayList<Integer> sequence = getSequence();
         ArrayList<ArrayList<Integer>> banju = makeChords();
@@ -583,7 +561,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         String newtitle = "chord_" +uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
-        midiFileMaker.writeToFile(file, banju,key , nn, 127);
+        midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
 
 
@@ -878,3 +856,9 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 }
 
+class mycmp implements Comparator {
+    @Override
+    public int compare(Object o1, Object o2) {
+        return Integer.compare(((Pair<Integer,Integer>)o2).first,((Pair<Integer,Integer>)o1).first);
+    }
+}

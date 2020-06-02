@@ -111,7 +111,8 @@ public class RecordingActivity extends AppCompatActivity implements
     TextView progressTimeTextView;
     //  String filename = "recorded_sound.wav";
 
-
+    TextView bpmtext;
+    TextView measuretext;
 
 
     AudioDispatcher dispatcher;
@@ -125,10 +126,15 @@ public class RecordingActivity extends AppCompatActivity implements
     ArrayList<Point> recordedPoints;
 
 
+    String folderName;
+    String fileName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording);
+
+        folderName = getIntent().getStringExtra("folderName");
+        fileName = getIntent().getStringExtra("fileName");
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.clap, 1);
@@ -210,72 +216,104 @@ public class RecordingActivity extends AppCompatActivity implements
         });
 
 
+        final int[] countFlag = {0};
+        final int[] middlestop = {0};
+        bpmtext = findViewById(R.id.textView);
+        measuretext = findViewById(R.id.textView2);
 
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                final CountDownTimer timer = new CountDownTimer(3000,1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+
+                        //  mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
+
+                        if(countFlag[0] == 1){
+
+                            countview.setVisibility(View.VISIBLE);
+                            countview.setImageResource(countArray[count]);
+                            soundPool.play(clap,1f,1f,0,0,1f);
+                            count++;
+                            Log.d("TAG", "Count "+ (count+1) );
+
+                        }else{//중간에 타이머를 멈췄다...
+
+                            cancel();
+                            middlestop[0] = 1;
+
+                        }
+
+                    }
+
+                    public void onFinish() {
+                        //bpmtext.setVisibility(View.GONE);
+                        //measuretext.setVisibility(View.GONE);
+                        //spinnerBpm.setVisibility(View.GONE);
+                        //spinnerMeasure.setVisibility(View.GONE);
+                        spinnerBpm.setEnabled(false);
+                        spinnerMeasure.setEnabled(false);
+
+                        countview.setVisibility(View.GONE);
+                        //tarsoDSP
+                        now= SystemClock.currentThreadTimeMillis();
+                        initPitcher();
+                        //메트로놈
+                        metronomeThread.start();
+                        countFlag[0] = 0;
+                        middlestop[0] = 0;
+                    }
+                };
+
                 Log.d("TAG", "Icon Clicked");
                 if(checkPermission()) {
 
                     if (isRecording) {
+                        countFlag[0] = 0;
+                        timer.cancel();
+                        if(middlestop[0]==1){
+                            middlestop[0]=0;
+                            recreate();
 
-                        isRecording = false;
-
-
-                        mFloatingActionButton.setImageResource(R.drawable.ic_mic);
-
-                        //tasroDSP
-                        stopRecording();
-
-                        //메트로놈
-                        if (metronomeThread.isPlaying()) {
-                            metronomeThread.setPlaying(false);
-                            metronomeThread.interrupt();
-                            metronomeThread = null;
                         }
 
-                        imageview.setImageResource(R.drawable.sleep);
+
+                        else{
+
+                            isRecording = false;
+
+                            mFloatingActionButton.setImageResource(R.drawable.ic_mic);
+
+                            //tasroDSP
+                            stopRecording();
+
+                            //메트로놈
+                            if (metronomeThread.isPlaying()) {
+                                metronomeThread.setPlaying(false);
+                                metronomeThread.interrupt();
+                                metronomeThread = null;
+                            }
+
+                            imageview.setImageResource(R.drawable.sleep);
+                        }
+
                     }
 
 
                     else { // 녹음 시작
 
                         isRecording = true;
-
+                        countFlag[0]=1;
                         metronomeThread = new MetronomeThread();
                         metronomeThread.setBpm(spinnerBPM);
                         metronomeThread.setMeasure(measure);
                         metronomeThread.setImageView(imageview);
                         mFloatingActionButton.setImageResource(R.drawable.ic_mic_off);
 
-
-                        new CountDownTimer(3000, 1000) {
-
-                            public void onTick(long millisUntilFinished) {
-
-                                //  mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
-
-                                countview.setVisibility(View.VISIBLE);
-                                countview.setImageResource(countArray[count]);
-                                soundPool.play(clap,1f,1f,0,0,1f);
-                                count++;
-                                Log.d("TAG", "Count "+ (count+1) );
-
-                            }
-
-                            public void onFinish() {
-                                countview.setVisibility(View.GONE);
-
-                                //tarsoDSP
-                                now= SystemClock.currentThreadTimeMillis();
-                                initPitcher();
-
-                                //메트로놈
-                                metronomeThread.start();
-
-                            }
-                        }.start();
+                       timer.start();
+                       middlestop[0] = 1;
 
                     }
 
@@ -497,22 +535,22 @@ public class RecordingActivity extends AppCompatActivity implements
 
         }
 
-        while(Sequence1.get(0) == -1){
+ /*      while(Sequence1.get(0) == -1){
             Sequence1.remove(0);
             Sequence1.remove(0);
-        }
+        }*/
 
-/*        if(Sequence1.get(0) == -1){
+        /*if(Sequence1.get(0) == -1){
             Sequence1.remove(0);
             Sequence1.remove(0);
-        }
-*/
-        System.out.println("맨 앞 -1 지우기");
+        }*/
 
-        for(int i=1; i<Sequence1.size();i+=2){
+        //System.out.println("맨 앞 -1 지우기");
+
+        /*for(int i=1; i<Sequence1.size();i+=2){
             System.out.println("MidiNum : " + Sequence1.get(i-1) + " || Counts : "+ Sequence1.get(i));
 
-        }
+        }*/
 
         return Sequence1; //{음계, 음계개수}
     }
@@ -548,9 +586,15 @@ public class RecordingActivity extends AppCompatActivity implements
         ArrayList<Integer> Sequence2 = new ArrayList<Integer>();
 
         //Sequence2 = {음계, 개수}정리 list (16분음표보다 작은 것 합치기)
+        if(Sequence1 == null){
+            ArrayList<Integer> nulllist = new ArrayList<>();
+            nulllist.add(-1);
+            nulllist.add(half_note);
+            return nulllist;
+        }
         Sequence2.add(Sequence1.get(0));
         Sequence2.add(Sequence1.get(1));
-        int count = Sequence1.get(3);
+        int count;
         int exCount = 0;
         int k;
         for(int i = 3; i<Sequence1.size();i+=2){
@@ -684,7 +728,14 @@ public class RecordingActivity extends AppCompatActivity implements
 
         }
 
-        if(Sequence2.get(0) == -1){
+ /*       if(Sequence2.get(0) == -1){
+            Sequence2.remove(0);
+            Sequence2.remove(0);
+        }*/
+        while(Sequence2.get(0) == -1){
+            if(Sequence2.size()==2){
+                return Sequence2;
+            }
             Sequence2.remove(0);
             Sequence2.remove(0);
         }
@@ -791,16 +842,17 @@ public class RecordingActivity extends AppCompatActivity implements
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone");
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
         if(!dir.exists()){
             dir.mkdirs();
         }
 
 
-        File file = new File(dir, "file.mid") ;
+        File file = new File(dir, fileName + ".mid") ;
         midiFileMaker.writeToFile (file);
 
-
+        ((MainActivity)MainActivity.mContext).loadFolder();
+        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
 
 
