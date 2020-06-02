@@ -145,12 +145,8 @@ public class RecordingActivity extends AppCompatActivity implements
         countview = findViewById(R.id.countView);
         imageview = findViewById(R.id.imageView);
         if( countview == null){
-            Log.d("TAG","countView is NULL");
         }
         else{
-
-            Log.d("TAG", "countView  "+countview);
-
             readyThread.setImageView( (ImageView) countview);
         }
 
@@ -237,7 +233,6 @@ public class RecordingActivity extends AppCompatActivity implements
                             countview.setImageResource(countArray[count]);
                             soundPool.play(clap,1f,1f,0,0,1f);
                             count++;
-                            Log.d("TAG", "Count "+ (count+1) );
 
                         }else{//중간에 타이머를 멈췄다...
 
@@ -267,7 +262,6 @@ public class RecordingActivity extends AppCompatActivity implements
                     }
                 };
 
-                Log.d("TAG", "Icon Clicked");
                 if(checkPermission()) {
 
                     if (isRecording) {
@@ -319,7 +313,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
                 } else {
 
-                    Log.d("TAG", "No");
                     requestPermission();
                 }
 
@@ -777,23 +770,48 @@ public class RecordingActivity extends AppCompatActivity implements
         //       Log.d(TAG, String.valueOf(volume));
     }
 
+    public boolean isFlat(int key, int midinum){
+        int notFlat[] = { 0,2,4,5,7,9,11}; //Ckey
 
+        for(int i = 0 ; i < notFlat.length ; i++){
+            notFlat[i] = (notFlat[i] +key)%12;
+        }
 
-    int guess( ArrayList<Integer> seq){
-        //민주
-        return 0;
+        for(int i = 0 ; i < notFlat.length ; i++){
+            if(notFlat[i] == midinum%12)
+                return true;
+        }
+        return false;
     }
 
-    ArrayList<Integer> smoothing ( ArrayList<Integer> seq, int key){
+    public ArrayList<Integer> smoothing ( ArrayList<Integer> seq, int key){
+
         ArrayList<Integer> sequence ;
-        //민주
+
+        for(int i =0; i < seq.size(); i+=2){
+            int midinum = seq.get(i);
+
+            if(isFlat(key, midinum)){
+                if( !isFlat(key, midinum+1)){
+                    midinum++;
+                    seq.set(i, midinum);
+                }
+                else{
+                    if(!isFlat(key, midinum-1)){
+                        midinum--;
+                        seq.set(i, midinum);
+                    }
+                }
+            }
+
+        }
         return  seq;
+
     }
 
 
     public void stopRecording(){
         length = SystemClock.elapsedRealtime() - startTime;
-        Log.d("TAG", "clock END!!! ");
 
         releaseDispatcher();
         gap = (int)(length/sampleNumber);
@@ -826,11 +844,13 @@ public class RecordingActivity extends AppCompatActivity implements
         //최종시퀀스
         ArrayList<Integer> sequence2 = ReturnSequence(sequence1, gap, spinnerBPM );
 
-        //KeySIgnature 추정
-        int key = guess(sequence2);
-
+        //KeySIgnature 추정 후 smoothing
+        int key = KeySignature.Record_guess(sequence2).Notescale();
+        Log.v("TAG", "first_key signature은 " + KeySignature.KeyToString(key));
         ArrayList<Integer> sequence = smoothing(sequence2, key);
 
+        int Afterkey = KeySignature.Record_guess(sequence).Notescale();
+        Log.v("TAG", "after_key signature은 " + KeySignature.KeyToString(Afterkey));
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
@@ -880,51 +900,6 @@ public class RecordingActivity extends AppCompatActivity implements
         releaseDispatcher();
     }
 
-//Yujin Branch
-
-    /*
-        public void recordAudio(){
-            releaseDispatcher();
-            dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050,1024,0);
-
-            humming.clear();
-            startTime = SystemClock.currentThreadTimeMillis();
-            try {
-                RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
-              //  AudioProcessor recordProcessor = new WriterProcessor(tarsosDSPAudioFormat, randomAccessFile);
-               // dispatcher.addAudioProcessor(recordProcessor);
-
-                PitchDetectionHandler pitchDetectionHandler = new PitchDetectionHandler() {
-                    @Override
-                    public void handlePitch(PitchDetectionResult res, AudioEvent e){
-                        final float pitchInHz = res.getPitch();
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                pitchTextView.setText(pitchInHz + "");
-                                humming.add((double) pitchInHz);
-                                sampleNumber++;
-                                now = SystemClock.currentThreadTimeMillis();
-
-                            }
-                        });
-                    }
-                };
-
-                //Algorithm 체크 해야할듯함 ( 잡음 제거라던지..)
-                AudioProcessor pitchProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pitchDetectionHandler);
-                dispatcher.addAudioProcessor(pitchProcessor);
-
-                Thread audioThread = new Thread(dispatcher, "Audio Thread");
-                audioThread.start();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-
     public void initPitcher()
     {
         humming.clear();
@@ -950,7 +925,6 @@ public class RecordingActivity extends AppCompatActivity implements
         audioThread = new Thread(dispatcher, "Audio Thread");
 
         startTime = SystemClock.elapsedRealtime();
-        Log.d("TAG", "clock Start!!! ");
         audioThread.start();
     }
 

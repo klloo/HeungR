@@ -223,6 +223,7 @@ class MidiFileMaker2 extends MidiFileMaker{
     }
 
 
+
     public void writeChord(int nn, int num, boolean is7, boolean isMinor7){
 
         if(is7){
@@ -231,13 +232,23 @@ class MidiFileMaker2 extends MidiFileMaker{
             int c2 = 64; //미
             int c3 = 67; //솔
             int c4 = 70; //시b
+
             c1 += num;
             c2 += num;
             c3 += num;
             c4 += num;
 
+            if( c1 > 73)
+                c1 -= 12;
+            if( c2 > 73)
+                c2 -= 12;
+            if( c3 > 73)
+                c3 -= 12;
+            if( c4 > 73)
+                c4 -= 12;
 
-            //4/4박 C7코드
+
+            // nn/4박 C7코드
             bnoteOn(0, c1, 100);
             bnoteOn(0, c2, 100);
             bnoteOn(0, c3, 100);
@@ -256,6 +267,15 @@ class MidiFileMaker2 extends MidiFileMaker{
             c2 += num;
             c3 += num;
             c4 += num;
+
+            if( c1 > 73)
+                c1 -= 12;
+            if( c2 > 73)
+                c2 -= 12;
+            if( c3 > 73)
+                c3 -= 12;
+            if( c4 > 73)
+                c4 -= 12;
 
 
             //4/4박 C-7코드
@@ -276,6 +296,13 @@ class MidiFileMaker2 extends MidiFileMaker{
             c1 += num;
             c2 += num;
             c3 += num;
+
+            if( c1 > 73)
+                c1 -= 12;
+            if( c2 > 73)
+                c2 -= 12;
+            if( c3 > 73)
+                c3 -= 12;
 
             //4/4박 C코드
             bnoteOn(0, c1, 100);

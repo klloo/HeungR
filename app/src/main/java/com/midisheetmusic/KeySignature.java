@@ -18,6 +18,8 @@ import com.midisheetmusic.sheets.AccidSymbol;
 import com.midisheetmusic.sheets.Clef;
 import com.midisheetmusic.sheets.WhiteNote;
 
+import java.util.ArrayList;
+
 /** @class KeySignature
  * The KeySignature class represents a key signature, like G Major
  * or B-flat Major.  For sheet music, we only care about the number
@@ -615,6 +617,65 @@ public class KeySignature {
             }
         }
         if (is_best_sharp) {
+            return new KeySignature(bestkey, 0);
+        }
+        else {
+            return new KeySignature(0, bestkey);
+        }
+    }
+
+    public static KeySignature Record_guess(ArrayList<Integer> seq){
+        CreateAccidentalMaps();
+
+        ArrayList<Integer> seq_midi = new ArrayList<Integer>();
+
+        for(int i=0; i < seq.size(); i += 2){ //midinum만 모으기
+            seq_midi.add(seq.get(i));
+        }
+
+        int[] notecount = new int[12];
+        for(int i = 0; i < seq_midi.size(); i++){
+            int notenumber = seq_midi.get(i);
+            int notescale = (notenumber + 3) % 12;
+            notecount[notescale] += 1;
+        }
+
+        int bestkey = 0;
+        boolean is_best_sharp = true;
+        int smallest_accid_count = seq_midi.size();
+        int key;
+
+        for (key = 0; key < 6; key++) {
+            int accid_count = 0;
+            for (int n = 0; n < 12; n++) {
+                if (sharpkeys[key][n] != Accid.None) { //sharpkeys[0][n]은 n이 1, 4, 6, 9, 11일때
+                    //sharpkeys[1][n]
+                    accid_count += notecount[n]; // accid_counet에 notecount[1] + notecount[4] + notecount[6] + notecount[9] + notecount[11]
+                }
+            }
+            if (accid_count < smallest_accid_count) { //accid_count가 notes.size보다 작으면
+                smallest_accid_count = accid_count; //같게 하고
+                bestkey = key; //
+                is_best_sharp = true; //#이다.
+            }
+        }
+
+        //flat
+        for (key = 0; key < 7; key++) {
+            int accid_count = 0;
+            for (int n = 0; n < 12; n++) {
+                if (flatkeys[key][n] != Accid.None) {
+                    accid_count += notecount[n];
+                }
+            }
+            if (accid_count < smallest_accid_count) {
+                smallest_accid_count = accid_count;
+                bestkey = key;
+                is_best_sharp = false;
+            }
+        }
+
+        if (is_best_sharp) { //각 KeySignature로 bestkey를 보낸다 #이나 b으로
             return new KeySignature(bestkey, 0);
         }
         else {

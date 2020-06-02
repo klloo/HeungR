@@ -532,6 +532,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void makeMidiFile(){
         ArrayList<Integer> sequence = getSequence();
         ArrayList<ArrayList<Integer>> banju = makeChords();
