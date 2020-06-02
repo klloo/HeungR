@@ -131,7 +131,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         if (options == null) {
             options = new MidiOptions(file);
         }
-        zoom = 2.0f;
+        zoom = 3.0f;
 
         filename = file.getFileName();
         SetColors(options.noteColors, options.useColors, options.shade1Color, options.shade2Color);
@@ -198,7 +198,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         for (Staff staff : staffs) {
             staff.CalculateHeight();
         }
-        zoom = 2.0f;
+        zoom = 3.0f;
 
         scrollAnimation = new ScrollAnimation(this, scrollVert);
     }
