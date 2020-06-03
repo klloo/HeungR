@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
     public void setAlbum(){
 
+        data = new ArrayList<>();
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone";
         File directory = new File(path);
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 .build());
 
     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,65 +128,17 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         }
     }
 
-
-
     @Override
     public void onClick(View v) {
-/*
-        switch (v.getId()) {
-            case R.id.item_btn_rate:
-                int realPosition = infiniteAdapter.getRealPosition(itemPicker.getCurrentItem());
-                Item current = data.get(realPosition);
-                shop.setRated(current.getId(), !shop.isRated(current.getId()));
-                changeRateButtonState(current);
-                break;
-            case R.id.home:
-                finish();
-                break;
-            case R.id.btn_transition_time:
-                DiscreteScrollViewOptions.configureTransitionTime(itemPicker);
-                break;
-            case R.id.btn_smooth_scroll:
-                DiscreteScrollViewOptions.smoothScrollToUserSelectedPosition(itemPicker, v);
-                break;
-            default:
-                showUnsupportedSnackBar();
-                break;
-        }
-*/
     }
     private void onItemChanged(Data item) {
-
         currentData = item;
-
     }
     @Override
     public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {
         int positionInDataSet = infiniteAdapter.getRealPosition(position);
         onItemChanged(data.get(positionInDataSet));
     }
-
-}
-
-class FolderAdapter extends ArrayAdapter<Object> {
-    private ArrayList<Data> items;
-    private Data temp;
-    public FolderAdapter(Context ctx, ArrayList items){
-        super(ctx,0,items);
-        this.items = items;
-    }
-    public View getView(int position, View convertView, ViewGroup parent){
-        if(convertView==null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.folder_item,parent,false);
-        }
-        Data data = (Data) getItem(position);
-        TextView title = (TextView)convertView.findViewById(R.id.folderTitleTextView);
-        TextView tracknum = (TextView)convertView.findViewById(R.id.tracknumTextView);
-        tracknum.setText(String.valueOf(data.getTracknum()));
-        title.setText(data.getTitle());
-        return convertView;
-    }
-
 }
 
 
