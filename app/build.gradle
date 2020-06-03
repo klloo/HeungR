@@ -60,4 +60,7 @@ dependencies {
     implementation files('libs/TarsosDSP-latest.jar')
     implementation 'com.jjoe64:graphview:4.1.0'
 
+    //앨범
+    implementation 'com.yarolegovich:discrete-scrollview:1.4.9'
+
 }

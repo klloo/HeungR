@@ -15,20 +15,33 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.yarolegovich.discretescrollview.DSVOrientation;
+import com.yarolegovich.discretescrollview.DiscreteScrollView;
+import com.yarolegovich.discretescrollview.InfiniteScrollAdapter;
+import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener,
+        View.OnClickListener {
 
     public  static Context mContext;
 
-    public void loadFolder()
-    {
-        ArrayList<Data> data = new ArrayList<>();
+    private DiscreteScrollView itemPicker;
+    private InfiniteScrollAdapter infiniteAdapter;
+    ArrayList<Data> data = new ArrayList<>();
+
+    Data currentData;
+
+
+    public void setAlbum(){
+
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone";
         File directory = new File(path);
 
@@ -44,32 +57,31 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        itemPicker = (DiscreteScrollView) findViewById(R.id.item_picker);
+        itemPicker.setOrientation(DSVOrientation.HORIZONTAL);
+        itemPicker.addOnItemChangedListener(this);
+        infiniteAdapter = InfiniteScrollAdapter.wrap(new AlbumAdaptor(data));
+        itemPicker.setAdapter(infiniteAdapter);
+        itemPicker.setItemTransformer(new ScaleTransformer.Builder()
+                .setMinScale(0.8f)
+                .build());
 
-        ListView listview = (ListView)findViewById(R.id.folderList);
-        FolderAdapter adpater = new FolderAdapter(this, data);
-        listview.setAdapter(adpater);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
-                intent.putExtra("folderName",data.get(position).title);
-                startActivity(intent);
-
-            }
-        });
     }
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mContext = this;
-        loadFolder();
-
+        setAlbum();
         //폴더 추가 버튼
         Button addBtn = findViewById(R.id.addBtn);
         //퀵버튼
         Button quickBtn = findViewById(R.id.quickBtn);
+
+        Button start = findViewById(R.id.gogobtn);
+
+
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +99,19 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
+
+                intent.putExtra("folderName",currentData.title);
+                startActivity(intent);
+
+
+
+            }
+        });
 
     }
 
@@ -96,10 +121,49 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                loadFolder();
+                setAlbum();
             }
         }
     }
+
+
+
+    @Override
+    public void onClick(View v) {
+/*
+        switch (v.getId()) {
+            case R.id.item_btn_rate:
+                int realPosition = infiniteAdapter.getRealPosition(itemPicker.getCurrentItem());
+                Item current = data.get(realPosition);
+                shop.setRated(current.getId(), !shop.isRated(current.getId()));
+                changeRateButtonState(current);
+                break;
+            case R.id.home:
+                finish();
+                break;
+            case R.id.btn_transition_time:
+                DiscreteScrollViewOptions.configureTransitionTime(itemPicker);
+                break;
+            case R.id.btn_smooth_scroll:
+                DiscreteScrollViewOptions.smoothScrollToUserSelectedPosition(itemPicker, v);
+                break;
+            default:
+                showUnsupportedSnackBar();
+                break;
+        }
+*/
+    }
+    private void onItemChanged(Data item) {
+
+        currentData = item;
+
+    }
+    @Override
+    public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {
+        int positionInDataSet = infiniteAdapter.getRealPosition(position);
+        onItemChanged(data.get(positionInDataSet));
+    }
+
 }
 
 class FolderAdapter extends ArrayAdapter<Object> {
@@ -122,6 +186,8 @@ class FolderAdapter extends ArrayAdapter<Object> {
     }
 
 }
+
+
 class Data{
     String title;
     int tracknum;
