@@ -11,6 +11,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="100dp" />
+
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="match_parent"
@@ -23,56 +27,45 @@
 
             <EditText
                 android:id="@+id/inputTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="101dp"
-                android:ems="10"
                 android:inputType="textPersonName"
                 android:text="Name"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.31" />
 
             <Button
                 android:id="@+id/cancelBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="53dp"
-                android:layout_marginTop="48dp"
-                android:layout_marginEnd="53dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
                 android:text="Cancel"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/saveBtn"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/inputTitle" />
 
             <Button
                 android:id="@+id/saveBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="53dp"
-                android:layout_marginTop="47dp"
-                android:layout_marginEnd="41dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginTop="20dp"
                 android:text="save"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/cancelBtn"
-                app:layout_constraintTop_toBottomOf="@+id/inputTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/inputTitle"
+                tools:layout_editor_absoluteX="221dp" />
 
             <Button
                 android:id="@+id/selectImageBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="44dp"
+                android:layout_marginTop="16dp"
                 android:text="image"
-                app:layout_constraintBottom_toTopOf="@+id/saveBtn"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/inputTitle"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
