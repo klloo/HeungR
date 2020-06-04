@@ -42,8 +42,8 @@ public class AlbumAdaptor  extends RecyclerView.Adapter<AlbumAdaptor.ViewHolder>
        // holder.songNumber.setText(data.get(position).getTracknum()+"");
 
         holder.image.setBackgroundColor(color[position%3]);
-
-
+        if(position == data.size()-1)
+            holder.image.setBackgroundColor(ContextCompat.getColor(MainActivity.mContext, R.color.Greenery));
     }
 
 
@@ -52,18 +52,7 @@ public class AlbumAdaptor  extends RecyclerView.Adapter<AlbumAdaptor.ViewHolder>
         return data.size();
     }
 
-   /* class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView image;
-        private TextView albumname;
-        private TextView songNumber;
-        public ViewHolder(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            albumname = itemView.findViewById(R.id.albumname);
-            songNumber = itemView.findViewById(R.id.numofsong);
-        }
-    }*/
     class ViewHolder extends RecyclerView.ViewHolder  {
 
         private ImageView image;
@@ -83,6 +72,17 @@ public class AlbumAdaptor  extends RecyclerView.Adapter<AlbumAdaptor.ViewHolder>
 
                    ((MainActivity)MainActivity.mContext).go();
 
+                }
+            });
+
+
+            itemView.findViewById(R.id.cards).setOnLongClickListener( new View.OnLongClickListener(){
+
+                @Override
+                public boolean onLongClick(View v) {
+
+                    ((MainActivity)MainActivity.mContext).deleteLong();
+                    return false;
                 }
             });
         }

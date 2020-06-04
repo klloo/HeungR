@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     public void setAlbum(){
 
         data = new ArrayList<>();
+
+
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone";
         File directory = new File(path);
 
@@ -57,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             }
 
         }
+
+        data.add(new Data("New Album" , -1));
+
 
         itemPicker = (DiscreteScrollView) findViewById(R.id.item_picker);
         itemPicker.setOrientation(DSVOrientation.HORIZONTAL);
@@ -124,10 +129,31 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     }
 
     public void go(){
-        Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
+        if(albumname.getText().equals("New Album")){
 
-        intent.putExtra("folderName",currentData.title);
-        startActivity(intent);
+            //폴더 생성하는 팝업
+            Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
+            startActivityForResult(intent, 1);
+        }
+        else{
+
+            Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
+
+            intent.putExtra("folderName",currentData.title);
+            startActivity(intent);
+        }
+
+    }
+
+    public  void deleteLong(){
+
+        Intent intent = new Intent(getApplicationContext(), deletePopup.class);
+        if(albumname.getText().equals("Quick"))
+            intent.putExtra("isQuick", true);
+        else
+            intent.putExtra("isQuick", false);
+
+        startActivityForResult(intent, 2);
     }
 
     //새로 추가한 폴더명과 사진을 리스트에 추가하기
@@ -192,6 +218,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         currentData = item;
         albumname.setText(item.getTitle());
         numberofSong.setText(item.getTracknum()+"");
+
+        if(numberofSong.getText().equals("-1"))
+            numberofSong.setText("새로운 앨범을 만들어보세요");
 
     }
     @Override
