@@ -12,12 +12,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".SetFileNameActivity"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"/>
         <activity android:name=".ChooseSongActivity" />
-        <activity android:name=".AddFolderPopupActivity" />
+        <activity android:name=".AddFolderPopupActivity"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"/>
         <activity android:name=".RecordingActivity" />
         <activity android:name=".MainActivity" />
         <activity
@@ -57,27 +57,23 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".SheetMusicActivity2"
-
+        <activity
+            android:name=".SheetMusicActivity2"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/PlayerTheme">
             <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW" />
 
-            <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
 
-            <data
-                android:host="*"
-                android:mimeType="*/*"
-                android:pathPattern=".*\\.mid"
-                android:scheme="file" />
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.mid"
+                    android:scheme="file" />
             </intent-filter>
         </activity>
-
-
-
     </application>
 
 </manifest>

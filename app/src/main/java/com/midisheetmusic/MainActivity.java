@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+//import com.developer.kalert.KAlertDialog;
 import com.yarolegovich.discretescrollview.DSVOrientation;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
 import com.yarolegovich.discretescrollview.InfiniteScrollAdapter;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import es.dmoral.toasty.Toasty;
+
 
 public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener{
 
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toasty.Config.reset();
+
         mContext = this;
         setAlbum();
 
@@ -104,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             @Override
             public void onClick(View view) {
 
+             /*   new KAlertDialog(MainActivity.mContext, KAlertDialog.WARNING_TYPE)
+                        .setTitleText("Are you sure?")
+                        .setContentText("Won't be able to recover this file!")
+                        .setConfirmText("Yes,delete it!")
+                        .show();*/
 
                 File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+currentData.title);
                 if(dir.exists()){
@@ -153,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
 
             }
-            else if( resultCode == RESULT_CANCELED ){
+            else if( resultCode == RESULT_FIRST_USER ){
                 //존재합니다 알림
                 Toasty.custom(this, "폴더를 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }

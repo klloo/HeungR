@@ -167,7 +167,7 @@ abstract class AbstractExpandableSwitchDrawerItem<Item : AbstractExpandableSwitc
             holder.arrow.rotation = this.arrowRotationAngleEnd.toFloat()
         }
 
-        //call the onPostBindView method to trigger post bind view actions (like the listener to modify the item if required)
+        //call the onPostBindView method to trigger post bind view round (like the listener to modify the item if required)
         onPostBindView(this, holder.itemView)
     }
 

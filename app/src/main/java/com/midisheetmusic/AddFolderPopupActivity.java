@@ -57,7 +57,7 @@ public class AddFolderPopupActivity extends Activity {
                     //데이터 전달
                     Intent intent = new Intent();
                     //intent.putExtra();
-                    setResult(RESULT_CANCELED, intent);
+                    setResult(RESULT_FIRST_USER, intent);
                     finish();
 
 
