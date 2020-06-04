@@ -88,7 +88,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
 
-    String folderName;
+    String folderName = "banju";
     String fileName;
 
 
@@ -97,6 +97,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
       * - data: The uri of the midi file to open.
       * - MidiTitleID: The title of the song (String)
       */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -570,7 +571,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         FileUri fileUri = new FileUri(uri2, file.getPath());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
-        intent.putExtra(newtitle, file.toString());
+        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
         startActivity(intent);
 

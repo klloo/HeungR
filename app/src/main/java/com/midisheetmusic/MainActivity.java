@@ -28,8 +28,7 @@ import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 import java.io.File;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener,
-        View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener{
 
     public  static Context mContext;
 
@@ -53,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 int n = 0;
                 if(tmp != null)
                     n = tmp.length;
+                if(files[i].getName().equals("banju"))
+                    continue;
                 data.add(new Data(files[i].getName(), n));
             }
 
@@ -128,9 +129,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         }
     }
 
-    @Override
-    public void onClick(View v) {
-    }
+
     private void onItemChanged(Data item) {
         currentData = item;
     }
