@@ -102,42 +102,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 startActivity(intent);
             }
         });
-        deleteBtn.setOnClickListener(
-                new View.OnClickListener() {
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-             /*   new KAlertDialog(MainActivity.mContext, KAlertDialog.WARNING_TYPE)
-                        .setTitleText("Are you sure?")
-                        .setContentText("Won't be able to recover this file!")
-                        .setConfirmText("Yes,delete it!")
-                        .show();*/
+                Intent intent = new Intent(getApplicationContext(), deletePopup.class);
+                startActivityForResult(intent, 2);
 
-                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+currentData.title);
-                if(dir.exists()){
-
-                    if(dir.isDirectory()){
-                        File[] files = dir.listFiles();
-                        for( File file : files){ // 내부파일 하나씩 지움
-                            if( !file.delete())
-                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
-                        }
-                    }
-
-                    if(dir.delete()){ // 폴더삭제
-                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
-
-                    }
-
-                    else{
-                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
-
-                    }
-
-
-                    setAlbum();
-
-                }
             }
         });
 
@@ -165,6 +136,43 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 //존재합니다 알림
                 Toasty.custom(this, "폴더를 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
+        }
+
+        else if( requestCode ==2){
+
+            if( resultCode == RESULT_OK){
+                // 파일 삭제
+
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+currentData.title);
+                if(dir.exists()){
+
+                    if(dir.isDirectory()){
+                        File[] files = dir.listFiles();
+                        for( File file : files){ // 내부파일 하나씩 지움
+                            if( !file.delete())
+                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                        }
+                    }
+
+                    if(dir.delete()){ // 폴더삭제
+                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
+                    }
+
+                    else{
+                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+
+                    }
+
+
+                    setAlbum();
+
+                }
+
+
+
+            }
+
         }
     }
 
