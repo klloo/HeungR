@@ -56,20 +56,21 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/okBtn"
+            android:id="@+id/backBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OK" />
+            android:text="CANCEL" />
 
         <Space
             android:layout_width="20dp"
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/backBtn"
+            android:id="@+id/okBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CANCEL" />
+            android:text="OK" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
