@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -85,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         albumname = findViewById(R.id.albumname);
         numberofSong = findViewById(R.id.numofsong);
 
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/Quick");
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,8 +110,12 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent(getApplicationContext(), deletePopup.class);
+                if(albumname.getText().equals("Quick"))
+                    intent.putExtra("isQuick", true);
+                else
+                    intent.putExtra("isQuick", false);
+
                 startActivityForResult(intent, 2);
 
             }
@@ -128,13 +137,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 setAlbum();
-                Toasty.custom(this, "폴더를 생성했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "앨범을 생성했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
 
             }
             else if( resultCode == RESULT_FIRST_USER ){
                 //존재합니다 알림
-                Toasty.custom(this, "폴더를 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "앨범을 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
         }
 
@@ -172,7 +181,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
 
             }
-
+            else if( resultCode == RESULT_FIRST_USER ){
+                Toasty.custom(this, "삭제할수 없는 앨범입니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+            }
         }
     }
 

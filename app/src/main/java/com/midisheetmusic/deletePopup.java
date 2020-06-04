@@ -37,9 +37,16 @@ public class deletePopup extends Activity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean check = getIntent().getBooleanExtra("isQuick" , false);
                 Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
+                if(check) //삭제하면안됨
+                    setResult(RESULT_FIRST_USER, intent);
+
+                else // 삭제해도 ㄱㅊ
+                    setResult(RESULT_OK, intent);
                 finish();
+
+
             }
         });
     }

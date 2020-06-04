@@ -868,7 +868,10 @@ public class RecordingActivity extends AppCompatActivity implements
         midiFileMaker.writeToFile (file);
 
         ((MainActivity)MainActivity.mContext).setAlbum();
-        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
+        Log.d("HELLO", folderName);
+
+        if(!folderName.equals("Quick"))
+            ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
 
 
