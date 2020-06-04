@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,7 +32,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     ArrayList<Data> data = new ArrayList<>();
 
     Data currentData = null;
-
+    TextView albumname;
+    TextView numberofSong;
 
     public void setAlbum(){
 
@@ -78,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         Button quickBtn = findViewById(R.id.quickBtn);
 
         Button start = findViewById(R.id.gogobtn);
-
+        albumname = findViewById(R.id.albumname);
+        numberofSong = findViewById(R.id.numofsong);
 
 
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 startActivity(intent);
             }
         });
-        start.setOnClickListener(new View.OnClickListener() {
+        start.setOnClickListener(
+                new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -116,6 +120,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             }
         });
 
+    }
+
+    public void go(){
+        Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
+
+        intent.putExtra("folderName",currentData.title);
+        startActivity(intent);
     }
 
     //새로 추가한 폴더명과 사진을 리스트에 추가하기
@@ -139,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
     private void onItemChanged(Data item) {
         currentData = item;
+        albumname.setText(item.getTitle());
+        numberofSong.setText(item.getTracknum()+"");
+
     }
     @Override
     public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {

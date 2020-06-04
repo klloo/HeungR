@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cards"
     android:layout_width="240dp"
-    android:layout_height="280dp"
+    android:layout_height="240dp"
     android:layout_gravity="center"
     android:layout_margin="4dp">
 
@@ -10,21 +10,8 @@
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#97FF5757"
         android:scaleType="centerCrop" />
-
-    <TextView
-        android:id="@+id/album_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="albumName" />
-
-    <TextView
-        android:id="@+id/numOfSongs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:text="TextView" />
 
 
 </androidx.cardview.widget.CardView>
