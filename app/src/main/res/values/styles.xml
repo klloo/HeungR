@@ -13,8 +13,8 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" >
         // ...
-        <item name="android:background">@color/Bright_white</item>
-        <item name="android:button">@color/Tourmaline</item>
+
+
     </style>
 
     <style name="PlayerTheme" parent="@style/Theme.AppCompat.NoActionBar.Fullscreen"/>

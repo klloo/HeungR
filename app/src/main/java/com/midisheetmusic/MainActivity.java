@@ -4,22 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.yarolegovich.discretescrollview.DSVOrientation;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
 import com.yarolegovich.discretescrollview.InfiniteScrollAdapter;
@@ -27,6 +19,8 @@ import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener{
 
@@ -36,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     private InfiniteScrollAdapter infiniteAdapter;
     ArrayList<Data> data = new ArrayList<>();
 
-    Data currentData;
+    Data currentData = null;
 
 
     public void setAlbum(){
@@ -75,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toasty.Config.reset();
         mContext = this;
         setAlbum();
         //폴더 추가 버튼
@@ -106,13 +101,18 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
-
-                intent.putExtra("folderName",currentData.title);
-                startActivity(intent);
+                if(currentData == null){
+                    // Notification ?
 
 
+                }
+                else{
+                    Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
 
+                    intent.putExtra("folderName",currentData.title);
+                    startActivity(intent);
+
+                }
             }
         });
 
@@ -125,6 +125,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 setAlbum();
+                Toasty.custom(this, "폴더를 생성했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
+
+            }
+            else if( resultCode == RESULT_CANCELED ){
+                //존재합니다 알림
+                Toasty.custom(this, "폴더를 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
         }
     }

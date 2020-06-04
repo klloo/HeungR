@@ -63,4 +63,6 @@ dependencies {
     //앨범
     implementation 'com.yarolegovich:discrete-scrollview:1.4.9'
 
+    //Toast
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
 }

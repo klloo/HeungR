@@ -43,16 +43,27 @@ public class AddFolderPopupActivity extends Activity {
                 //EditText와 사진을 받아 넘김
 
                 File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+inputTitle.getText().toString());
-                if(!dir.exists()){
-                    dir.mkdirs();
+                if(!dir.exists()){ //존재하지않으면
+                    dir.mkdirs();  //만들고
+
+                    //데이터 전달
+                    Intent intent = new Intent();
+                    //intent.putExtra();
+                    setResult(RESULT_OK, intent);
+                    finish();
+
+                }
+                else{ //존재하면
+                    //데이터 전달
+                    Intent intent = new Intent();
+                    //intent.putExtra();
+                    setResult(RESULT_CANCELED, intent);
+                    finish();
+
+
                 }
 
 
-                //데이터 전달
-                Intent intent = new Intent();
-                //intent.putExtra();
-                setResult(RESULT_OK, intent);
-                finish();
             }
         });
     }
