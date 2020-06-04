@@ -68,13 +68,6 @@
             app:srcCompat="@android:drawable/ic_input_add" />
 
         <Button
-            android:id="@+id/gogobtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="START" />
-
-        <Button
             android:id="@+id/quickBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -82,6 +75,13 @@
             android:clickable="true"
             android:text="QUICK"
             app:srcCompat="@drawable/music_48" />
+
+        <Button
+            android:id="@+id/delbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="DELETE" />
 
 
     </LinearLayout>

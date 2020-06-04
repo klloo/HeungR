@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,12 +73,12 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         Toasty.Config.reset();
         mContext = this;
         setAlbum();
-        //폴더 추가 버튼
-        Button addBtn = findViewById(R.id.addBtn);
-        //퀵버튼
-        Button quickBtn = findViewById(R.id.quickBtn);
 
-        Button start = findViewById(R.id.gogobtn);
+
+        Button addBtn = findViewById(R.id.addBtn);
+        Button quickBtn = findViewById(R.id.quickBtn);
+        Button deleteBtn = findViewById(R.id.delbtn);
+
         albumname = findViewById(R.id.albumname);
         numberofSong = findViewById(R.id.numofsong);
 
@@ -100,21 +99,35 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 startActivity(intent);
             }
         });
-        start.setOnClickListener(
+        deleteBtn.setOnClickListener(
                 new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if(currentData == null){
-                    // Notification ?
+
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+currentData.title);
+                if(dir.exists()){
+
+                    if(dir.isDirectory()){
+                        File[] files = dir.listFiles();
+                        for( File file : files){ // 내부파일 하나씩 지움
+                            if( !file.delete())
+                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                        }
+                    }
+
+                    if(dir.delete()){ // 폴더삭제
+                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
+                    }
+
+                    else{
+                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+
+                    }
 
 
-                }
-                else{
-                    Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
-
-                    intent.putExtra("folderName",currentData.title);
-                    startActivity(intent);
+                    setAlbum();
 
                 }
             }
