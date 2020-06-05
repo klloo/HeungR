@@ -134,6 +134,7 @@ public class RecordingActivity extends AppCompatActivity implements
     String fileName;
 
     TextView recordingTitleView;
+    TextView recordingFolderView;
 
     public Vibrator getVibrator(){
         return vibrator;
@@ -156,7 +157,9 @@ public class RecordingActivity extends AppCompatActivity implements
         readyview = findViewById(R.id.readyView);
         imageview = findViewById(R.id.imageView);
         recordingTitleView = findViewById(R.id.RecordingTitle);
+        recordingFolderView = findViewById(R.id.Recordingfolder);
         recordingTitleView.setText(fileName);
+        recordingFolderView.setText(folderName);
         if( countview == null){
         }
         else{

@@ -73,13 +73,6 @@ import java.util.Locale;
  */
 public class MidiPlayer extends LinearLayout {
     private Button midiButton;
-    private Button leftHandButton;
-    private Button rightHandButton;
-    private ImageButton pianoButton;
-    /** The "Speed %" label */
-    private TextView speedText;
-    /** The seekbar for controlling playback speed */
-    private SeekBar speedBar;
     private Drawer drawer;
 
     /** The index corresponding to left/right hand in the track list */
@@ -119,6 +112,9 @@ public class MidiPlayer extends LinearLayout {
     /** The parent activity. */
     Activity activity;
 
+    public void setMidiButton(Button btn){
+        midiButton = btn;
+    }
     /** A listener that allows us to send a request to update the sheet when needed */
     private SheetUpdateRequestListener mSheetUpdateRequestListener;
 
@@ -182,7 +178,7 @@ public class MidiPlayer extends LinearLayout {
 
     /** Create the rewind, play, stop, and fast forward buttons */
     void init() {
-        inflate(activity, R.layout.player_toolbar, this);
+      /*  inflate(activity, R.layout.player_toolbar, this);
 
         ImageButton backButton = findViewById(R.id.btn_back);
         ImageButton rewindButton = findViewById(R.id.btn_rewind);
@@ -190,12 +186,8 @@ public class MidiPlayer extends LinearLayout {
         ImageButton playButton = findViewById(R.id.btn_play);
         ImageButton fastFwdButton = findViewById(R.id.btn_forward);
         ImageButton settingsButton = findViewById(R.id.btn_settings);
-        leftHandButton = findViewById(R.id.btn_left);
-        rightHandButton = findViewById(R.id.btn_right);
+
         midiButton = findViewById(R.id.btn_midi);
-        pianoButton = findViewById(R.id.btn_piano);
-        speedText = findViewById(R.id.txt_speed);
-        speedBar = findViewById(R.id.speed_bar);
 
         backButton.setOnClickListener(v -> activity.onBackPressed());
         rewindButton.setOnClickListener(v -> Rewind());
@@ -206,42 +198,8 @@ public class MidiPlayer extends LinearLayout {
             drawer.deselect();
             drawer.openDrawer();
         });
-        midiButton.setOnClickListener(v -> toggleMidi());
-        leftHandButton.setOnClickListener(v -> toggleTrack(LEFT_TRACK));
-        rightHandButton.setOnClickListener(v -> toggleTrack(RIGHT_TRACK));
+        midiButton.setOnClickListener(v -> toggleMidi());*/
 
-        // Resize the speedBar so all toolbar icons fit on the screen
-        speedBar.post(
-                () -> {
-                    int iconsWidth = backButton.getWidth() + resetButton.getWidth() + playButton.getWidth() +
-                            rewindButton.getWidth() + fastFwdButton.getWidth() + midiButton.getWidth() +
-                            leftHandButton.getWidth() + rightHandButton.getWidth() + pianoButton.getWidth() +
-                            settingsButton.getWidth();
-                    int screenwidth = activity.getWindowManager().getDefaultDisplay().getWidth();
-                    speedBar.setLayoutParams(
-                            new LayoutParams(screenwidth - iconsWidth - 16, speedBar.getHeight()));
-                }
-        );
-
-        speedBar.getProgressDrawable().setColorFilter(Color.parseColor("#00BB87"), PorterDuff.Mode.SRC_IN);
-        speedBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
-                // If speed bar is between 97 and 103 approximate it to 100
-                if(97 < progress && progress < 103) {
-                    progress = 100;
-                    bar.setProgress(progress);
-                }
-                speedText.setText(String.format(Locale.US, "%3d", progress) + "%");
-            }
-            public void onStartTrackingTouch(SeekBar bar) {
-            }
-            public void onStopTrackingTouch(SeekBar bar) {
-            }
-        });
-
-        /* Initialize the timer used for playback, but don't start
-         * the timer yet (enabled = false).
-         */
         timer = new Handler();
     }
 
@@ -276,7 +234,7 @@ public class MidiPlayer extends LinearLayout {
 
     /** Update the status of the toolbar buttons (show, hide, opacity, etc.) */
     public void updateToolbarButtons(){
-        pianoButton.setAlpha(options.showPiano ? (float) 1.0 : (float) 0.5);
+
 
         float leftAlpha = (float) 0.5;
         float rightAlpha = (float) 0.5;
@@ -286,10 +244,6 @@ public class MidiPlayer extends LinearLayout {
         if (RIGHT_TRACK < options.tracks.length) {
             rightAlpha = options.tracks[RIGHT_TRACK] ? (float) 1.0 : (float) 0.5;
         }
-        leftHandButton.setVisibility(LEFT_TRACK < options.tracks.length ? View.VISIBLE : View.GONE);
-        rightHandButton.setVisibility(RIGHT_TRACK < options.tracks.length ? View.VISIBLE : View.GONE);
-        leftHandButton.setAlpha(leftAlpha);
-        rightHandButton.setAlpha(rightAlpha);
     }
 
     /** Get the preferred width/height given the screen width/height */
@@ -366,7 +320,7 @@ public class MidiPlayer extends LinearLayout {
      */ 
     private void CreateMidiFile() {
         double inverse_tempo = 1.0 / midifile.getTime().getTempo();
-        double inverse_tempo_scaled = inverse_tempo * speedBar.getProgress() / 100.0;
+        double inverse_tempo_scaled = inverse_tempo * 100 / 100.0;
         // double inverse_tempo_scaled = inverse_tempo * 100.0 / 100.0;
         options.tempo = (int)(1.0 / inverse_tempo_scaled);
         pulsesPerMsec = midifile.getTime().getQuarter() * (1000.0 / options.tempo);
@@ -386,7 +340,7 @@ public class MidiPlayer extends LinearLayout {
     public  void save(FileOutputStream fos){
 
         double inverse_tempo = 1.0 / midifile.getTime().getTempo();
-        double inverse_tempo_scaled = inverse_tempo * speedBar.getProgress() / 100.0;
+        double inverse_tempo_scaled = inverse_tempo * 100 / 100.0;
         // double inverse_tempo_scaled = inverse_tempo * 100.0 / 100.0;
         options.tempo = (int)(1.0 / inverse_tempo_scaled);
         pulsesPerMsec = midifile.getTime().getQuarter() * (1000.0 / options.tempo);
@@ -466,7 +420,7 @@ public class MidiPlayer extends LinearLayout {
     /** The callback for the play button.
      *  If we're stopped or pause, then play the midi file.
      */
-    private void Play() {
+     void Play() {
         if (midifile == null || sheet == null || numberTracks() == 0) {
             return;
         }
@@ -530,10 +484,10 @@ public class MidiPlayer extends LinearLayout {
      */
     public void Pause() {
         this.setVisibility(View.VISIBLE);
-        LinearLayout layout = (LinearLayout)this.getParent();
+       /* LinearLayout layout = (LinearLayout)this.getParent();
         layout.requestLayout();
         this.requestLayout();
-        this.invalidate();
+        this.invalidate();*/
 
         if (midifile == null || sheet == null || numberTracks() == 0) {
             return;
@@ -549,6 +503,8 @@ public class MidiPlayer extends LinearLayout {
             playstate = paused;
         }
     }
+
+
 
 
     /** The callback for the Reset button.
@@ -608,7 +564,7 @@ public class MidiPlayer extends LinearLayout {
      *  So to rewind, just decrease the currentPulseTime,
      *  and re-shade the sheet music.
      */
-    void Rewind() {
+    public void Rewind() {
         if (midifile == null || sheet == null) {
             return;
         }

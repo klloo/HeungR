@@ -17,18 +17,21 @@
 
     </style>
 
-    <style name="PlayerTheme" parent="@style/Theme.AppCompat.NoActionBar.Fullscreen"/>
 
     <style name="ToolbarButtonStyle" parent="@android:style/Widget.Material.Button.Borderless">
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">40dp</item>
     </style>
 
-    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
+
     <style name="DisabledToolbarButton" parent="ToolbarButtonStyle">
-        <item name="android:textColor">@android:color/holo_red_dark</item>
+        <item name="android:textColor">@color/Bright_white</item>
     </style>
-    <color name="IconColor">@android:color/darker_gray</color>
+
+    <color name="IconColor">@color/Phantom_Green</color>
+
+
 </resources>

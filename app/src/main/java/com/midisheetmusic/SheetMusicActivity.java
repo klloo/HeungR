@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
@@ -31,6 +32,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -162,6 +164,26 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         createViews();
 
+        init();
+
+        Log.d("TAG", "create : title  : " +  title);
+        Log.d("TAG", "create : uri  : " + uri);
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void init() {
+
+        ImageButton backButton = findViewById(R.id.btn_back);
+        ImageButton rewindButton = findViewById(R.id.btn_rewind);
+        ImageButton resetButton = findViewById(R.id.btn_replay);
+        ImageButton playButton = findViewById(R.id.btn_play);
+        ImageButton fastFwdButton = findViewById(R.id.btn_forward);
+        ImageButton settingsButton = findViewById(R.id.btn_settings);
+
+        player.setMidiButton(findViewById(R.id.btn_midi));
+
+
         Button testButton = findViewById(R.id.up_button);
         testButton.setOnClickListener(v -> upNote());
 
@@ -174,11 +196,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         Button chordButton = findViewById(R.id.chord);
         chordButton.setOnClickListener( v -> makeMidiFile());
 
-        Log.d("TAG", "create : title  : " +  title);
-        Log.d("TAG", "create : uri  : " + uri);
+        backButton.setOnClickListener(v -> this.onBackPressed());
+        rewindButton.setOnClickListener(v -> player.Rewind());
+        resetButton.setOnClickListener(v -> player.Reset());
+        playButton.setOnClickListener(v -> player.Play());
+        fastFwdButton.setOnClickListener(v -> player.FastForward());
+
+        settingsButton.setOnClickListener(v -> {
+            drawer.deselect();
+            drawer.openDrawer();
+        });
+
 
     }
-
 
     public void downNote()
     {
@@ -274,13 +304,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         layout = findViewById(R.id.sheet_content);
 
-        SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
+  /*      SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
                 .withName(R.string.scroll_vertically)
                 .withChecked(options.scrollVert)
                 .withOnCheckedChangeListener((iDrawerItem, compoundButton, isChecked) -> {
                     options.scrollVert = isChecked;
                     createSheetMusic(options);
-                });
+                });*/
 
         SwitchDrawerItem useColors = new SwitchDrawerItem()
                 .withName(R.string.use_note_colors)
@@ -326,7 +356,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 .withActivity(this)
                 .withInnerShadow(true)
                 .addDrawerItems(
-                        scrollVertically,
+                     //   scrollVertically,
                         useColors,
                         loopSettings,
                         new DividerDrawerItem()
@@ -347,12 +377,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         player = new MidiPlayer(this);
         player.setDrawer(drawer);
-        layout.addView(player);
+        //layout.addView(player);
 
 
         layout.requestLayout();
 
         player.setSheetUpdateRequestListener(() -> createSheetMusic(options));
+
         createSheetMusic(options);
 
     }
