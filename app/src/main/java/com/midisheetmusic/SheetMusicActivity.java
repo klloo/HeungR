@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -34,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -64,6 +66,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.zip.CRC32;
+
+import es.dmoral.toasty.Toasty;
 
 /**
  * SheetMusicActivity is the main activity. The main components are:
@@ -130,6 +134,12 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             title = uri.getLastPathSegment();
         }
 
+        TextView songname = findViewById(R.id.sheet1Title);
+        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
+        TextView albumname = findViewById(R.id.sheet1Folder);
+        albumname.setText(uri.getPathSegments().get(4));
+     //   Log.v("TAG", uri.getPathSegments().toString());
+
         FileUri file = new FileUri(uri, title);
         this.setTitle("MidiSheetMusic: " + title);
         byte[] data;
@@ -166,8 +176,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         init();
 
-        Log.d("TAG", "create : title  : " +  title);
-        Log.d("TAG", "create : uri  : " + uri);
 
     }
 
@@ -184,16 +192,16 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         player.setMidiButton(findViewById(R.id.btn_midi));
 
 
-        Button testButton = findViewById(R.id.up_button);
+        ImageButton testButton = findViewById(R.id.up_button);
         testButton.setOnClickListener(v -> upNote());
 
-        Button downButton = findViewById(R.id.down_button);
+        ImageButton downButton = findViewById(R.id.down_button);
         downButton.setOnClickListener(v -> downNote());
 
-        Button saveButton = findViewById(R.id.save_btn);
+        ImageButton saveButton = findViewById(R.id.save_btn);
         saveButton.setOnClickListener( v -> save());
 
-        Button chordButton = findViewById(R.id.chord);
+        ImageButton chordButton = findViewById(R.id.chord);
         chordButton.setOnClickListener( v -> makeMidiFile());
 
         backButton.setOnClickListener(v -> this.onBackPressed());
@@ -296,6 +304,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         }
 
         player.save(fos);
+
+        Toasty.custom(this, "수정내용을 저장했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
     }
 
@@ -591,7 +601,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
 
-        String newtitle = "chord_" +uri.getLastPathSegment();
+        String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
         midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
