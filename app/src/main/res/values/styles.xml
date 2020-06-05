@@ -33,5 +33,9 @@
 
     <color name="IconColor">@color/Phantom_Green</color>
 
+    <style name="SwipeLayout">
+        <item name="android:paddingBottom">1px</item>
+        <item name="android:background">#e5e5e5</item>
+    </style>
 
 </resources>

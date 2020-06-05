@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@color/Bright_white"
     android:orientation="vertical">
 
@@ -14,7 +14,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -60,8 +60,8 @@
 
         <ImageButton
             android:id="@+id/renameButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginEnd="40dp"
             android:background="#00FFFFFF"
             android:clickable="true"
@@ -74,8 +74,8 @@
 
         <ImageView
             android:id="@+id/round"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -85,8 +85,8 @@
 
         <ImageButton
             android:id="@+id/quickBtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:background="#00FFFFFF"
             android:clickable="true"
             android:scaleType="fitXY"
@@ -100,8 +100,8 @@
 
         <ImageButton
             android:id="@+id/settingBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginStart="40dp"
             android:background="#00FFFFFF"
             android:scaleType="fitXY"

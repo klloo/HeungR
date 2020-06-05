@@ -1,26 +1,37 @@
 package com.midisheetmusic;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.andremion.floatingnavigationview.FloatingNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +40,8 @@ public class ChooseSongActivity extends AppCompatActivity {
 
     String folderName;
     String fileName;
+
+    private FloatingNavigationView mFloatingNavigationView;
     public static Context cContext;
 
     @Override
@@ -39,6 +52,33 @@ public class ChooseSongActivity extends AppCompatActivity {
         folderName = getIntent().getStringExtra("folderName");
         loadFile();
 
+        ImageButton AddBtn = findViewById(R.id.addBtn);
+        AddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChooseSongActivity.this, SetFileNameActivity.class);
+                intent.putExtra("folderName",folderName);
+                startActivity(intent);
+            }
+        });
+
+        mFloatingNavigationView = (FloatingNavigationView) findViewById(R.id.floating_navigation_view);
+        mFloatingNavigationView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFloatingNavigationView.open();
+            }
+        });
+        mFloatingNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                Snackbar.make((View) mFloatingNavigationView.getParent(), item.getTitle() + " Selected!", Snackbar.LENGTH_SHORT).show();
+                mFloatingNavigationView.close();
+                return true;
+            }
+        });
+
+        mFloatingNavigationView.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#3E6257")));
 
     }
 
@@ -83,16 +123,14 @@ public class ChooseSongActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton AddBtn = findViewById(R.id.addMidiFileBtn);
-        AddBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ChooseSongActivity.this, SetFileNameActivity.class);
-                intent.putExtra("folderName",folderName);
-                startActivity(intent);
-            }
-        });
+
+
+
     }
+
+
+
+
 }
 
 class FileAdapter extends ArrayAdapter<Object> {
@@ -107,6 +145,8 @@ class FileAdapter extends ArrayAdapter<Object> {
         }
         MidiSong midiSong = (MidiSong) getItem(position);
         TextView title = (TextView)convertView.findViewById(R.id.choose_song_name);
+        ImageView image = (ImageView) convertView.findViewById(R.id.choose_song_icon);
+        image.setImageDrawable(getContext().getDrawable(R.drawable.musiccc));
         title.setText(midiSong.getTitle());
         return convertView;
     }

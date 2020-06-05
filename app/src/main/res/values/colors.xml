@@ -25,7 +25,7 @@
     <color name="Tourmaline">#86A1A9</color>
     <color name="darkblue">#DF8390AF</color>
 
-    <color name="Bright_white">#F4F9FF</color>
+    <color name="Bright_white">#00FFFFFF</color>
     <color name="Gray_Morn">#CABEB5</color>
 
     <color name="message_color">#C2CFDD</color>
@@ -37,5 +37,7 @@
 
     <color name = "Navy_Peony">#223A5E</color>
     <color name = "Dark_Sapphire">#262B37</color>
+
+
 
 </resources>

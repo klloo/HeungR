@@ -66,6 +66,7 @@ dependencies {
     //Toast
     implementation 'com.github.GrenderG:Toasty:1.4.2'
 
-    implementation 'ru.rambler.android:swipe-layout:1.1.0'
+    //곡
+    implementation 'com.github.andremion:floatingnavigationview:1.1.1'
 
 }
