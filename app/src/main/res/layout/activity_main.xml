@@ -3,39 +3,119 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/Bright_white"
     android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/folderList"
+
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="500dp">
-
-
-    </ListView>
+        android:layout_height="100dp" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/addBtn"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/albumname"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:text="ADD"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            android:gravity="center"
+            android:text="albumname"
+            android:textColor="@color/Dark_Sapphire"
+            android:textSize="30sp" />
 
-        <Button
-            android:id="@+id/quickBtn"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/numofsong"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:text="QUICK"
-            app:srcCompat="@drawable/music_48" />
-
-
+            android:gravity="center"
+            android:text="numofsong"
+            android:textColor="@color/Dark_Sapphire"
+            android:textSize="18sp" />
     </LinearLayout>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <com.yarolegovich.discretescrollview.DiscreteScrollView
+        android:id="@+id/item_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dsv_orientation="horizontal"
+        tools:listitem="@layout/item_album_card">
+
+    </com.yarolegovich.discretescrollview.DiscreteScrollView>
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/renameButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="40dp"
+            android:background="#00FFFFFF"
+            android:clickable="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/edit"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/quickBtn"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/round"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/round2" />
+
+        <ImageButton
+            android:id="@+id/quickBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="#00FFFFFF"
+            android:clickable="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/microphone"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/settingBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:background="#00FFFFFF"
+            android:scaleType="fitXY"
+            android:src="@drawable/settings5"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/quickBtn"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </LinearLayout>
+
+
+

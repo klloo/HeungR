@@ -18,4 +18,26 @@
     <color name="renderColor2">#FF35FC</color>
     <color name="renderColor3">#3315FC</color>
 
+
+
+    <color name="Ether">#9EB6B8</color>
+    <color name="Faded_Denim">#798EA4</color>
+    <color name="Tourmaline">#86A1A9</color>
+    <color name="darkblue">#DF8390AF</color>
+
+    <color name="Bright_white">#00FFFFFF</color>
+    <color name="Gray_Morn">#CABEB5</color>
+
+    <color name="message_color">#C2CFDD</color>
+    <color name="Phantom_Green">#DCE4D7</color>
+    <color name="Greenery">#88B04B</color>
+    <color name="Medium_Green">#3C824E</color>
+    <color name="Smoke_Pine">#3E6257</color>
+
+
+    <color name = "Navy_Peony">#223A5E</color>
+    <color name = "Dark_Sapphire">#262B37</color>
+
+
+
 </resources>

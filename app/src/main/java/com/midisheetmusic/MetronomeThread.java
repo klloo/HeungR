@@ -1,11 +1,19 @@
 package com.midisheetmusic;
 
 
+import android.content.Context;
 import android.media.Image;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.core.content.ContextCompat;
+
+import static android.content.Context.*;
+import static androidx.core.content.ContextCompat.getSystemService;
+import static com.midisheetmusic.RecordingActivity.vibrator;
 
 
 public class MetronomeThread extends Thread {
@@ -51,16 +59,18 @@ public class MetronomeThread extends Thread {
 
     @Override
     public void run(){
-        playing = true;
+
         while(playing){
            handler.post(new Runnable() {
                @Override
                public void run() {
                    if(measure == 4){
                        imageView.setImageResource(imageArray1[index]);
+                       vibrator.vibrate(15);
                    }
                    else{
                        imageView.setImageResource(imageArray2[index]);
+                       vibrator.vibrate(15);
                    }
                }
            });

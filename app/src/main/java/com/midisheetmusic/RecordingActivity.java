@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -28,6 +31,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -69,9 +73,10 @@ public class RecordingActivity extends AppCompatActivity implements
     ArrayList<String> arr2 = new ArrayList<>();
     ImageView imageview;
     ImageView countview;
+    ImageView readyview;
     SoundPool soundPool;
     int clap;
-    public int[] countArray = {R.drawable.count3, R.drawable.count2, R.drawable.count1};
+    public int[] countArray;
 
 
     boolean isRecording = false;
@@ -86,7 +91,7 @@ public class RecordingActivity extends AppCompatActivity implements
     long now;
     Long length;
     int gap=0;
-
+    public  static Vibrator vibrator;
 
 
     // Pitch Detection data
@@ -99,7 +104,7 @@ public class RecordingActivity extends AppCompatActivity implements
     static final int CROTCHET = 16; //4분음표 (V)
     static final int MINIM = 32; //2분음표 (VV)
     static final int SEMIBREVE = 64; //온음표 (VVVV)
-    private Context context;
+    public Context context;
 
 
 
@@ -107,7 +112,6 @@ public class RecordingActivity extends AppCompatActivity implements
     //  TarsosDSPAudioFormat tarsosDSPAudioFormat;
     //  AudioDispatcher dispatcher;
     //   File file;
-    TextView pitchTextView;
     TextView progressTimeTextView;
     //  String filename = "recorded_sound.wav";
 
@@ -128,41 +132,77 @@ public class RecordingActivity extends AppCompatActivity implements
 
     String folderName;
     String fileName;
+
+    TextView recordingTitleView;
+    TextView recordingFolderView;
+
+    public Vibrator getVibrator(){
+        return vibrator;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording);
 
+
         folderName = getIntent().getStringExtra("folderName");
         fileName = getIntent().getStringExtra("fileName");
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
-        clap = soundPool.load(this, R.raw.clap, 1);
-        pitchTextView = findViewById(R.id.pitchTextView);
+        clap = soundPool.load(this, R.raw.beep, 1);
         progressTimeTextView = findViewById(R.id.progressTextView);
 
 
         countview = findViewById(R.id.countView);
+        readyview = findViewById(R.id.readyView);
         imageview = findViewById(R.id.imageView);
+        recordingTitleView = findViewById(R.id.RecordingTitle);
+        recordingFolderView = findViewById(R.id.Recordingfolder);
+        recordingTitleView.setText(fileName);
+        recordingFolderView.setText(folderName);
         if( countview == null){
         }
         else{
             readyThread.setImageView( (ImageView) countview);
         }
 
-
-
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        //Metronome
 
+        //Metronome
         imageview = findViewById(R.id.imageView);
+        if(nn == 3)
+            countArray = new int[]{R.drawable.count3, R.drawable.count2, R.drawable.count1};
+
+        else
+            countArray =  new int[]{R.drawable.count4, R.drawable.count3, R.drawable.count2, R.drawable.count1};
+
+
 
 
         //bpm 설정
         spinnerBpm = findViewById(R.id.bpmSpinner);
-        arr.add(60);
-        arr.add(120);
-        arr.add(180);
+
+        {
+            arr.add(60);
+            arr.add(64);
+            arr.add(70);
+            arr.add(74);
+            arr.add(80);
+            arr.add(84);
+            arr.add(90);
+            arr.add(94);
+            arr.add(100);
+            arr.add(104);
+            arr.add(110);
+            arr.add(114);
+            arr.add(120);
+
+            arr2.add("4/4");
+            arr2.add("3/4");
+        }
+
+
         ArrayAdapter<Integer> arrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr);
         spinnerBpm.setAdapter(arrayAdapter);
 
@@ -181,8 +221,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
         spinnerMeasure = findViewById(R.id.measureSpinner);
 
-        arr2.add("4/4");
-        arr2.add("3/4");
 
         ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr2);
         spinnerMeasure.setAdapter(arrayAdapter2);
@@ -220,8 +258,7 @@ public class RecordingActivity extends AppCompatActivity implements
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                final CountDownTimer timer = new CountDownTimer(3000,1000) {
+                final CountDownTimer timer = new CountDownTimer(60000 / spinnerBPM * nn ,60000 / spinnerBPM) {
                     @Override
                     public void onTick(long millisUntilFinished) {
 
@@ -230,9 +267,12 @@ public class RecordingActivity extends AppCompatActivity implements
                         if(countFlag[0] == 1){
 
                             countview.setVisibility(View.VISIBLE);
+                            readyview.setVisibility(View.VISIBLE);
                             countview.setImageResource(countArray[count]);
                             soundPool.play(clap,1f,1f,0,0,1f);
                             count++;
+
+                            vibrator.vibrate(10);
 
                         }else{//중간에 타이머를 멈췄다...
 
@@ -252,11 +292,15 @@ public class RecordingActivity extends AppCompatActivity implements
                         spinnerMeasure.setEnabled(false);
 
                         countview.setVisibility(View.GONE);
+                        readyview.setVisibility(View.GONE);
                         //tarsoDSP
                         now= SystemClock.currentThreadTimeMillis();
                         initPitcher();
                         //메트로놈
-                        metronomeThread.start();
+                        if(metronomeThread != null){
+                            metronomeThread.setPlaying(true);
+                            metronomeThread.start();
+                        }
                         countFlag[0] = 0;
                         middlestop[0] = 0;
                     }
@@ -278,7 +322,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
                             isRecording = false;
 
-                            mFloatingActionButton.setImageResource(R.drawable.ic_mic);
+                            mFloatingActionButton.setImageResource(R.drawable.microphone);
 
                             //tasroDSP
                             stopRecording();
@@ -304,7 +348,7 @@ public class RecordingActivity extends AppCompatActivity implements
                         metronomeThread.setBpm(spinnerBPM);
                         metronomeThread.setMeasure(measure);
                         metronomeThread.setImageView(imageview);
-                        mFloatingActionButton.setImageResource(R.drawable.ic_mic_off);
+                        mFloatingActionButton.setImageResource(R.drawable.muted);
 
                        timer.start();
                        middlestop[0] = 1;
@@ -321,20 +365,24 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         realTimeGraph = findViewById(R.id.realTimeGraph);
-
         realTimeSeries = new LineGraphSeries<>();
-        realTimeSeries.setColor(Color.rgb(0xF1,0x70,0x68));
+
+
+
+        realTimeSeries.setColor(getResources().getColor(R.color.Greenery));
         realTimeSeries.setDataPointsRadius(50);
         realTimeSeries.setThickness(10);
         realTimeGraph.addSeries(realTimeSeries);
         realTimeGraph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
         realTimeGraph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+        realTimeGraph.getGridLabelRenderer().setGridStyle( GridLabelRenderer.GridStyle.NONE );
 
         realTimeGraph.getViewport().setXAxisBoundsManual(true);
         realTimeGraph.getViewport().setMinX(0);
         realTimeGraph.getViewport().setMaxX(100);
-        realTimeGraph.getViewport().setMinY(-1);
+        realTimeGraph.getViewport().setMinY(-300);
         realTimeGraph.getViewport().setMaxY(300);
+
 
 
 
@@ -756,11 +804,15 @@ public class RecordingActivity extends AppCompatActivity implements
     protected void onDestroy() {
 
 
-     /*   //메트로놈 정지
-        metronomeThread.setPlaying(false);
-        metronomeThread.interrupt();
-        metronomeThread = null;
-        playNstop.setChecked(false);*/
+        //메트로놈 정지
+        if(metronomeThread != null){
+
+            metronomeThread.setPlaying(false);
+            metronomeThread.interrupt();
+            metronomeThread = null;
+
+        }
+
         super.onDestroy();
     }
 
@@ -867,13 +919,15 @@ public class RecordingActivity extends AppCompatActivity implements
         File file = new File(dir, fileName + ".mid") ;
         midiFileMaker.writeToFile (file);
 
-        ((MainActivity)MainActivity.mContext).loadFolder();
-        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
+        ((MainActivity)MainActivity.mContext).setAlbum();
+        Log.d("HELLO", folderName);
+
+        if(!folderName.equals("Quick"))
+            ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
 
 
         Uri uri = Uri.parse(file.getPath());
-
         FileUri fileUri = new FileUri(uri, file.getPath());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity.class);
@@ -898,6 +952,8 @@ public class RecordingActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         releaseDispatcher();
+        if(metronomeThread != null)
+            metronomeThread.setPlaying(false);
     }
 
     public void initPitcher()
@@ -933,7 +989,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
 
-        pitchTextView.setText(pitchInHz +"" );
         humming.add((double) pitchInHz);
         sampleNumber++;
 
@@ -943,8 +998,6 @@ public class RecordingActivity extends AppCompatActivity implements
         progressTimeTextView.setText(viewOutTime);
 
 
-        if (pitchInHz < 0)
-            pitchInHz = 20;
 
         graphLastXValue += 1d;
         realTimeSeries.appendData(new DataPoint(graphLastXValue, pitchInHz), true, 300);

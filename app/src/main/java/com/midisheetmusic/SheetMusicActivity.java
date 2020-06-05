@@ -18,11 +18,13 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
@@ -31,7 +33,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -63,6 +67,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.zip.CRC32;
 
+import es.dmoral.toasty.Toasty;
+
 /**
  * SheetMusicActivity is the main activity. The main components are:
  * <ul>
@@ -88,7 +94,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
 
-    String folderName;
+    String folderName = "banju";
     String fileName;
 
 
@@ -97,6 +103,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
       * - data: The uri of the midi file to open.
       * - MidiTitleID: The title of the song (String)
       */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -126,6 +133,12 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         if (title == null) {
             title = uri.getLastPathSegment();
         }
+
+        TextView songname = findViewById(R.id.sheet1Title);
+        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
+        TextView albumname = findViewById(R.id.sheet1Folder);
+        albumname.setText(uri.getPathSegments().get(4));
+     //   Log.v("TAG", uri.getPathSegments().toString());
 
         FileUri file = new FileUri(uri, title);
         this.setTitle("MidiSheetMusic: " + title);
@@ -161,23 +174,49 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         createViews();
 
-        Button testButton = findViewById(R.id.up_button);
-        testButton.setOnClickListener(v -> upNote());
+        init();
 
-        Button downButton = findViewById(R.id.down_button);
-        downButton.setOnClickListener(v -> downNote());
-
-        Button saveButton = findViewById(R.id.save_btn);
-        saveButton.setOnClickListener( v -> save());
-
-        Button chordButton = findViewById(R.id.chord);
-        chordButton.setOnClickListener( v -> makeMidiFile());
-
-        Log.d("TAG", "create : title  : " +  title);
-        Log.d("TAG", "create : uri  : " + uri);
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void init() {
+
+        ImageButton backButton = findViewById(R.id.btn_back);
+        ImageButton rewindButton = findViewById(R.id.btn_rewind);
+        ImageButton resetButton = findViewById(R.id.btn_replay);
+        ImageButton playButton = findViewById(R.id.btn_play);
+        ImageButton fastFwdButton = findViewById(R.id.btn_forward);
+        ImageButton settingsButton = findViewById(R.id.btn_settings);
+
+        player.setMidiButton(findViewById(R.id.btn_midi));
+
+
+        ImageButton testButton = findViewById(R.id.up_button);
+        testButton.setOnClickListener(v -> upNote());
+
+        ImageButton downButton = findViewById(R.id.down_button);
+        downButton.setOnClickListener(v -> downNote());
+
+        ImageButton saveButton = findViewById(R.id.save_btn);
+        saveButton.setOnClickListener( v -> save());
+
+        ImageButton chordButton = findViewById(R.id.chord);
+        chordButton.setOnClickListener( v -> makeMidiFile());
+
+        backButton.setOnClickListener(v -> this.onBackPressed());
+        rewindButton.setOnClickListener(v -> player.Rewind());
+        resetButton.setOnClickListener(v -> player.Reset());
+        playButton.setOnClickListener(v -> player.Play());
+        fastFwdButton.setOnClickListener(v -> player.FastForward());
+
+        settingsButton.setOnClickListener(v -> {
+            drawer.deselect();
+            drawer.openDrawer();
+        });
+
+
+    }
 
     public void downNote()
     {
@@ -266,6 +305,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         player.save(fos);
 
+        Toasty.custom(this, "수정내용을 저장했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
     }
 
     /* Create the MidiPlayer and Piano views */
@@ -273,13 +314,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         layout = findViewById(R.id.sheet_content);
 
-        SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
+  /*      SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
                 .withName(R.string.scroll_vertically)
                 .withChecked(options.scrollVert)
                 .withOnCheckedChangeListener((iDrawerItem, compoundButton, isChecked) -> {
                     options.scrollVert = isChecked;
                     createSheetMusic(options);
-                });
+                });*/
 
         SwitchDrawerItem useColors = new SwitchDrawerItem()
                 .withName(R.string.use_note_colors)
@@ -325,7 +366,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 .withActivity(this)
                 .withInnerShadow(true)
                 .addDrawerItems(
-                        scrollVertically,
+                     //   scrollVertically,
                         useColors,
                         loopSettings,
                         new DividerDrawerItem()
@@ -346,12 +387,13 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         player = new MidiPlayer(this);
         player.setDrawer(drawer);
-        layout.addView(player);
+        //layout.addView(player);
 
 
         layout.requestLayout();
 
         player.setSheetUpdateRequestListener(() -> createSheetMusic(options));
+
         createSheetMusic(options);
 
     }
@@ -559,7 +601,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
 
-        String newtitle = "chord_" +uri.getLastPathSegment();
+        String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
         midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
@@ -570,7 +612,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         FileUri fileUri = new FileUri(uri2, file.getPath());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
-        intent.putExtra(newtitle, file.toString());
+        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
         startActivity(intent);
 

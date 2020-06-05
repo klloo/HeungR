@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -27,17 +28,17 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.midisheetmusic.drawerItems.ExpandableSwitchDrawerItem;
-import com.midisheetmusic.sheets.ChordSymbol;
 import com.midisheetmusic.sheets.ClefSymbol;
-import com.midisheetmusic.sheets.MusicSymbol;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.StringHolder;
@@ -53,7 +54,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.zip.CRC32;
@@ -89,6 +89,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
      * - data: The uri of the midi file to open.
      * - MidiTitleID: The title of the song (String)
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -118,6 +119,12 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         if (title == null) {
             title = uri.getLastPathSegment();
         }
+
+        TextView songname = findViewById(R.id.sheet2Title);
+        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
+        TextView albumname = findViewById(R.id.sheet2Folder);
+        albumname.setText(uri.getPathSegments().get(4));
+
 
         FileUri file = new FileUri(uri, title);
         this.setTitle("MidiSheetMusic: " + title);
@@ -153,10 +160,53 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         createViews();
 
-
+        init();
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void init() {
+
+        ImageButton backButton = findViewById(R.id.btn_back2);
+        ImageButton rewindButton = findViewById(R.id.btn_rewind2);
+        ImageButton resetButton = findViewById(R.id.btn_replay2);
+        ImageButton playButton = findViewById(R.id.btn_play2);
+        ImageButton fastFwdButton = findViewById(R.id.btn_forward2);
+        ImageButton settingsButton = findViewById(R.id.btn_settings2);
+
+        player.setMidiButton(findViewById(R.id.btn_midi2));
+
+
+        ImageButton testButton = findViewById(R.id.up_button2);
+        testButton.setOnClickListener(v -> upChord());
+
+        ImageButton downButton = findViewById(R.id.down_button2);
+        downButton.setOnClickListener(v -> downChord());
+
+        ImageButton saveButton = findViewById(R.id.save_btn2);
+        saveButton.setOnClickListener( v -> save());
+
+
+        backButton.setOnClickListener(v -> this.onBackPressed());
+        rewindButton.setOnClickListener(v -> player.Rewind());
+        resetButton.setOnClickListener(v -> player.Reset());
+        playButton.setOnClickListener(v -> player.Play());
+        fastFwdButton.setOnClickListener(v -> player.FastForward());
+
+        settingsButton.setOnClickListener(v -> {
+            drawer.deselect();
+            drawer.openDrawer();
+        });
+
+
+    }
+
+    void upChord(){
+
+    }
+    void downChord(){
+
+    }
 
     public void save(){
 
@@ -182,16 +232,16 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     /* Create the MidiPlayer and Piano views */
     void createViews() {
 
-        layout = findViewById(R.id.sheet_content2);
+        layout = findViewById(R.id.sheet2content);
 
-        SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
+    /*    SwitchDrawerItem scrollVertically = new SwitchDrawerItem()
                 .withName(R.string.scroll_vertically)
                 .withChecked(options.scrollVert)
                 .withOnCheckedChangeListener((iDrawerItem, compoundButton, isChecked) -> {
                     options.scrollVert = isChecked;
                     createSheetMusic(options);
                 });
-
+*/
         SwitchDrawerItem useColors = new SwitchDrawerItem()
                 .withName(R.string.use_note_colors)
                 .withChecked(options.useColors)
@@ -236,7 +286,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
                 .withActivity(this)
                 .withInnerShadow(true)
                 .addDrawerItems(
-                        scrollVertically,
+                     //   scrollVertically,
                         useColors,
                         loopSettings,
                         new DividerDrawerItem()
@@ -257,7 +307,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         player = new MidiPlayer(this);
         player.setDrawer(drawer);
-        layout.addView(player);
+      //  layout.addView(player);
 
 
         layout.requestLayout();
