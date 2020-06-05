@@ -60,6 +60,8 @@
         <ImageButton
             android:id="@+id/btn_rewind"
             style="@style/ToolbarButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
             android:contentDescription="@string/rewind"
             android:src="@drawable/ic_rewind" />
 

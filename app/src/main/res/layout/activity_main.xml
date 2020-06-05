@@ -44,7 +44,8 @@
         android:id="@+id/item_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:dsv_orientation="horizontal" >
+        app:dsv_orientation="horizontal"
+        tools:listitem="@layout/item_album_card">
 
     </com.yarolegovich.discretescrollview.DiscreteScrollView>
 
@@ -53,38 +54,65 @@
         android:layout_width="match_parent"
         android:layout_height="40dp" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <Button
+        <ImageButton
             android:id="@+id/renameButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="40dp"
+            android:background="#00FFFFFF"
             android:clickable="true"
-            android:text="rename"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            android:scaleType="fitXY"
+            android:src="@drawable/edit"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/quickBtn"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <ImageView
+            android:id="@+id/round"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/round2" />
+
+        <ImageButton
             android:id="@+id/quickBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#00FFFFFF"
             android:clickable="true"
-            android:text="QUICK"
-            app:srcCompat="@drawable/music_48" />
+            android:scaleType="fitXY"
+            android:src="@drawable/microphone"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/delbtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="DELETE" />
+        <ImageButton
+            android:id="@+id/settingBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:background="#00FFFFFF"
+            android:scaleType="fitXY"
+            android:src="@drawable/settings5"
+            android:tint="@color/Dark_Sapphire"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/quickBtn"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </LinearLayout>

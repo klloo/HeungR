@@ -2,10 +2,12 @@ package com.midisheetmusic;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,9 +85,10 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         setAlbum();
 
 
-        Button addBtn = findViewById(R.id.renameButton);
-        Button quickBtn = findViewById(R.id.quickBtn);
-        Button deleteBtn = findViewById(R.id.delbtn);
+        ImageButton addBtn = findViewById(R.id.renameButton);
+        ImageButton quickBtn = findViewById(R.id.quickBtn);
+        ImageButton setBtn = findViewById(R.id.settingBtn);
+
 
         albumname = findViewById(R.id.albumname);
         numberofSong = findViewById(R.id.numofsong);
@@ -111,16 +114,11 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 startActivity(intent);
             }
         });
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
+        setBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), deletePopup.class);
-                if(albumname.getText().equals("Quick"))
-                    intent.putExtra("isQuick", true);
-                else
-                    intent.putExtra("isQuick", false);
 
-                startActivityForResult(intent, 2);
+                // 설정부분
 
             }
         });
