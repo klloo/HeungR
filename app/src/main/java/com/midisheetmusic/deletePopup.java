@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import java.io.File;
 
@@ -23,10 +24,11 @@ public class deletePopup extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_delete_popup);
 
-
+        ImageView warnning = (ImageView)findViewById(R.id.warnningIcon);
         Button cancelBtn = (Button) findViewById(R.id.deleteNoBtn);
         Button deleteBtn = (Button) findViewById(R.id.deleteokBtn);
 
+        warnning.setImageDrawable(getResources().getDrawable(R.drawable.warning));
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

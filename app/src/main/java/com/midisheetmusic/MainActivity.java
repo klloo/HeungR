@@ -160,13 +160,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 setAlbum();
-                Toasty.custom(this, "앨범을 생성했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "앨범을 생성했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
 
             }
             else if( resultCode == RESULT_FIRST_USER ){
                 //존재합니다 알림
-                Toasty.custom(this, "앨범을 생성하지 못하였습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "앨범을 생성하지 못하였습니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
         }
 
@@ -182,17 +182,17 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                         File[] files = dir.listFiles();
                         for( File file : files){ // 내부파일 하나씩 지움
                             if( !file.delete())
-                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
                         }
                     }
 
                     if(dir.delete()){ // 폴더삭제
-                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
                     }
 
                     else{
-                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
 
                     }
 
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
             }
             else if( resultCode == RESULT_FIRST_USER ){
-                Toasty.custom(this, "삭제할수 없는 앨범입니다", R.drawable.music_96, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "삭제할수 없는 앨범입니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
         }
     }

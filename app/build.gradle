@@ -66,7 +66,5 @@ dependencies {
     //Toast
     implementation 'com.github.GrenderG:Toasty:1.4.2'
 
-    //곡
-    implementation 'com.github.andremion:floatingnavigationview:1.1.1'
 
 }
