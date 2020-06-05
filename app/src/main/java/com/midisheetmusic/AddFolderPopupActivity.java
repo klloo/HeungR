@@ -30,7 +30,8 @@ public class AddFolderPopupActivity extends Activity {
         setContentView(R.layout.popup_addfolder);
 
         EditText inputTitle = (EditText)findViewById(R.id.inputTitle);
-
+        if(check)
+            inputTitle.setText(title);
         Button cancelBtn = (Button)findViewById(R.id.cancelBtn);
         Button saveBtn = (Button)findViewById(R.id.saveBtn);
 

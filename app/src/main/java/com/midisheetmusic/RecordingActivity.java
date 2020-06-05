@@ -297,8 +297,10 @@ public class RecordingActivity extends AppCompatActivity implements
                         now= SystemClock.currentThreadTimeMillis();
                         initPitcher();
                         //메트로놈
-                        metronomeThread.setPlaying(true);
-                        metronomeThread.start();
+                        if(metronomeThread != null){
+                            metronomeThread.setPlaying(true);
+                            metronomeThread.start();
+                        }
                         countFlag[0] = 0;
                         middlestop[0] = 0;
                     }
@@ -320,7 +322,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
                             isRecording = false;
 
-                            mFloatingActionButton.setImageResource(R.drawable.ic_mic);
+                            mFloatingActionButton.setImageResource(R.drawable.microphone);
 
                             //tasroDSP
                             stopRecording();
@@ -346,7 +348,7 @@ public class RecordingActivity extends AppCompatActivity implements
                         metronomeThread.setBpm(spinnerBPM);
                         metronomeThread.setMeasure(measure);
                         metronomeThread.setImageView(imageview);
-                        mFloatingActionButton.setImageResource(R.drawable.ic_mic_off);
+                        mFloatingActionButton.setImageResource(R.drawable.muted);
 
                        timer.start();
                        middlestop[0] = 1;
