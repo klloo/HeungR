@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cards"
     android:layout_width="240dp"
     android:layout_height="240dp"
@@ -10,8 +11,10 @@
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#97FF5757"
-        android:scaleType="centerCrop" />
+        android:background="@color/Ether"
+        android:scaleType="centerCrop"
+        android:tint="#151A1F"
+        app:srcCompat="@drawable/folder" />
 
 
 </androidx.cardview.widget.CardView>

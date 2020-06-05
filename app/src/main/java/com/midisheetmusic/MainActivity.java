@@ -103,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             public void onClick(View view) {
                 //폴더 생성하는 팝업
                 Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
+                intent.putExtra("change",true);
+                intent.putExtra("name", currentData.getTitle());
                 startActivityForResult(intent, 1);
             }
         });
@@ -118,7 +120,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             @Override
             public void onClick(View view) {
 
-                // 설정부분
+
+                Intent intent = new Intent(getApplicationContext(), Girls.class);
+                startActivity(intent);
 
             }
         });
@@ -130,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
             //폴더 생성하는 팝업
             Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
+            intent.putExtra("change",false);
+            intent.putExtra("name", "");
+
             startActivityForResult(intent, 1);
         }
         else{

@@ -42,8 +42,17 @@ public class AlbumAdaptor  extends RecyclerView.Adapter<AlbumAdaptor.ViewHolder>
        // holder.songNumber.setText(data.get(position).getTracknum()+"");
 
         holder.image.setBackgroundColor(color[position%3]);
-        if(position == data.size()-1)
+
+        if(position == data.size()-1) {
             holder.image.setBackgroundColor(ContextCompat.getColor(MainActivity.mContext, R.color.Greenery));
+            holder.image.setImageDrawable(ContextCompat.getDrawable(MainActivity.mContext, R.drawable.folder));
+            holder.image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+        else{
+            holder.image.setImageDrawable(ContextCompat.getDrawable(MainActivity.mContext, R.drawable.album));
+            holder.image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        }
     }
 
 

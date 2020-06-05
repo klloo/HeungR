@@ -7,12 +7,13 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name = "android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+        <activity android:name=".Girls"></activity>
         <activity
             android:name=".deletePopup"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
@@ -48,8 +49,7 @@
         <activity
             android:name=".SheetMusicActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -65,8 +65,7 @@
         <activity
             android:name=".SheetMusicActivity2"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
