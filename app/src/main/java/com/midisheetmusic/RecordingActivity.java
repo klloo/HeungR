@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
@@ -29,6 +31,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -70,9 +73,10 @@ public class RecordingActivity extends AppCompatActivity implements
     ArrayList<String> arr2 = new ArrayList<>();
     ImageView imageview;
     ImageView countview;
+    ImageView readyview;
     SoundPool soundPool;
     int clap;
-    public int[] countArray = {R.drawable.count3, R.drawable.count2, R.drawable.count1};
+    public int[] countArray;
 
 
     boolean isRecording = false;
@@ -108,7 +112,6 @@ public class RecordingActivity extends AppCompatActivity implements
     //  TarsosDSPAudioFormat tarsosDSPAudioFormat;
     //  AudioDispatcher dispatcher;
     //   File file;
-    TextView pitchTextView;
     TextView progressTimeTextView;
     //  String filename = "recorded_sound.wav";
 
@@ -130,6 +133,8 @@ public class RecordingActivity extends AppCompatActivity implements
     String folderName;
     String fileName;
 
+    TextView recordingTitleView;
+
     public Vibrator getVibrator(){
         return vibrator;
     }
@@ -143,13 +148,15 @@ public class RecordingActivity extends AppCompatActivity implements
         fileName = getIntent().getStringExtra("fileName");
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
-        clap = soundPool.load(this, R.raw.clap, 1);
-        pitchTextView = findViewById(R.id.pitchTextView);
+        clap = soundPool.load(this, R.raw.beep, 1);
         progressTimeTextView = findViewById(R.id.progressTextView);
 
 
         countview = findViewById(R.id.countView);
+        readyview = findViewById(R.id.readyView);
         imageview = findViewById(R.id.imageView);
+        recordingTitleView = findViewById(R.id.RecordingTitle);
+        recordingTitleView.setText(fileName);
         if( countview == null){
         }
         else{
@@ -157,29 +164,41 @@ public class RecordingActivity extends AppCompatActivity implements
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        //Metronome
 
+        //Metronome
         imageview = findViewById(R.id.imageView);
+        if(nn == 3)
+            countArray = new int[]{R.drawable.count3, R.drawable.count2, R.drawable.count1};
+
+        else
+            countArray =  new int[]{R.drawable.count4, R.drawable.count3, R.drawable.count2, R.drawable.count1};
+
+
 
 
         //bpm 설정
         spinnerBpm = findViewById(R.id.bpmSpinner);
-        arr.add(60);
-        arr.add(64);
-        arr.add(70);
-        arr.add(74);
-        arr.add(80);
-        arr.add(84);
-        arr.add(90);
-        arr.add(94);
-        arr.add(100);
-        arr.add(104);
-        arr.add(110);
-        arr.add(114);
-        arr.add(120);
+
+        {
+            arr.add(60);
+            arr.add(64);
+            arr.add(70);
+            arr.add(74);
+            arr.add(80);
+            arr.add(84);
+            arr.add(90);
+            arr.add(94);
+            arr.add(100);
+            arr.add(104);
+            arr.add(110);
+            arr.add(114);
+            arr.add(120);
+
+            arr2.add("4/4");
+            arr2.add("3/4");
+        }
+
 
         ArrayAdapter<Integer> arrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr);
         spinnerBpm.setAdapter(arrayAdapter);
@@ -199,8 +218,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
         spinnerMeasure = findViewById(R.id.measureSpinner);
 
-        arr2.add("4/4");
-        arr2.add("3/4");
 
         ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, arr2);
         spinnerMeasure.setAdapter(arrayAdapter2);
@@ -247,7 +264,8 @@ public class RecordingActivity extends AppCompatActivity implements
                         if(countFlag[0] == 1){
 
                             countview.setVisibility(View.VISIBLE);
-                            countview.setImageResource(countArray[0]);
+                            readyview.setVisibility(View.VISIBLE);
+                            countview.setImageResource(countArray[count]);
                             soundPool.play(clap,1f,1f,0,0,1f);
                             count++;
 
@@ -271,6 +289,7 @@ public class RecordingActivity extends AppCompatActivity implements
                         spinnerMeasure.setEnabled(false);
 
                         countview.setVisibility(View.GONE);
+                        readyview.setVisibility(View.GONE);
                         //tarsoDSP
                         now= SystemClock.currentThreadTimeMillis();
                         initPitcher();
@@ -341,20 +360,24 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
         realTimeGraph = findViewById(R.id.realTimeGraph);
-
         realTimeSeries = new LineGraphSeries<>();
-        realTimeSeries.setColor(Color.rgb(0xF1,0x70,0x68));
+
+
+
+        realTimeSeries.setColor(getResources().getColor(R.color.Greenery));
         realTimeSeries.setDataPointsRadius(50);
         realTimeSeries.setThickness(10);
         realTimeGraph.addSeries(realTimeSeries);
         realTimeGraph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
         realTimeGraph.getGridLabelRenderer().setVerticalLabelsVisible(false);
+        realTimeGraph.getGridLabelRenderer().setGridStyle( GridLabelRenderer.GridStyle.NONE );
 
         realTimeGraph.getViewport().setXAxisBoundsManual(true);
         realTimeGraph.getViewport().setMinX(0);
         realTimeGraph.getViewport().setMaxX(100);
-        realTimeGraph.getViewport().setMinY(-1);
+        realTimeGraph.getViewport().setMinY(-300);
         realTimeGraph.getViewport().setMaxY(300);
+
 
 
 
@@ -961,7 +984,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
 
 
-        pitchTextView.setText(pitchInHz +"" );
         humming.add((double) pitchInHz);
         sampleNumber++;
 
@@ -971,8 +993,6 @@ public class RecordingActivity extends AppCompatActivity implements
         progressTimeTextView.setText(viewOutTime);
 
 
-        if (pitchInHz < 0)
-            pitchInHz = 20;
 
         graphLastXValue += 1d;
         realTimeSeries.appendData(new DataPoint(graphLastXValue, pitchInHz), true, 300);

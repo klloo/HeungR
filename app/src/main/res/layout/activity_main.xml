@@ -59,12 +59,12 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/addBtn"
+            android:id="@+id/renameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
-            android:text="ADD"
+            android:text="rename"
             app:srcCompat="@android:drawable/ic_input_add" />
 
         <Button
