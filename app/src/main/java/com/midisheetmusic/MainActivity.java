@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         setAlbum();
 
 
-        ImageButton addBtn = findViewById(R.id.renameButton);
+        ImageButton editBtn = findViewById(R.id.renameButton);
         ImageButton quickBtn = findViewById(R.id.quickBtn);
         ImageButton setBtn = findViewById(R.id.settingBtn);
 
@@ -98,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             dir.mkdirs();
         }
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //폴더 생성하는 팝업
+                //폴더 생성하는 팝업d인데 수정도같이함
                 Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
                 intent.putExtra("change",true);
                 intent.putExtra("name", currentData.getTitle());

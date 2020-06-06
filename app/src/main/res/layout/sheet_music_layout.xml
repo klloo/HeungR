@@ -222,7 +222,6 @@
         android:background="#00FFFFFF"
         android:scaleType="fitXY"
         android:src="@drawable/magicwand"
-        android:text="chord"
         android:tint="@color/Smoke_Pine"
         app:layout_constraintBottom_toTopOf="@+id/tools"
         app:layout_constraintEnd_toEndOf="parent" />

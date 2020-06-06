@@ -1,25 +1,14 @@
 package com.midisheetmusic;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -39,9 +28,8 @@ import es.dmoral.toasty.Toasty;
 public class ChooseSongActivity extends AppCompatActivity {
 
     String folderName;
-    String fileName;
     File[] files;
-    File deleteFile;
+    File selectFile;
     ListView listview;
     ArrayList<MidiSong> midiSongs = new ArrayList<>();
 
@@ -49,16 +37,21 @@ public class ChooseSongActivity extends AppCompatActivity {
 
     public static Context cContext;
 
-    boolean check = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_song);
         cContext = this;
+
+
         folderName = getIntent().getStringExtra("folderName");
 
-         listview = (ListView)findViewById(R.id.list);
+        TextView title = findViewById(R.id.chooseSongAlbum);
+        title.setText(folderName);
+
+
+        listview = (ListView)findViewById(R.id.list);
 
         loadFile();
 
@@ -82,8 +75,13 @@ public class ChooseSongActivity extends AppCompatActivity {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                deleteFile = files[position];
-                delete();
+                selectFile = files[position];
+                current =  midiSongs.get(position).fileUri;
+
+                Intent intent = new Intent(getApplicationContext(), songEditActivity.class);
+
+                startActivityForResult(intent, 1);
+
                 return true;
             }
         });
@@ -109,13 +107,26 @@ public class ChooseSongActivity extends AppCompatActivity {
     }
 
     public void delete(){
-        check = false;
+
         Intent intent = new Intent(getApplicationContext(), deletePopup.class);
-        startActivityForResult(intent, 1);
-        check = true;
+        startActivityForResult(intent, 2);
+
 
     }
 
+    public void rename(){
+//폴더 생성하는 팝업
+
+        Intent intent = new Intent(getApplicationContext(), RenameFilePopup.class);
+
+        intent.putExtra("album", folderName);
+        Log.d("YUJIN" , current.getUri().getLastPathSegment());
+        intent.putExtra("song",   current.getUri().getLastPathSegment().toString());
+
+        startActivityForResult(intent, 3);
+
+
+    }
 
     public void loadFile()
     {
@@ -147,12 +158,21 @@ public class ChooseSongActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-       if( requestCode == 1){
+        if( requestCode == 1){
+            if( resultCode == RESULT_OK) { //파일삭제 지시
+                delete();
+            }
+            else if( resultCode == RESULT_FIRST_USER){ //파일명 수정
+                rename();
+            }
+
+        }
+        else if( requestCode == 2){
 
             if( resultCode == RESULT_OK){
                 // 파일 삭제
 
-                deleteFile.delete();
+                selectFile.delete();
                 Toasty.custom(this, "파일을 삭제했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
 
@@ -165,6 +185,19 @@ public class ChooseSongActivity extends AppCompatActivity {
            loadFile();
 
            ((MainActivity)MainActivity.mContext).setAlbum();
+        }
+        else if( requestCode == 3 ){
+
+            if(resultCode == RESULT_OK) {
+                loadFile();
+
+                Toasty.custom(this, "이름을 변경했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+            }
+            else{
+                Toasty.custom(this, "변경할 수 없습니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+
+            }
+
         }
     }
 
