@@ -85,6 +85,10 @@ public class MidiEvent implements Comparator<MidiEvent> {
         }
     }
 
+    public void setNotenumber(byte newNoteNumber){
+        this.Notenumber = newNoteNumber;
+    }
+
 }
 
 

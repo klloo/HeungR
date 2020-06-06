@@ -603,10 +603,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
-        midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
-
-
+        //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
+        if(!file.exists())
+            midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
         Uri uri2 = Uri.parse(file.getPath());
         FileUri fileUri = new FileUri(uri2, file.getPath());
@@ -614,9 +614,23 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
         intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
+        //반주 코드 배열 전달
+        ArrayList<Integer> lenInfo = new ArrayList<>();
+        ArrayList<Integer> banjuInfo = new ArrayList<>();
+        int len = banju.size();
+        for(int i=0;i<len;i++) {
+            lenInfo.add(banju.get(i).size());
+            for(int b:banju.get(i))
+                banjuInfo.add(b);
+        }
+
+
+        intent.putExtra("lenInfo",lenInfo);
+        intent.putExtra("banjuInfo",banjuInfo);
+        intent.putExtra("key",key);
+
+
         startActivity(intent);
-
-
     }
 
 

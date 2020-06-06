@@ -28,6 +28,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -83,6 +84,10 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
 
+    ArrayList<ArrayList<Integer>> banju;
+    ArrayList<Integer> curIdx;
+    ArrayList<Integer> lenInfo;
+    int key;
 
     /** Create this SheetMusicActivity.
      * The Intent should have two parameters:
@@ -138,7 +143,23 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             return;
         }
 
+        lenInfo = this.getIntent().getIntegerArrayListExtra("lenInfo");
+        ArrayList<Integer> banjuInfo = this.getIntent().getIntegerArrayListExtra("banjuInfo");
+        ArrayList<Integer> tempBanju = new ArrayList<>();
+        banju = new ArrayList<ArrayList<Integer>>();
+        curIdx = new ArrayList<>();
+        key = this.getIntent().getIntExtra("key",0);
 
+        int lenInfoSize = lenInfo.size();
+        for(int i = 0; i < lenInfoSize; i++) {
+            for(int j=0; j < lenInfo.get(i); j++) {
+                tempBanju.add(banjuInfo.get(0));
+                banjuInfo.remove(0);
+            }
+            banju.add(tempBanju);
+            tempBanju = new ArrayList<>();
+            curIdx.add(0);
+        }
 
         // Initialize the settings (MidiOptions).
         // If previous settings have been saved, use those
@@ -156,6 +177,30 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         if (savedOptions != null) {
             options.merge(savedOptions);
         }
+
+        ImageButton prevBtn = findViewById(R.id.down_button2);
+        prevBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                prevBanju();
+            }
+        });
+
+        ImageButton nextBtn = findViewById(R.id.up_button2);
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nextBanju();
+            }
+        });
+
+        ImageButton saveBtn = findViewById(R.id.save_btn2);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveBanju();
+            }
+        });
 
 
         createViews();
@@ -635,6 +680,156 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
                         // Hide the nav bar and status bar
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+
+    private void saveBanju(){
+        FileOutputStream fos = null;
+        File file = new File( uri.getPath() );
+        Log.d("TAG", uri.getPath().toString());
+
+        try {
+            fos = new FileOutputStream(file);
+            Log.d("TAG", "heere");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d("TAG", e.toString() +"error");
+
+        }
+
+        player.save(fos);
+    }
+
+    public void nextBanju()
+    {
+        TimeSignature timeSignature = midifile.getTimesig();
+        int nn = timeSignature.getNumerator();
+
+        //마디 계산
+        int measure = (int) (player.currentPulseTime/(nn*16));
+
+        int Idx = curIdx.get(measure) + 1;
+        if(0<=Idx && Idx < lenInfo.get(measure))
+            changeBanju(Idx,measure);
+
+    }
+
+    public void prevBanju(){
+        TimeSignature timeSignature = midifile.getTimesig();
+        int nn = timeSignature.getNumerator();
+
+        //마디 계산
+        int measure = (int) (player.currentPulseTime/(nn*16)) ;
+
+
+        int Idx = curIdx.get(measure) - 1;
+        if(0<=Idx && Idx < lenInfo.get(measure))
+            changeBanju(Idx,measure);
+    }
+
+    public void changeBanju(int Idx, int madi)
+    {
+        curIdx.set(madi,Idx);
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        MidiTrack track = tracks.get(1);
+        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
+        ArrayList<MidiEvent> events = allevents.get(1);
+        ArrayList<MidiNote> notes = track.getNotes();
+
+        int Ckey[] = {0,2,4,5,7,9};
+
+        int num;
+        boolean isMinor7 , is7;
+        int c1 = 0,c2 = 0,c3 = 0,c4 = 0;
+
+        System.out.println(c1+c2+c3+c4);
+
+        int index = banju.get(madi).get(Idx);
+        num = Ckey[index] + key;
+        is7 = (index== 4);
+        isMinor7 = ( index == 1 || index ==2 || index ==5 );
+
+        if(is7){
+            c1 = 60 + num; //도
+            c2 = 64 + num; //미
+            c3 = 67 + num; //솔
+            c4 = 70 + num; //시b
+        }
+        else if( isMinor7){
+            c1 = 60 + num; //도
+            c2 = 63 + num; //미b
+            c3 = 67 + num; //솔
+            c4 = 70 + num; //시b
+        }
+        else{
+            c1 = 60 + num;
+            c2 = 64 + num;
+            c3 = 67 + num;
+
+        }
+        int c[] = {c1,c2,c3,c4};
+        int t = 0;
+
+
+        System.out.println("ccccccccccccccccccccccc");
+        System.out.println(c[0]);
+        System.out.println(c[1]);
+        System.out.println(c[2]);
+        System.out.println(c[3]);
+
+        //반주 수정
+
+        System.out.println(notes);
+        for(int i=0;i<notes.size();i++) {
+            MidiNote note = notes.get(i);
+            //쌓이는 음표 개수가 3->4
+            if(c[t]!=0 && t==3 && notes.get(i-1).getStartTime()!=note.getStartTime())
+                notes.add(i,new MidiNote(notes.get(i-1).getStartTime(),0,c[t],note.getDuration()));
+
+            if(note.getStartTime()==(int)player.currentPulseTime) {
+                if (c[t] != 0)
+                    note.setNumber(c[t]);
+                else
+                    notes.remove(i);
+            }
+            t++;
+            if(t>3)
+                break;
+        }
+
+        t = 0;
+
+        for(int i=0;i<events.size();i++){
+            MidiEvent event = events.get(i);
+
+            if(t>3)
+                break;
+
+            //쌓이는 음표 개수가 3->4
+            if(c[t]!=0 && t==3 && events.get(i-1).StartTime!=event.StartTime) {
+
+                MidiEvent clone = event.Clone();
+
+                clone.setNotenumber((byte)c[t]);
+
+                events.add(i, clone);
+            }
+
+            if(event.StartTime==(int)player.currentPulseTime) {
+                if (c[t] != 0)
+                    event.setNotenumber((byte)c[t]);
+                else
+                    notes.remove(i);
+            }
+
+            t++;
+
+        }
+
+        System.out.println(notes);
+
+        createSheetMusic(options);
     }
 }
 
