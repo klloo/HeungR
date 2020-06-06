@@ -125,7 +125,7 @@
     <LinearLayout
         android:id="@+id/sheet_content"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:layout_marginTop="250dp"
         android:background="@color/Bright_white"
         android:orientation="vertical"
@@ -222,7 +222,6 @@
         android:background="#00FFFFFF"
         android:scaleType="fitXY"
         android:src="@drawable/magicwand"
-        android:text="chord"
         android:tint="@color/Smoke_Pine"
         app:layout_constraintBottom_toTopOf="@+id/tools"
         app:layout_constraintEnd_toEndOf="parent" />
