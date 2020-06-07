@@ -235,11 +235,13 @@ public class RecordingActivity extends AppCompatActivity implements
                     nn = 4;
                     dd = 2;
                     measure = 4;
+                    count = 0;
                 }
                 else{ //4분의 3박자(3/2^2)
                     nn = 3;
                     dd = 2;
                     measure = 3;
+                    count = 1;
                 }
             }
 
