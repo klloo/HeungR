@@ -472,6 +472,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                     temp.add(note.getNumber());
                     count ++;
 
+                    // nn이 4면 짝수일때마다 nn이 3이면 매번 새로움
                     if( ( (count % (nn-2) ) == 0 ) ){ //새로운 마디이면
                         if( temp.size() != 0){
                             bars.add(temp);

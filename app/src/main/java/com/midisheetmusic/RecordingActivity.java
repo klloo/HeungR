@@ -1,6 +1,7 @@
 package com.midisheetmusic;
 
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
@@ -261,6 +263,7 @@ public class RecordingActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 final CountDownTimer timer = new CountDownTimer(60000 / spinnerBPM * nn ,60000 / spinnerBPM) {
+
                     @Override
                     public void onTick(long millisUntilFinished) {
 
@@ -605,18 +608,19 @@ public class RecordingActivity extends AppCompatActivity implements
         int quarter_note; //4분음표 결정개수
         int sixteenth_note;
 
-        //quarter_len = 60 / bpm *1000;
+        quarter_len = 600 / bpm *100;
 
-        //quarter_note = quarter_len / gap;
-
-
+        quarter_note = quarter_len / gap;
+/*
         if(bpm ==180){
             quarter_note = 250/gap;
         }
         else if(bpm == 120)
             quarter_note = 500/gap;
         else
-            quarter_note = 1000/gap;//(bpm == 60)*/
+            quarter_note = 1000/gap; //(bpm == 60)
+*/
+
 
         int white_note = quarter_note*4; //온음표
         int dot_half_note = quarter_note*3;
