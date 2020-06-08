@@ -66,11 +66,11 @@ public class MetronomeThread extends Thread {
                public void run() {
                    if(measure == 4){
                        imageView.setImageResource(imageArray1[index]);
-                       vibrator.vibrate(15);
+                       vibrator.vibrate(5);
                    }
                    else{
                        imageView.setImageResource(imageArray2[index]);
-                       vibrator.vibrate(15);
+                       vibrator.vibrate(5);
                    }
                }
            });

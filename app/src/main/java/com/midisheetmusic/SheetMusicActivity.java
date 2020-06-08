@@ -177,6 +177,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         init();
 
 
+        printSequence(getSequence());
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -427,22 +429,32 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         ArrayList<MidiTrack> tracks = midifile.getTracks();
 
 
+        int time = 0;
+
         MidiTrack track = tracks.get(0);
         ArrayList<MidiNote> notes = track.getNotes();
         for (MidiNote note : notes) {
+            if( time != note.getStartTime()){
+                sequence.add(-1);
+                sequence.add( note.getStartTime() - time);
+                time = note.getStartTime();
+            }
             sequence.add(note.getNumber());
             sequence.add(note.getDuration());
+            time +=  note.getDuration();
         }
 
 
-        System.out.println("track0");
-        printSequence(sequence);
+     //   System.out.println("track0");
+      //  printSequence(sequence);
 
 
 
 
         return sequence;
     }
+
+
 
     int getKeySignature(){
         ArrayList<MidiTrack> tracks = midifile.getTracks();
@@ -622,10 +634,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
 
     public void printSequence(ArrayList<Integer> seq ){
-        for(int i = 0 ; i < seq.size() ; i++){
-            System.out.print(seq.get(i) + " ");
-            if(i%2 == 1)
-                System.out.println();
+        Log.d("seq", "getSeqnece");
+        for(int i = 0 ; i < seq.size() -1 ; i+=2){
+            Log.d("seq", seq.get(i) +" | " + seq.get(i+1));
+
         }
     }
 

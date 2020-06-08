@@ -279,6 +279,8 @@ public class RecordingActivity extends AppCompatActivity implements
 
                             vibrator.vibrate(10);
 
+
+
                         }else{//중간에 타이머를 멈췄다...
 
                             cancel();
@@ -665,21 +667,24 @@ public class RecordingActivity extends AppCompatActivity implements
             }
         }
         // test2
+/*
+
+        Log.d("seq", "레코딩 시퀀스 ");
         for (int i = 1; i < Sequence2.size(); i += 2) {
-            System.out.println("Second - MidiNum:" + Sequence2.get(i - 1) + " || Counts:" + Sequence2.get(i));
+            Log.d("seq", "Second - MidiNum:" + Sequence2.get(i - 1) + " || Counts:" + Sequence2.get(i));
         }
-        System.out.println("\n");
 
-        System.out.println("온음표 개수:"+white_note+" note:"+SEMIBREVE);
-        System.out.println("점2분음표 개수:"+dot_half_note+" note:"+(MINIM+CROTCHET));
-        System.out.println("2분음표 개수:"+half_note+" note:"+MINIM);
-        System.out.println("점4분음표 개수:"+dot_quarter_note+" note:"+(CROTCHET + QUAVER));
-        System.out.println("4분음표 개수:"+quarter_note+" note:"+CROTCHET);
-        System.out.println("점8분음표 개수:"+dot_eighth_note+" note:"+(QUAVER + SEMIQUAVER));
-        System.out.println("8분음표 개수:"+eighth_note+" note:"+QUAVER);
-        System.out.println("16분음표 개수:"+sixteenth_note+" note:"+SEMIQUAVER);
+        Log.d("seq", "온음표 개수:"+white_note+" note:"+SEMIBREVE);
+        Log.d("seq", "점2분음표 개수:"+dot_half_note+" note:"+(MINIM+CROTCHET));
+        Log.d("seq", "2분음표 개수:"+half_note+" note:"+MINIM);
+        Log.d("seq", "점4분음표 개수:"+dot_quarter_note+" note:"+(CROTCHET + QUAVER));
+        Log.d("seq", "4분음표 개수:"+quarter_note+" note:"+CROTCHET);
+        Log.d("seq", "점8분음표 개수:"+dot_eighth_note+" note:"+(QUAVER + SEMIQUAVER));
+        Log.d("seq", "8분음표 개수:"+eighth_note+" note:"+QUAVER);
+        Log.d("seq", "16분음표 개수:"+sixteenth_note+" note:"+SEMIQUAVER);
 
-        System.out.println("gpa : "+gap);
+        Log.d("seq", "gpa : "+gap);
+*/
 
 
         int midi;
@@ -788,7 +793,7 @@ public class RecordingActivity extends AppCompatActivity implements
         }
 
         for ( i = 1; i < Sequence2.size(); i += 2) {
-            System.out.println("Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
+            Log.d("seq", "Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
         }
 
         return Sequence2;
@@ -879,7 +884,7 @@ public class RecordingActivity extends AppCompatActivity implements
         Log.d("TAG",length+" MiilliSec");
         Log.d("TAG", "gap : "+ gap);
 
-        //출력
+/*        //출력
         int line = 0;
         for(int i = 0 ; i < humming.size() ; i++){
 
@@ -890,7 +895,7 @@ public class RecordingActivity extends AppCompatActivity implements
             }
             line ++;
 
-        }
+        }*/
 
 
 
@@ -913,7 +918,10 @@ public class RecordingActivity extends AppCompatActivity implements
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
      //   midiFileMaker.setKeySignature(key);
-        midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
+
+
+        //midiFileMaker.noteSequenceFixedVelocity (sequence, 127);  // 스무딩 시퀀스
+        midiFileMaker.noteSequenceFixedVelocity (sequence2, 127); //스무딩 x 시퀀스
 
 
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
