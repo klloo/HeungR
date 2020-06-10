@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.midisheetmusic"
+    package="com.Osunji"
     android:versionCode="9"
     android:versionName="2.6">
 
@@ -10,26 +10,26 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/appicon2"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name=".RenameFilePopup"></activity>
-        <activity android:name=".songEditActivity" />
-        <activity android:name=".Girls" />
+        <activity android:name="com.Osunji.RenameFilePopup"></activity>
+        <activity android:name="com.Osunji.songEditActivity" />
+        <activity android:name="com.Osunji.Girls" />
         <activity
-            android:name=".deletePopup"
+            android:name="com.Osunji.deletePopup"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
         <activity
-            android:name=".SetFileNameActivity"
+            android:name="com.Osunji.SetFileNameActivity"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-        <activity android:name=".ChooseSongActivity" />
+        <activity android:name="com.Osunji.ChooseSongActivity" />
         <activity
-            android:name=".AddFolderPopupActivity"
+            android:name="com.Osunji.AddFolderPopupActivity"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-        <activity android:name=".RecordingActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name="com.Osunji.RecordingActivity" />
+        <activity android:name="com.Osunji.MainActivity" />
         <activity
-            android:name=".SplashActivity"
+            android:name="com.Osunji.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.Osunji.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -47,9 +47,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HelpActivity" />
+        <activity android:name="com.Osunji.HelpActivity" />
         <activity
-            android:name=".SheetMusicActivity"
+            android:name="com.Osunji.SheetMusicActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -65,7 +65,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SheetMusicActivity2"
+            android:name="com.Osunji.SheetMusicActivity2"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>
