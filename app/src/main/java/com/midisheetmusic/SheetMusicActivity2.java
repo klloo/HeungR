@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -183,11 +184,18 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         createViews();
 
         init();
+
+        printSequence(getSequence());
+
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     void init() {
+
+        ImageView temp = findViewById(R.id.imageView4);
+        temp.setImageDrawable(getResources().getDrawable(R.drawable.music_96));
+
 
         ImageButton backButton = findViewById(R.id.btn_back2);
         ImageButton rewindButton = findViewById(R.id.btn_rewind2);
@@ -394,10 +402,10 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     }
 
     public void printSequence(ArrayList<Integer> seq ){
-        for(int i = 0 ; i < seq.size() ; i++){
-            System.out.print(seq.get(i) + " ");
-            if(i%2 == 1)
-                System.out.println();
+        Log.d("seq", "getSeqnece");
+        for(int i = 0 ; i < seq.size() -1 ; i+=2){
+            Log.d("seq", seq.get(i) +" | " + seq.get(i+1));
+
         }
     }
 
@@ -734,6 +742,8 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
         ArrayList<MidiEvent> events = allevents.get(1);
         ArrayList<MidiNote> notes = track.getNotes();
+
+
 
         int Ckey[] = {0,2,4,5,7,9};
 

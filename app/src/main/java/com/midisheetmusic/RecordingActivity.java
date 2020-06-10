@@ -756,10 +756,21 @@ public class RecordingActivity extends AppCompatActivity implements
             Sequence2.remove(0);
             Sequence2.remove(0);
         }
+        for ( i = 0; i < Sequence2.size(); i += 2) { //미디넘버, 길이
+            if( Sequence2.get(i) == -1){
+                Sequence2.remove(i+1);
+                Sequence2.remove(i);
+                i-=2; //한번더해야되니까 그자리에 다른게 들어왔으니까
+            }
+        }
+
 
         for ( i = 1; i < Sequence2.size(); i += 2) {
             Log.d("seq", "Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
         }
+
+
+
 
         ArrayList<Integer> madiSeq = MadiCalcul(Sequence2, nn);
 

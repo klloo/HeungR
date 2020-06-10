@@ -381,7 +381,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
      * measured in pulses.
      */
     private
-    ArrayList<MusicSymbol> AddRests(ArrayList<MusicSymbol> symbols, TimeSignature time) {
+    ArrayList<MusicSymbol> AddRests(ArrayList<MusicSymbol> symbols, TimeSignature time) { //여기서 바꿔야돼
         int prevtime = 0;
 
         ArrayList<MusicSymbol> result = new ArrayList<MusicSymbol>( symbols.size() );
@@ -410,6 +410,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     /** Return the rest symbols needed to fill the time interval between
      * start and end.  If no rests are needed, return nil.
      */
+
     private
     RestSymbol[] GetRests(TimeSignature time, int start, int end) {
         RestSymbol[] result;

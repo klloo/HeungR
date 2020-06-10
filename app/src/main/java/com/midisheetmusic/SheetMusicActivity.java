@@ -34,6 +34,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -183,6 +184,9 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     void init() {
+
+        ImageView temp = findViewById(R.id.imageView3);
+        temp.setImageDrawable(getResources().getDrawable(R.drawable.music_96));
 
         ImageButton backButton = findViewById(R.id.btn_back);
         ImageButton rewindButton = findViewById(R.id.btn_rewind);
@@ -629,8 +633,18 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         File file = new File(dir, newtitle) ;
 
         //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
-        if(!file.exists())
+        if(!file.exists()) //존재하지않을때 파일생성
             midiFileMaker.writeToFile(file, banju,key, nn, 127);
+        else{ // 존재할때 확인
+            File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
+                    +uri.getPathSegments().get(4));
+            File humming = new File(hummingAlbum, newtitle);
+            if( file.lastModified() < humming.lastModified()){
+
+                midiFileMaker.writeToFile(file, banju,key, nn, 127);
+            }
+
+        }
 
         Uri uri2 = Uri.parse(file.getPath());
         FileUri fileUri = new FileUri(uri2, file.getPath());

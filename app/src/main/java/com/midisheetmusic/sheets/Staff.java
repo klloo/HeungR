@@ -468,7 +468,7 @@ public class Staff {
                 x_shade = xpos;
                 canvas.translate(xpos, 0);
                 paint.setStyle(Paint.Style.FILL);
-                paint.setColor(shade);
+                paint.setColor(Color.rgb(241,248,177));
                 canvas.drawRect(0, 0, curr.getWidth(), this.getHeight(), paint);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(Color.BLACK);
