@@ -236,6 +236,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
                 //note.setNumber(midiNote -1);
                 midiNote = note.getNumber();
+                if(midiNote <= 0)
+                    return;
                 note.setNumber(note.getNumber() -1);
 
                 Log.d("Note", note.getNumber() +"");
@@ -267,11 +269,14 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         MidiTrack  track = tracks.get(0);
         ArrayList<MidiNote> notes = track.getNotes();
 
+
         for(MidiNote note : notes){
             if(note.getStartTime() == (int)player.currentPulseTime){
 
                 //note.setNumber(midiNote -1);
                 midiNote = note.getNumber();
+                if(midiNote >= 120)
+                    return;
                 note.setNumber(note.getNumber() +1);
 
                 Log.d("Note", note.getNumber() +"");

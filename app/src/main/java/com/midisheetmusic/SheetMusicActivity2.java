@@ -178,6 +178,26 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             options.merge(savedOptions);
         }
 
+
+
+        createViews();
+
+        init();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void init() {
+
+        ImageButton backButton = findViewById(R.id.btn_back2);
+        ImageButton rewindButton = findViewById(R.id.btn_rewind2);
+        ImageButton resetButton = findViewById(R.id.btn_replay2);
+        ImageButton playButton = findViewById(R.id.btn_play2);
+        ImageButton fastFwdButton = findViewById(R.id.btn_forward2);
+        ImageButton settingsButton = findViewById(R.id.btn_settings2);
+
+        player.setMidiButton(findViewById(R.id.btn_midi2));
+
         ImageButton prevBtn = findViewById(R.id.down_button2);
         prevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,34 +223,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         });
 
 
-        createViews();
-
-        init();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    void init() {
-
-        ImageButton backButton = findViewById(R.id.btn_back2);
-        ImageButton rewindButton = findViewById(R.id.btn_rewind2);
-        ImageButton resetButton = findViewById(R.id.btn_replay2);
-        ImageButton playButton = findViewById(R.id.btn_play2);
-        ImageButton fastFwdButton = findViewById(R.id.btn_forward2);
-        ImageButton settingsButton = findViewById(R.id.btn_settings2);
-
-        player.setMidiButton(findViewById(R.id.btn_midi2));
-
-
-        ImageButton testButton = findViewById(R.id.up_button2);
-        testButton.setOnClickListener(v -> upChord());
-
-        ImageButton downButton = findViewById(R.id.down_button2);
-        downButton.setOnClickListener(v -> downChord());
-
-        ImageButton saveButton = findViewById(R.id.save_btn2);
-        saveButton.setOnClickListener( v -> save());
-
 
         backButton.setOnClickListener(v -> this.onBackPressed());
         rewindButton.setOnClickListener(v -> player.Rewind());
@@ -246,12 +238,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
     }
 
-    void upChord(){
-
-    }
-    void downChord(){
-
-    }
 
     public void save(){
 
@@ -712,6 +698,12 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         int Idx = curIdx.get(measure) + 1;
         if(0<=Idx && Idx < lenInfo.get(measure))
             changeBanju(Idx,measure);
+        else{
+            Idx=0;
+            changeBanju(Idx,measure);
+        }
+
+        Log.d("BANJU", "움ㅈㄱ여 ㅜㅜ ");
 
     }
 
@@ -726,6 +718,12 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         int Idx = curIdx.get(measure) - 1;
         if(0<=Idx && Idx < lenInfo.get(measure))
             changeBanju(Idx,measure);
+        else {
+            Idx = lenInfo.get(measure) - 1;
+            changeBanju(Idx,measure);
+        }
+
+        Log.d("BANJU", "움ㅈㄱ여");
     }
 
     public void changeBanju(int Idx, int madi)
@@ -831,5 +829,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         createSheetMusic(options);
     }
+
 }
 

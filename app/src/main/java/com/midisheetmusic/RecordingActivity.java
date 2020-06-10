@@ -572,22 +572,6 @@ public class RecordingActivity extends AppCompatActivity implements
 
         }
 
- /*      while(Sequence1.get(0) == -1){
-            Sequence1.remove(0);
-            Sequence1.remove(0);
-        }*/
-
-        /*if(Sequence1.get(0) == -1){
-            Sequence1.remove(0);
-            Sequence1.remove(0);
-        }*/
-
-        //System.out.println("맨 앞 -1 지우기");
-
-        /*for(int i=1; i<Sequence1.size();i+=2){
-            System.out.println("MidiNum : " + Sequence1.get(i-1) + " || Counts : "+ Sequence1.get(i));
-
-        }*/
 
         return Sequence1; //{음계, 음계개수}
     }
@@ -754,6 +738,7 @@ public class RecordingActivity extends AppCompatActivity implements
                 if(midi == -1 ){
                     Sequence2.remove(i);
                     Sequence2.remove(i-1);
+                    i-=2;
                     continue;
                 }
                 Sequence2.set(i, SEMIQUAVER);
