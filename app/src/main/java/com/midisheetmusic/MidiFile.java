@@ -465,14 +465,14 @@ public class MidiFile {
 
         tracks = new ArrayList<MidiTrack>();
         trackPerChannel = false;
-
+/*
         List<Integer> temp = byte2Int(rawdata);
         byte[] temp2 = int2Byte(temp);
 
 
-        MidiFileReader file = new MidiFileReader(temp2);
+        MidiFileReader file = new MidiFileReader(temp2);*/
 
-      // MidiFileReader file = new MidiFileReader(rawdata);
+       MidiFileReader file = new MidiFileReader(rawdata);
 
         id = file.ReadAscii(4);
         if (!id.equals("MThd")) {

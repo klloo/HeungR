@@ -353,13 +353,13 @@ class MidiFileMaker {
 
             int duration = sequence.get(i + 1);
 
-            if (note < 0) {
+                if (note < 0) {
 
-                // This is a rest
+                    // This is a rest
 
-                restDelta += duration;
+                    restDelta += duration;
 
-                lastWasRest = true;
+                    lastWasRest = true;
 
             } else {
 
