@@ -43,7 +43,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static java.lang.Math.pow;
 
-public class RecordingActivity extends AppCompatActivity implements
+public class RecordingActivity extends BaseActivity implements
         RecordingSampler.CalculateVolumeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -122,6 +122,7 @@ public class RecordingActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording);
 
+        actList.add(this);
 
         folderName = getIntent().getStringExtra("folderName");
         fileName = getIntent().getStringExtra("fileName");
@@ -992,6 +993,11 @@ public class RecordingActivity extends AppCompatActivity implements
         }
 
         super.onDestroy();
+        actList.remove(this);
+    }
+    @Override
+    public void onBackPressed() {
+        actFinish();
     }
 
     @Override

@@ -12,6 +12,7 @@
 
 package com.Osunji;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -101,6 +102,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+
+        BaseActivity.actList.add(this);
 
         // Hide the navigation bar before the views are laid out
         hideSystemUI();
@@ -853,8 +856,16 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BaseActivity.actList.remove(this);
+    }
+
+    @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        for(Object act : BaseActivity.actList)
+            ((Activity)act).finish();
+        finish();
         saveOptions();
     }
 

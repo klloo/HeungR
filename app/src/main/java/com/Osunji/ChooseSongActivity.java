@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import es.dmoral.toasty.Toasty;
 
-public class ChooseSongActivity extends AppCompatActivity {
+public class ChooseSongActivity extends BaseActivity {
 
     String folderName;
     File[] files;
@@ -43,7 +43,6 @@ public class ChooseSongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_song);
         cContext = this;
-
 
         folderName = getIntent().getStringExtra("folderName");
 
@@ -199,6 +198,17 @@ public class ChooseSongActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        actFinish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
 
