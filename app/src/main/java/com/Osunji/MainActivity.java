@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import es.dmoral.toasty.Toasty;
 
 
-public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener{
+public class MainActivity extends BaseActivity implements DiscreteScrollView.OnItemChangedListener{
 
     public  static Context mContext;
 
@@ -229,6 +229,12 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {
         int positionInDataSet = infiniteAdapter.getRealPosition(position);
         onItemChanged(data.get(positionInDataSet));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        actList.remove(this);
     }
 }
 
