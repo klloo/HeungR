@@ -628,9 +628,11 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
 
-        //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
+        midiFileMaker.writeToFile(file, banju,key, nn, 127);
+
+      /*  //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
         if(!file.exists()) //존재하지않을때 파일생성
-            midiFileMaker.writeToFile(file, banju,key, nn, 127);
+
         else{ // 존재할때 확인
             File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
                     +uri.getPathSegments().get(4));
@@ -640,7 +642,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 midiFileMaker.writeToFile(file, banju,key, nn, 127);
             }
 
-        }
+        }*/
 
         Uri uri2 = Uri.parse(file.getPath());
         FileUri fileUri = new FileUri(uri2, file.getPath());
