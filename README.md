@@ -28,11 +28,7 @@
    생성된 파일의 악보를 이미지 파일로 저장하여 공유할 수 있다.
 
 ## 스크린샷
-![main](./README_IMAGE/main.jpg)
-![record1](./README_IMAGE/record1.jpg)
-![record2](./README_IMAGE/record2.jpg)
-![humming](./README_IMAGE/humming.jpg)
-![hanju](./README_IMAGE/banju.jpg)
+![main](./README_IMAGE/total.png)
 
 
 
