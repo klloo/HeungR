@@ -89,6 +89,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     ArrayList<Integer> lenInfo;
     int key;
 
+
+
+
     /** Create this SheetMusicActivity.
      * The Intent should have two parameters:
      * - data: The uri of the midi file to open.
