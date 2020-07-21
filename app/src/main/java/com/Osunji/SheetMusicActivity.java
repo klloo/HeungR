@@ -93,6 +93,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     String fileName;
 
 
+    int octa = 0;
+    int count = 0;
+
+
     /** Create this SheetMusicActivity.
       * The Intent should have two parameters:
       * - data: The uri of the midi file to open.
@@ -553,6 +557,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 AvoidTable[i][j] = (AvoidTable[i][j] +=key)%12;
         }
 
+
         for (ArrayList<Integer> bar : bars){
             // score 계산
 
@@ -564,14 +569,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                     for(int j = 0 ; j < AvoidTable[i].length ; j++){
                         if(AvoidTable[i][j] == (ele%12) )
                             score[i] -= 100;
+                            octa += ele;
+                            count ++;
                     }
                     // Chord table 계산
                     if( score[i] < 0)
                         continue; //Avoid 있으면 계산할 가치없음 그냥 x
 
                     for(int j = 0 ; j < ChordTable[i].length ; j++){
-                        if(ChordTable[i][j] == (ele%12) )
-                            score[i] += (11 - (j*2));
+                        if(ChordTable[i][j] == (ele%12) ) {
+                            score[i] += (11 - (j * 2));
+                            octa += ele;
+                            count++;
+                        }
                     }
                 }
             }
@@ -593,7 +603,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             banju = new ArrayList<>();
         }
         System.out.println("banjuList : " + banjuList.toString());
-
+        System.out.println("average  : " + octa/count);
 
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
@@ -628,7 +638,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
 
-        midiFileMaker.writeToFile(file, banju,key, nn, 127);
+        midiFileMaker.writeToFile(file, banju,key, nn, 127 , octa/count );
 
       /*  //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
         if(!file.exists()) //존재하지않을때 파일생성
@@ -677,8 +687,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         }
     }
-
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
