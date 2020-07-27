@@ -16,7 +16,6 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -753,12 +752,6 @@ public class RecordingActivity extends BaseActivity implements
         }
 
 
-        for ( i = 1; i < Sequence2.size(); i += 2) {
-            Log.d("seq", "Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
-        }
-
-
-
 
         ArrayList<Integer> madiSeq = MadiCalcul(Sequence2, nn);
 
@@ -1002,8 +995,6 @@ public class RecordingActivity extends BaseActivity implements
 
     @Override
     public void onCalculateVolume(int volume) {
-        // for custom implement
-        //       Log.d(TAG, String.valueOf(volume));
     }
 
     public boolean isFlat(int key, int midinum){
@@ -1061,25 +1052,6 @@ public class RecordingActivity extends BaseActivity implements
         gap = (int)(length/sampleNumber);
 
 
-        Log.d("TAG",sampleNumber +"개의 sample");
-        Log.d("TAG",length+" MiilliSec");
-        Log.d("TAG", "gap : "+ gap);
-
-/*        //출력
-        int line = 0;
-        for(int i = 0 ; i < humming.size() ; i++){
-
-            System.out.print(humming.get(i) +",");
-            if( line == 20 ){
-                line = 0;
-                System.out.println("");
-            }
-            line ++;
-
-        }*/
-
-
-
         //MidiFile 생성
         MidiFileMaker midiFileMaker = new MidiFileMaker();
         ArrayList<Integer> scalelist = store(humming);
@@ -1088,21 +1060,11 @@ public class RecordingActivity extends BaseActivity implements
         //최종시퀀스
         ArrayList<Integer> sequence2 = ReturnSequence(sequence1, gap, spinnerBPM );
 
-        //KeySIgnature 추정 후 smoothing
-        int key = KeySignature.Record_guess(sequence2).Notescale();
-        Log.v("TAG", "first_key signature은 " + KeySignature.KeyToString(key));
-        ArrayList<Integer> sequence = smoothing(sequence2, key);
-
-        int Afterkey = KeySignature.Record_guess(sequence).Notescale();
-        Log.v("TAG", "after_key signature은 " + KeySignature.KeyToString(Afterkey));
 
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
-     //   midiFileMaker.setKeySignature(key);
 
-
-        //midiFileMaker.noteSequenceFixedVelocity (sequence, 127);  // 스무딩 시퀀스
-        midiFileMaker.noteSequenceFixedVelocity (sequence2, 127); //스무딩 x 시퀀스
+        midiFileMaker.noteSequenceFixedVelocity (sequence2, 127);
 
 
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
@@ -1115,7 +1077,6 @@ public class RecordingActivity extends BaseActivity implements
         midiFileMaker.writeToFile (file);
 
         ((MainActivity)MainActivity.mContext).setAlbum();
-        Log.d("HELLO", folderName);
 
         if(!folderName.equals("Quick"))
             ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();

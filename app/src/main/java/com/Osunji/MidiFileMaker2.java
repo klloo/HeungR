@@ -1,6 +1,5 @@
 package com.Osunji;
 
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,7 +50,6 @@ class MidiFileMaker2 extends MidiFileMaker{
             fos = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            Log.d("TAG",e.toString() + "write To File ");
         }
 
 
@@ -178,7 +176,6 @@ class MidiFileMaker2 extends MidiFileMaker{
         } catch (IOException e) {
             e.printStackTrace();
 
-            Log.d("TAG",e.toString() + "write To File ");
         }
 
 
@@ -226,8 +223,8 @@ class MidiFileMaker2 extends MidiFileMaker{
 
     public void writeChord(int octa, int nn, int num,  boolean is7, boolean isMinor7){
 
-        int octave =  octa - (octa %12);
-        if( octave >=48)
+        int octave =  octa - (octa %12); //Ckey
+        if( 60 <= octave) // 사용자의 목소리가 5옥타브 이상일때만 낮추기
             octave -= 12;
 
         if(is7){
@@ -319,8 +316,6 @@ class MidiFileMaker2 extends MidiFileMaker{
 
         int num;
         boolean isMinor7 , is7;
-
-        Log.d("TAG", "key : " + key);
 
 
         for (ArrayList<Integer> chord : chords){
