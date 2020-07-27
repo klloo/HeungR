@@ -258,7 +258,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         try {
             fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -682,11 +681,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     private void saveBanju(){
         FileOutputStream fos = null;
         File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
 
         try {
             fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -713,7 +710,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             changeBanju(Idx,measure);
         }
 
-        Log.d("BANJU", "움ㅈㄱ여 ㅜㅜ ");
 
     }
 
@@ -733,7 +729,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             changeBanju(Idx,measure);
         }
 
-        Log.d("BANJU", "움ㅈㄱ여");
     }
 
     public void changeBanju(int Idx, int madi)
