@@ -608,6 +608,40 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
 
+    public boolean isChanged(File file, String newtitle){
+
+        if(file.exists()){
+
+            File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
+                    +uri.getPathSegments().get(4));
+            File humming = new File(hummingAlbum, newtitle);
+
+            Log.v("TAG" , " humming : " + humming.lastModified());
+            Log.v("TAG" , " banju   : " + file.lastModified());
+
+
+            // 멜로디 파일 수정시간 <  반주파일 수정시간
+            if( file.lastModified() > humming.lastModified()){
+                Log.v("TAG","반주 재사용");
+                return false;
+
+            }
+            else { // 멜로디 파일 수정시간 > 반주 파일 수정시간
+                //멜로디가 수정되었으니까 반주도 수정해야됨
+                Log.v("TAG","반주 재생성");
+                return true;
+            }
+
+
+        }
+        else{ //파일 존재안함
+           return true; //파일 생성해야하므로
+        }
+
+
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void makeMidiFile(){
         ArrayList<Integer> sequence = getSequence();
@@ -633,27 +667,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         }
 
 
-        Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
 
         String newtitle = uri.getLastPathSegment();
         File file = new File(dir, newtitle) ;
 
-        midiFileMaker.writeToFile(file, banju,key, nn, 127 , octa/count );
+        if( isChanged(file, newtitle)){ // 존재하고, 수정된적이있음(업데이트가 되었으면)
+            //미디파일생성
+            midiFileMaker.writeToFile(file, banju,key, nn, 127 , octa/count );
+        }
 
-      /*  //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
-        if(!file.exists()) //존재하지않을때 파일생성
 
-        else{ // 존재할때 확인
-            File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
-                    +uri.getPathSegments().get(4));
-            File humming = new File(hummingAlbum, newtitle);
-            if( file.lastModified() < humming.lastModified()){
 
-                midiFileMaker.writeToFile(file, banju,key, nn, 127);
-            }
 
-        }*/
-
+        // 반주 Activity로 정보전달
         Uri uri2 = Uri.parse(file.getPath());
         FileUri fileUri = new FileUri(uri2, file.getPath());
 
@@ -674,7 +700,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         intent.putExtra("lenInfo",lenInfo);
         intent.putExtra("banjuInfo",banjuInfo);
         intent.putExtra("key",key);
-
 
         startActivity(intent);
     }
