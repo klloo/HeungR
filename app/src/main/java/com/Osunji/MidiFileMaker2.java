@@ -222,8 +222,10 @@ class MidiFileMaker2 extends MidiFileMaker{
 
 
     public void writeChord(int octa, int nn, int num,  boolean is7, boolean isMinor7){
+        int velocity = 90;
 
         int octave =  octa - (octa %12); //Ckey
+
         if( 60 <= octave) // 사용자의 목소리가 5옥타브 이상일때만 낮추기
             octave -= 12;
 
@@ -247,10 +249,10 @@ class MidiFileMaker2 extends MidiFileMaker{
 
 
             // nn/4박 C7코드
-            bnoteOn(0, c1, 100);
-            bnoteOn(0, c2, 100);
-            bnoteOn(0, c3, 100);
-            bnoteOn(0, c4, 100);
+            bnoteOn(0, c1, velocity);
+            bnoteOn(0, c2, velocity);
+            bnoteOn(0, c3, velocity);
+            bnoteOn(0, c4, velocity);
             bnoteOff(nn*16, c1);
             bnoteOff(0, c2);
             bnoteOff(0, c3);
@@ -274,10 +276,10 @@ class MidiFileMaker2 extends MidiFileMaker{
 
 
             //4/4박 C-7코드
-            bnoteOn(0, c1, 100);
-            bnoteOn(0, c2, 100);
-            bnoteOn(0, c3, 100);
-            bnoteOn(0, c4, 100);
+            bnoteOn(0, c1, velocity);
+            bnoteOn(0, c2, velocity);
+            bnoteOn(0, c3, velocity);
+            bnoteOn(0, c4, velocity);
             bnoteOff(nn*16, c1);
             bnoteOff(0, c2);
             bnoteOff(0, c3);
@@ -298,9 +300,9 @@ class MidiFileMaker2 extends MidiFileMaker{
             c3 = c3%12 + octave;
 
             //4/4박 C코드
-            bnoteOn(0, c1, 100);
-            bnoteOn(0, c2, 100);
-            bnoteOn(0, c3, 100);
+            bnoteOn(0, c1, velocity);
+            bnoteOn(0, c2, velocity);
+            bnoteOn(0, c3, velocity);
             bnoteOff(nn*16, c1);
             bnoteOff(0, c2);
             bnoteOff(0, c3);
