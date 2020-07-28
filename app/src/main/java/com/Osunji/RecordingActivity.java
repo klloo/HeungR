@@ -804,9 +804,9 @@ public class RecordingActivity extends BaseActivity implements
                     setNote = curNote - leftover;
 
                     //뒷마디로 보낼 음표 처리
-                    if(leftover == 20 || leftover == 28 || leftover == 36 || leftover == 40 ||
-                            leftover == 44 || leftover == 52 || leftover == 54 || leftover == 60 ){
-                        if(leftover == 20){
+                    if(leftover == 20 || leftover == 24 || leftover == 28 || leftover == 36 || leftover == 40 ||
+                            leftover == 44 || leftover == 48 || leftover == 52 || leftover == 54 || leftover == 60 ){
+                        if(leftover == 20 || leftover == 24){
 
                             Sequence.set(i+1,CROTCHET);
 
@@ -819,7 +819,7 @@ public class RecordingActivity extends BaseActivity implements
 
                         }
 
-                        else if(leftover == 44 || leftover == 52 || leftover == 54){
+                        else if(leftover == 44 || leftover == 48 || leftover == 52 || leftover == 54){
                             //4분음표 세개로 전달
                             Sequence.set(i+1,CROTCHET);
                             Sequence.add(i,CROTCHET);
@@ -847,8 +847,8 @@ public class RecordingActivity extends BaseActivity implements
                     }
 
                     //앞마디로 보낼 음표 처리 / 여기서는 딱딱 나눠야 함. 그래서 좀 노가다
-                    if(setNote == 12 || setNote == 20 || setNote == 28 || setNote == 36 || setNote == 40 ||
-                            setNote == 44 || setNote == 52 || setNote == 54 || setNote == 60 )
+                    if(setNote == 12 || setNote == 20 || setNote == 24 || setNote == 28 || setNote == 36 || setNote == 40 ||
+                            setNote == 44 || setNote == 48 ||  setNote == 52 || setNote == 54 || setNote == 60 )
                     {
                         if(setNote == 12){
                             //16분음표 하나와 8분음표하나
@@ -863,6 +863,14 @@ public class RecordingActivity extends BaseActivity implements
                             Sequence.add(i, CROTCHET);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=2;
+                        }
+                        else if(setNote == 24){
+                            //8분음표 하나와 4분음표하나
+                            Sequence.add(i, CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
                             i+=2;
                         }
@@ -905,6 +913,18 @@ public class RecordingActivity extends BaseActivity implements
                             Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
+                        }
+                        else if(setNote == 48){
+                            //4분음표 두개와 8분음표 두개 로 나누기 16 16 8 8
+                            Sequence.add(i,CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
                             i+=6;
                         }
