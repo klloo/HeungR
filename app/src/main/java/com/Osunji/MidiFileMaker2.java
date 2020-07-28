@@ -1,6 +1,5 @@
 package com.Osunji;
 
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +42,7 @@ class MidiFileMaker2 extends MidiFileMaker{
             0x4d, 0x54, 0x72, 0x6B
     };
 
-    public void writeToFile(File file, ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity) { //throws IOException {
+    public void writeToFile(File file, ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity , int octa) { //throws IOException {
 
 
         FileOutputStream fos = null;
@@ -51,7 +50,6 @@ class MidiFileMaker2 extends MidiFileMaker{
             fos = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            Log.d("TAG",e.toString() + "write To File ");
         }
 
 
@@ -133,7 +131,7 @@ class MidiFileMaker2 extends MidiFileMaker{
 
 
             //반주 이벤트
-            makebPlayEvents(chords, key,  nn);
+            makebPlayEvents(chords, octa, key,  nn );
 
             //반주 작성
 
@@ -178,7 +176,6 @@ class MidiFileMaker2 extends MidiFileMaker{
         } catch (IOException e) {
             e.printStackTrace();
 
-            Log.d("TAG",e.toString() + "write To File ");
         }
 
 
@@ -224,28 +221,29 @@ class MidiFileMaker2 extends MidiFileMaker{
 
 
 
-    public void writeChord(int nn, int num, boolean is7, boolean isMinor7){
+    public void writeChord(int octa, int nn, int num,  boolean is7, boolean isMinor7){
+
+        int octave =  octa - (octa %12); //Ckey
+        if( 60 <= octave) // 사용자의 목소리가 5옥타브 이상일때만 낮추기
+            octave -= 12;
 
         if(is7){
 
-            int c1 = 60; //도
-            int c2 = 64; //미
-            int c3 = 67; //솔
-            int c4 = 70; //시b
+            int c1 = 0; //도
+            int c2 = 4; //미
+            int c3 = 7; //솔
+            int c4 = 10; //시b
 
             c1 += num;
             c2 += num;
             c3 += num;
             c4 += num;
 
-            if( c1 > 73)
-                c1 -= 12;
-            if( c2 > 73)
-                c2 -= 12;
-            if( c3 > 73)
-                c3 -= 12;
-            if( c4 > 73)
-                c4 -= 12;
+            c1 = c1%12 + octave;
+            c2 = c2%12 + octave;
+            c3 = c3%12 + octave;
+            c4 = c4%12 + octave;
+
 
 
             // nn/4박 C7코드
@@ -259,23 +257,20 @@ class MidiFileMaker2 extends MidiFileMaker{
             bnoteOff(0, c4);
         }
         else if( isMinor7){
-            int c1 = 60; //도
-            int c2 = 63; //미b
-            int c3 = 67; //솔
-            int c4 = 70; //시b
+            int c1 = 0; //도
+            int c2 = 3; //미b
+            int c3 = 7; //솔
+            int c4 = 10; //시b
             c1 += num;
             c2 += num;
             c3 += num;
             c4 += num;
 
-            if( c1 > 73)
-                c1 -= 12;
-            if( c2 > 73)
-                c2 -= 12;
-            if( c3 > 73)
-                c3 -= 12;
-            if( c4 > 73)
-                c4 -= 12;
+
+            c1 = c1%12 + octave;
+            c2 = c2%12 + octave;
+            c3 = c3%12 + octave;
+            c4 = c4%12 + octave;
 
 
             //4/4박 C-7코드
@@ -289,20 +284,18 @@ class MidiFileMaker2 extends MidiFileMaker{
             bnoteOff(0, c4);
         }
         else{
-            int c1 = 60;
-            int c2 = 64;
-            int c3 = 67;
+            int c1 = 0;
+            int c2 = 4;
+            int c3 = 7;
 
             c1 += num;
             c2 += num;
             c3 += num;
 
-            if( c1 > 73)
-                c1 -= 12;
-            if( c2 > 73)
-                c2 -= 12;
-            if( c3 > 73)
-                c3 -= 12;
+
+            c1 = c1%12 + octave;
+            c2 = c2%12 + octave;
+            c3 = c3%12 + octave;
 
             //4/4박 C코드
             bnoteOn(0, c1, 100);
@@ -317,14 +310,12 @@ class MidiFileMaker2 extends MidiFileMaker{
     }
 
 
-    public void makebPlayEvents(ArrayList<ArrayList<Integer>> chords, int key,  int nn){
+    public void makebPlayEvents(ArrayList<ArrayList<Integer>> chords, int octa,  int key,  int nn){
 
         int Ckey[] = {0,2,4,5,7,9};
 
         int num;
         boolean isMinor7 , is7;
-
-        Log.d("TAG", "key : " + key);
 
 
         for (ArrayList<Integer> chord : chords){
@@ -338,7 +329,7 @@ class MidiFileMaker2 extends MidiFileMaker{
             is7 = (index== 4);
             isMinor7 = ( index == 1 || index ==2 || index ==5 );
 
-            writeChord(nn, num, is7, isMinor7);
+            writeChord(octa, nn, num, is7, isMinor7);
         }
 
 
