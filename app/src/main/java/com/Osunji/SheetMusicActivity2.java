@@ -746,9 +746,8 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         int num;
         boolean isMinor7 , is7;
-        int c1 = 0,c2 = 0,c3 = 0,c4 = 0;
+        int c1 = 0, c2 = 0,c3 = 0,c4 = 0;
 
-        System.out.println(c1+c2+c3+c4);
 
         int index = banju.get(madi).get(Idx);
         num = Ckey[index] + key;
@@ -777,15 +776,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         int t = 0;
 
 
-        System.out.println("ccccccccccccccccccccccc");
-        System.out.println(c[0]);
-        System.out.println(c[1]);
-        System.out.println(c[2]);
-        System.out.println(c[3]);
 
         //반주 수정
 
-        System.out.println(notes);
         for(int i=0;i<notes.size();i++) {
             MidiNote note = notes.get(i);
             //쌓이는 음표 개수가 3->4
@@ -832,7 +825,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         }
 
-        System.out.println(notes);
+        Log.v("TAG", notes.toString());
 
         createSheetMusic(options);
     }
