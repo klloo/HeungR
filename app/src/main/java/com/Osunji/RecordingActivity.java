@@ -840,7 +840,7 @@ public class RecordingActivity extends BaseActivity implements
                         if(leftover<16 && leftover>12){ //점16분음표 처리
                             Sequence.set(i+1,CROTCHET);
                         }
-                        else if(leftover<12 && leftover>8){//점16분음표 처리
+                        else if(leftover<=12 && leftover>8){//점16분음표 처리
                             Sequence.set(i+1,QUAVER);
                         }
                         Sequence.set(i+1,leftover);
@@ -966,7 +966,7 @@ public class RecordingActivity extends BaseActivity implements
                             Sequence.add(i,curMidi);
                             Sequence.add(i,SEMIQUAVER);
                             Sequence.add(i,curMidi);
-                            i+=4;
+                            i+=6;
                         }
                     }else{ //setNote 처리
                         Sequence.add(i,setNote);
