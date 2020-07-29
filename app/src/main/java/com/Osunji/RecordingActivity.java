@@ -333,8 +333,8 @@ public class RecordingActivity extends BaseActivity implements
                         metronomeThread.setImageView(imageview);
                         mFloatingActionButton.setImageResource(R.drawable.muted);
 
-                       timer.start();
-                       middlestop[0] = 1;
+                        timer.start();
+                        middlestop[0] = 1;
 
                     }
 
@@ -559,7 +559,6 @@ public class RecordingActivity extends BaseActivity implements
 
         }
 
-
         return Sequence1; //{음계, 음계개수}
     }
 
@@ -574,10 +573,7 @@ public class RecordingActivity extends BaseActivity implements
         quarter_note = quarter_len / gap;
 
         int white_note = quarter_note*4; //온음표
-        int dot_half_note = quarter_note*3;
         int half_note = quarter_note*2; //2분음표 결정개수
-        int dot_quarter_note = (int)(quarter_note*1.5);
-        int dot_eighth_note = (int)(quarter_note*0.75);
         int eighth_note = quarter_note/2; //8분음표 결정개수
         sixteenth_note = quarter_note/4; //16분음표 결정개수
 
@@ -595,27 +591,45 @@ public class RecordingActivity extends BaseActivity implements
         int count;
         int exCount = 0;
         int k;
-        for(int i = 3; i<Sequence1.size();i+=2){
+
+        for(int i = 3; i<Sequence1.size(); i+=2){
 
             count = Sequence1.get(i);
             k = Sequence2.size();
-            if(count >= sixteenth_note){
-                Sequence2.add(Sequence1.get(i-1));
-                Sequence2.add(count);
-            }
-            else{
-                exCount = Sequence2.get(k-1);
-                Sequence2.set(k-1, exCount + count);
-                if(Sequence2.get(1) <sixteenth_note && Sequence2.size() == 4){
+
+            //16분음표 결정개수보다 적거나, midiNum이 -1이라면 (쉼표부분?제거)
+            if((count<sixteenth_note) || (Sequence1.get(i-1) == -1)){
+
+                exCount = Sequence2.get(k-1); //이전의 카운트수를 가져오고
+                Sequence2.set(k-1, exCount + count); //현재 카운트수를 이전 카운트(exCount)와 합쳐서 set
+
+                if(Sequence2.get(1) <sixteenth_note && Sequence2.size() == 4){ //예외처리 ( 필요한 부분이었나??)
                     int first = Sequence2.get(1);
                     int third = Sequence2.get(3);
                     Sequence2.set(3, first + third );
                     Sequence2.remove(0);
                     Sequence2.remove(0);
                 }
+
             }
+            else{ //아니라면...
+                Sequence2.add(Sequence1.get(i-1));
+                Sequence2.add(count);
+            }
+
         }
 
+        //맨앞이 -1이라면 제거
+        while(Sequence2.get(0) == -1) {
+            if (Sequence2.size() == 2) {
+                return Sequence2;
+            }
+            Sequence2.remove(0);
+            Sequence2.remove(0);
+        }
+
+
+        /*음표 결정*/
         int midi;
         int i = -1;
         while(true) {
@@ -627,93 +641,50 @@ public class RecordingActivity extends BaseActivity implements
             count = Sequence2.get(i);
             midi = Sequence2.get(i-1);
 
+            if(count > (white_note + half_note) / 2) { //count 온음표로 표기
 
-            if(count > (white_note + dot_half_note) / 2) { //count 온음표로 표기
                 Sequence2.set(i, SEMIBREVE);
-                if((count - white_note) > sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
+
+                if((count - white_note) > sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 다음 음표를 구한다.
                     count = (int)(count - white_note); //큰부분빼서
                     Sequence2.add(i+1,count);
                     Sequence2.add(i+1, midi);
                     continue;
                 }
+
                 continue;
 
-            }else if(count > (dot_half_note + half_note) / 2) { //count가 점2분음표로 표기
-                if( midi == -1 ){
-                    Sequence2.set(i, MINIM);
-                    Sequence2.add(i+1, -1);
-                    Sequence2.add(i+2 , CROTCHET);
-                    i+=2;
-                }
-                else
-                    Sequence2.set(i, MINIM+CROTCHET);
-
-                if((count - dot_half_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
-                    count = (int)(count - dot_half_note); //큰부분빼서
-                    Sequence2.add(i+1, count);
-                    Sequence2.add(i+1, midi);
-                    continue;
-                }
-                continue;
-
-            }else if(count > (half_note + dot_quarter_note) / 2){ //count 2분음표
+            }else if(count > (half_note + quarter_note) / 2){ //count 2분음표
 
                 Sequence2.set(i, MINIM);
-                if((count - half_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
+
+                if((count - half_note) >= sixteenth_note ) {//count-2분음표가 16분 음표보다 클 때,  다음 음표를 구한다.
                     count = (int)(count - half_note); //큰부분빼서
                     Sequence2.add(i+1, count);
                     Sequence2.add(i+1, midi);
                     continue;
                 }
+
                 continue;
 
-            }else if(count > (dot_quarter_note + quarter_note) / 2) { //점4분음표
-                if( midi == -1 ){
-                    Sequence2.set(i, CROTCHET);
-                    Sequence2.add(i+1, -1);
-                    Sequence2.add(i+2 , QUAVER);
-                    i+=2;
-                }
-                Sequence2.set(i, CROTCHET + QUAVER);
-                if((count - dot_quarter_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
-                    count = (int)(count - dot_quarter_note); //큰부분빼서
-                    Sequence2.add(i+1, count);
-                    Sequence2.add(i+1, midi);
-                    continue;
-                }
-                continue;
-
-            }else if(count > (quarter_note + dot_eighth_note) / 2) { //4분음표
+            }else if(count > (quarter_note + eighth_note) / 2) { //4분음표
 
                 Sequence2.set(i, CROTCHET);
-                if((count - quarter_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
+
+                if((count - quarter_note) >= sixteenth_note ) {//count-4분음표가 16분 음표보다 클 때,  다음 음표를 구한다.
                     count = (int)(count - quarter_note); //큰부분빼서
                     Sequence2.add(i+1, count);
                     Sequence2.add(i+1, midi);
                     continue;
                 }
+
                 continue;
 
-            }else if(count > (dot_eighth_note + eighth_note) / 2) { //점 8분음표
-                if( midi == -1 ){
-                    Sequence2.set(i, SEMIQUAVER);
-                    Sequence2.add(i+1, -1);
-                    Sequence2.add(i+2 , QUAVER);
-                    i+=2;
-                }
-                Sequence2.set(i, QUAVER + SEMIQUAVER);
-                if((count - dot_eighth_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
-                    count = (int)(count - dot_eighth_note); //큰부분빼서
-                    Sequence2.add(i+1, count);
-                    Sequence2.add(i+1, midi);
-                    continue;
-                }
-                continue;
 
             }else if(count > (eighth_note + sixteenth_note) / 2) { //8분음표
 
                 Sequence2.set(i, QUAVER);
-                if((count - eighth_note) >= sixteenth_note ) {//count-온음표가 16분 음표보다 클 때, 붙임줄필요하고 다음 음표를 구한다.
+                if((count - eighth_note) >= sixteenth_note ) {//count-8분음표가 16분 음표보다 클 때, 다음 음표를 구한다.
                     count = (int)(count - eighth_note); //큰부분빼서
                     Sequence2.add(i+1, count);
                     Sequence2.add(i+1, midi);
@@ -735,7 +706,7 @@ public class RecordingActivity extends BaseActivity implements
         }
 
 
-
+/*
         while(Sequence2.get(0) == -1){
             if(Sequence2.size()==2){
                 return Sequence2;
@@ -750,10 +721,10 @@ public class RecordingActivity extends BaseActivity implements
                 i-=2; //한번더해야되니까 그자리에 다른게 들어왔으니까
             }
         }
-
-
-
+*/
+        //마디 계산.
         ArrayList<Integer> madiSeq = MadiCalcul(Sequence2, nn);
+
 
         return madiSeq;
 
@@ -797,10 +768,10 @@ public class RecordingActivity extends BaseActivity implements
                 continue;
             }
 
-            if(curMidi == -1 && curNote == 12){ //점8분쉼표일 때 예외처리 8분음표로 만들어주기
+            /*if(curMidi == -1 && curNote == 12){ //점8분쉼표일 때 예외처리 8분음표로 만들어주기
                 curNote = 8;
                 Sequence.set(i+1,8);
-            }
+            }*/
 
             meterCounts += curNote;
 
@@ -824,9 +795,9 @@ public class RecordingActivity extends BaseActivity implements
                     setNote = curNote - leftover;
 
                     //뒷마디로 보낼 음표 처리
-                    if(leftover == 20 || leftover == 28 || leftover == 36 || leftover == 40 ||
-                            leftover == 44 || leftover == 52 || leftover == 54 || leftover == 60 ){
-                        if(leftover == 20){
+                    if(leftover == 20 || leftover == 24 || leftover == 28 || leftover == 36 || leftover == 40 ||
+                            leftover == 44 || leftover == 48 || leftover == 52 || leftover == 54 || leftover == 60 ){
+                        if(leftover == 20 || leftover == 24){
 
                             Sequence.set(i+1,CROTCHET);
 
@@ -839,7 +810,7 @@ public class RecordingActivity extends BaseActivity implements
 
                         }
 
-                        else if(leftover == 44 || leftover == 52 || leftover == 54){
+                        else if(leftover == 44 || leftover == 48 || leftover == 52 || leftover == 54){
                             //4분음표 세개로 전달
                             Sequence.set(i+1,CROTCHET);
                             Sequence.add(i,CROTCHET);
@@ -857,92 +828,135 @@ public class RecordingActivity extends BaseActivity implements
                         }
                     }
                     else{ //meterCounts처리
+                        if(leftover<16 && leftover>12){ //점16분음표 처리
+                            Sequence.set(i+1,CROTCHET);
+                        }
+                        else if(leftover<=12 && leftover>8){//점16분음표 처리
+                            Sequence.set(i+1,QUAVER);
+                        }
                         Sequence.set(i+1,leftover);
                     }
 
                     //앞마디로 보낼 음표 처리 / 여기서는 딱딱 나눠야 함. 그래서 좀 노가다
-                    if(setNote == 20 || setNote == 28 || setNote == 36 || setNote == 40 ||
-                            setNote == 44 || setNote == 52 || setNote == 54 || setNote == 60 )
+                    if(setNote == 12 || setNote == 20 || setNote == 24 || setNote == 28 || setNote == 36 || setNote == 40 ||
+                            setNote == 44 || setNote == 48 ||  setNote == 52 || setNote == 54 || setNote == 60 )
                     {
-                        if(setNote == 20){
-                            //점8분음표와(12) 8분음표(8)로 나누기
-                            Sequence.add(i, SEMIQUAVER+QUAVER);
+                        if(setNote == 12){
+                            //16분음표 하나와 8분음표하나
+                            Sequence.add(i, CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=2;
+                        }
+                        else if(setNote == 20){
+                            //16분음표 하나와 4분음표하나
+                            Sequence.add(i, CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=2;
+                        }
+                        else if(setNote == 24){
+                            //8분음표 하나와 4분음표하나
+                            Sequence.add(i, CROTCHET);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
                             i+=2;
                         }
                         else if(setNote == 28){
-                            // 4분음표 하나와 점8분음표 하나로 분리하기
+                            // 4분음표16 하나와 8분음표8 하나 16분음표4 하나
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
-                            i+=2;
+                            Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=4;
                         }
                         else if(setNote == 36){
-                            //점8분음표 세개로 나누기 12 12 12
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            //4분음표 두개32 16분음표4 한개
+                            Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,SEMIQUAVER);
                             Sequence.add(i,curMidi);
                             i+=4;
                         }
                         else if(setNote == 40){
-                            //4분음표 한개와 점8분음표 두개로 나누기. 16 12 12
+                            //4분음표 두개32 8분음표 한개8
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
                             i+=4;
                         }
                         else if(setNote == 44){
-                            //4분음표 두개와 점8분음표로 나누기 16 16 12
+                            //4분음표 두개와 8분음표한개 16분음표 한개 로 나누기 16 16 8 4
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
-                            i+=4;
+                            Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
+                        }
+                        else if(setNote == 48){
+                            //4분음표 두개와 8분음표 두개 로 나누기 16 16 8 8
+                            Sequence.add(i,CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
                         }
                         else if(setNote == 52){
-                            //점4분음표 4분음표 점8분음표 : 24 16 12
-                            Sequence.add(i,CROTCHET+QUAVER);
+                            //4분음표 3개 48 16분음표 1개4
+                            Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+QUAVER);
+                            Sequence.add(i, CROTCHET);
                             Sequence.add(i,curMidi);
-                            i+=4;
+                            Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
                         }
                         else if(setNote == 54){
-                            //점4분음표 4분음표 4분음표 : 24 16 16
-                            Sequence.add(i,CROTCHET+QUAVER);
-                            Sequence.add(i,curMidi);
+                            //4분음표 3개 48 8분음표 1개4
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            i+=4;
+                            Sequence.add(i, CROTCHET);
+                            Sequence.add(i,curMidi);
+                            Sequence.add(i,QUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
                         }
                         else{ //60
-                            /* 첫번째 case : 4분음표 3개와 점8분음표로 분리하기
-                               두번째 case : 2분음표 1개 4분음표 1개 점8분음표 1개로 분리하기
-                               세번째 case : 점2분음표 1개와 점8분음표 1개로 분리하기
+                            /*
+                               두번째 case : 2분음표 1개32 4분음표 1개16 8분음표 1개8 16분음표 1개4로 분리하기
                             * */
                             // 2번째 case 채택
                             Sequence.add(i,MINIM);
                             Sequence.add(i,curMidi);
                             Sequence.add(i,CROTCHET);
                             Sequence.add(i,curMidi);
-                            Sequence.add(i,SEMIQUAVER+SEMIQUAVER);
+                            Sequence.add(i,QUAVER);
                             Sequence.add(i,curMidi);
-                            i+=4;
+                            Sequence.add(i,SEMIQUAVER);
+                            Sequence.add(i,curMidi);
+                            i+=6;
                         }
                     }else{ //setNote 처리
                         Sequence.add(i,setNote);
@@ -1021,7 +1035,7 @@ public class RecordingActivity extends BaseActivity implements
             if(isFlat(key, midinum)){
                 if( !isFlat(key, midinum+1)){
                     midinum++;
-                  //  seq.set(i, midinum);
+                    //  seq.set(i, midinum);
                     sequence.add(midinum); //midinumber
                     sequence.add(seq.get(i+1)); //길이
                 }
