@@ -37,3 +37,4 @@
 ## Contributions
 - [ankineri](https://github.com/ankineri)
 - [MidiSheetMusic-android](https://github.com/ditek/MidiSheetMusic-Android) 
+- tarsosDSP
