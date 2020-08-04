@@ -1,9 +1,3 @@
-
-
-
-
-
-
 package com.midisheetmusic;
 
 import androidx.appcompat.app.AppCompatActivity;

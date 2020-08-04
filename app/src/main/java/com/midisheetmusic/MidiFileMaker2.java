@@ -43,146 +43,123 @@ class MidiFileMaker2 extends MidiFileMaker{
             0x4d, 0x54, 0x72, 0x6B
     };
 
-    public void writeToFile(File file, ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity) { //throws IOException {
+    public byte[] writeToFile(ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity) { //throws IOException {
 
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG",e.toString() + "write To File ");
+        ArrayList<Byte> output = null;
+
+        output = new ArrayList<>();
+        for (int i = 0; i < header.length; i++) {
+            output.add((byte) header[i]);
         }
 
+        int size = tempoEvent.length + keySigEvent.length + timeSigEvent.length
 
-        try {
+                + footer.length;
 
-            fos.write(intArrayToByteArray(header));
+        int high = size / 256;
 
-            // Calculate the amount of track data
+        int low = size - (high * 256);
 
-            // _Do_ include the footer but _do not_ include the
+        output.add((byte) 0);
 
-            // track header
+        output.add((byte) 0);
 
+        output.add((byte) high);
 
-            int size = tempoEvent.length + keySigEvent.length + timeSigEvent.length
+        output.add((byte) low);
 
-                    + footer.length;
-
-
-
-            // Write out the track data size in big-endian format
-
-            // Note that this math is only valid for up to 64k of data
-
-            //  (but that's a lot of notes)
-
-            int high = size / 256;
-
-            int low = size - (high * 256);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) high);
-
-            fos.write((byte) low);
-
-
-            // Write the standard metadata — tempo, etc
-
-            // At present, tempo is stuck at crotchet=60
-
-            fos.write(intArrayToByteArray(tempoEvent));
-
-            fos.write(intArrayToByteArray(keySigEvent));
-
-            fos.write(intArrayToByteArray(timeSigEvent));
-
-            fos.write(intArrayToByteArray(footer));
-
-
-
-            // 멜로디 작성
-
-            fos.write(intArrayToByteArray(trackHeader));
-            size = footer.length;
-            for (int i = 0; i < playEvents.size(); i++)
-                size += playEvents.elementAt(i).length;
-            high = size / 256;
-
-            low = size - (high * 256);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) high);
-
-            fos.write((byte) low);
-
-            for (int i = 0; i < playEvents.size(); i++) {
-
-                fos.write(intArrayToByteArray(playEvents.elementAt(i)));
-
-            }
-            // Write the footer
-            fos.write(intArrayToByteArray(footer));
-
-
-            //반주 이벤트
-            makebPlayEvents(chords, key,  nn);
-
-            //반주 작성
-
-
-            // Write the standard metadata — tempo, etc
-
-            // At present, tempo is stuck at crotchet=60
-
-
-
-            // Write out the note, etc., events
-
-            fos.write(intArrayToByteArray(trackHeader));
-            size = footer.length;
-            for (int i = 0; i < bplayEvents.size(); i++)
-                size += bplayEvents.elementAt(i).length;
-            high = size / 256;
-
-            low = size - (high * 256);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) high);
-
-            fos.write((byte) low);
-
-            for (int i = 0; i < bplayEvents.size(); i++) {
-
-                fos.write(intArrayToByteArray(bplayEvents.elementAt(i)));
-
-            }
-
-
-            // Write the footer and close
-
-            fos.write(intArrayToByteArray(footer));
-            fos.flush();
-            fos.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            Log.d("TAG",e.toString() + "write To File ");
+        for (int i = 0; i < tempoEvent.length; i++) {
+            output.add((byte) tempoEvent[i]);
         }
 
+        for (int i = 0; i < keySigEvent.length; i++) {
+            output.add((byte) keySigEvent[i]);
+        }
 
+        for (int i = 0; i < timeSigEvent.length; i++) {
+            output.add((byte) timeSigEvent[i]);
+        }
+
+        for (int i = 0; i < footer.length; i++) {
+            output.add((byte) footer[i]);
+        }
+
+        for (int i = 0; i < trackHeader.length; i++) {
+            output.add((byte) trackHeader[i]);
+        }
+
+        size = footer.length;
+
+        for (int i = 0; i < playEvents.size(); i++)
+            size += playEvents.elementAt(i).length;
+
+        high = size / 256;
+
+        low = size - (high * 256);
+
+        output.add((byte) 0);
+
+        output.add((byte) 0);
+
+        output.add((byte) high);
+
+        output.add((byte) low);
+
+        for (int i = 0; i < playEvents.size(); i++) {
+            int[] arr = playEvents.elementAt(i);
+            for (int j = 0; j < arr.length; j++) {
+                output.add((byte) arr[j]);
+            }
+        }
+
+        for (int i = 0; i < footer.length; i++) {
+            output.add((byte) footer[i]);
+        }
+
+        //반주 이벤트
+        makebPlayEvents(chords, key, nn);
+
+        for (int i = 0; i < trackHeader.length; i++) {
+            output.add((byte) trackHeader[i]);
+        }
+
+        size = footer.length;
+
+        for (int i = 0; i < bplayEvents.size(); i++)
+            size += bplayEvents.elementAt(i).length;
+
+        high = size / 256;
+
+        low = size - (high * 256);
+
+        output.add((byte) 0);
+
+        output.add((byte) 0);
+
+        output.add((byte) high);
+
+        output.add((byte) low);
+
+        for (int i = 0; i < bplayEvents.size(); i++) {
+            int[] arr = bplayEvents.elementAt(i);
+            for (int j = 0; j < arr.length; j++) {
+                output.add((byte) arr[j]);
+            }
+        }
+
+        for (int i = 0; i < footer.length; i++) {
+            output.add((byte) footer[i]);
+        }
+
+        byte[] byteArr = new byte[output.size()];
+        for(int i=0;i<byteArr.length;i++){
+            byteArr[i] = output.get(i);
+        }
+
+        return byteArr;
     }
+
 
 
     public void bnoteOn(int delta, int note, int velocity) {

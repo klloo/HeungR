@@ -364,6 +364,13 @@ public class MidiOptions implements Serializable {
         options.largeNoteSize = largeNoteSize;
         return options; 
     }
+
+    public void setInstruments(int instrument){
+        for (int i = 0; i < this.instruments.length; i++) {
+            this.instruments[i] = 24;
+            System.out.println("자자 제발 바뀌쇼" + this.instruments[i] + " 제발!!!!!!");
+        }
+    }
 }
 
 

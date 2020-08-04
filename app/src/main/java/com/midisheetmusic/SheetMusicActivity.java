@@ -13,6 +13,7 @@
 package com.midisheetmusic;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -68,6 +69,8 @@ import java.util.Comparator;
 import java.util.zip.CRC32;
 
 import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * SheetMusicActivity is the main activity. The main components are:
@@ -79,6 +82,7 @@ import es.dmoral.toasty.Toasty;
 public class SheetMusicActivity extends MidiHandlingActivity {
 
     public static final String MidiTitleID = "MidiTitleID";
+    public static final String MusicID = "MusicID";
     public static final int settingsRequestCode = 1;
     public static final int ID_LOOP_ENABLE = 10;
     public static final int ID_LOOP_START = 11;
@@ -97,7 +101,9 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     String folderName = "banju";
     String fileName;
 
+    Realm realm = Realm.getDefaultInstance();
 
+    int musicId;
     /** Create this SheetMusicActivity.
       * The Intent should have two parameters:
       * - data: The uri of the midi file to open.
@@ -120,39 +126,23 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         TimeSigSymbol.LoadImages(this);
 
 
+        //yeonju's test : DB에서 파일 불러오기 (id 이용)
+        //DB내용으로 sheet 생성
 
-        // Parse the MidiFile from the raw bytes
+        musicId = this.getIntent().getIntExtra(MusicID, 1);
 
-        uri = this.getIntent().getData();
-        if (uri == null) {
-            this.finish();
-            return;
-        }
-
-        title = this.getIntent().getStringExtra(MidiTitleID);
-        if (title == null) {
-            title = uri.getLastPathSegment();
-        }
-
-        TextView songname = findViewById(R.id.sheet1Title);
-        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
-        TextView albumname = findViewById(R.id.sheet1Folder);
-        albumname.setText(uri.getPathSegments().get(4));
-     //   Log.v("TAG", uri.getPathSegments().toString());
-
-        FileUri file = new FileUri(uri, title);
-        this.setTitle("MidiSheetMusic: " + title);
         byte[] data;
+
         try {
-            data = file.getData();
-            midifile = new MidiFile(data, title);
+
+            final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+            data = music.getMidi();
+            midifile = new MidiFile(data, music.getTitle());
         }
         catch (MidiFileException e) {
             this.finish();
             return;
         }
-
-
 
         // Initialize the settings (MidiOptions).
         // If previous settings have been saved, use those
@@ -287,25 +277,23 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     public void save(){
-
-
-        FileOutputStream fos = null;
-        File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
-
-        try {
-            fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG", e.toString() +"error");
-
-        }
-
-        player.save(fos);
-
+        realm.executeTransaction(new Realm.Transaction(){
+            @Override
+            public void execute(Realm realm){
+                MusicDB editMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+                MidiFileMaker midiFileMaker = new MidiFileMaker();
+                midiFileMaker.setTempo(editMusic.getBpm());
+                midiFileMaker.setTimeSignature(editMusic.getDd(),editMusic.getNn());
+                //   midiFileMaker.setKeySignature(key);
+                midiFileMaker.noteSequenceFixedVelocity (getSequence(), 127);
+                byte[] bytearr = null;
+                bytearr = midiFileMaker.writeToFile ();
+                editMusic.setMidi(bytearr);
+            }
+        });
+        realm.close();
         Toasty.custom(this, "수정내용을 저장했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
 
     }
 
@@ -575,63 +563,64 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void makeMidiFile(){
+    public void makeMidiFile() {
         ArrayList<Integer> sequence = getSequence();
         ArrayList<ArrayList<Integer>> banju = makeChords();
 
         TimeSignature timeSignature = midifile.getTimesig();
         int nn = timeSignature.getNumerator();
         int bpm = (60 * 1000000) / timeSignature.getTempo();
-        int key = (getKeySignature() -3 ) % 12 ;
+        int key = (getKeySignature() - 3) % 12;
         // A가 0
         MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
 
 
         midiFileMaker.setTempo(bpm);
         midiFileMaker.setTimeSignature(2, nn);
-   //     midiFileMaker.setKeySignature(key);
+        //     midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity(sequence, 127);
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/" + folderName);
+        byte[] bytearr = null;
 
-        if(!dir.exists()){
-            dir.mkdirs();
+        bytearr = midiFileMaker.writeToFile(banju, key, nn, 127);
+
+        byte[] finalBytearr = bytearr;
+
+        final AccompanimentDB accompaniment = realm.where(AccompanimentDB.class).equalTo("id", musicId).findFirst();
+        if (accompaniment == null) {
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    AccompanimentDB accompanimentDB = realm.createObject(AccompanimentDB.class, musicId);
+                    accompanimentDB.setMidi(finalBytearr);
+                }
+            });
+
+            realm.close();
         }
 
 
-        Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
+            Intent intent = new Intent(getApplicationContext(), SheetMusicActivity2.class);
+            intent.putExtra("MusicID", musicId);
 
-        String newtitle = uri.getLastPathSegment();
-        File file = new File(dir, newtitle) ;
+            //반주 코드 배열 전달
+            ArrayList<Integer> lenInfo = new ArrayList<>();
+            ArrayList<Integer> banjuInfo = new ArrayList<>();
+            int len = banju.size();
+            for (int i = 0; i < len; i++) {
+                lenInfo.add(banju.get(i).size());
+                for (int b : banju.get(i))
+                    banjuInfo.add(b);
+            }
 
-        //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
-        if(!file.exists())
-            midiFileMaker.writeToFile(file, banju,key, nn, 127);
 
-        Uri uri2 = Uri.parse(file.getPath());
-        FileUri fileUri = new FileUri(uri2, file.getPath());
+            intent.putExtra("lenInfo", lenInfo);
+            intent.putExtra("banjuInfo", banjuInfo);
+            intent.putExtra("key", key);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
-        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
-        //반주 코드 배열 전달
-        ArrayList<Integer> lenInfo = new ArrayList<>();
-        ArrayList<Integer> banjuInfo = new ArrayList<>();
-        int len = banju.size();
-        for(int i=0;i<len;i++) {
-            lenInfo.add(banju.get(i).size());
-            for(int b:banju.get(i))
-                banjuInfo.add(b);
+            startActivity(intent);
         }
-
-
-        intent.putExtra("lenInfo",lenInfo);
-        intent.putExtra("banjuInfo",banjuInfo);
-        intent.putExtra("key",key);
-
-
-        startActivity(intent);
-    }
 
 
     public void printSequence(ArrayList<Integer> seq ){

@@ -59,6 +59,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.zip.CRC32;
 
+import io.realm.Realm;
+
 /**
  * SheetMusicActivity is the main activity. The main components are:
  * <ul>
@@ -88,6 +90,10 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     ArrayList<Integer> curIdx;
     ArrayList<Integer> lenInfo;
     int key;
+    int inst; //0이면 피아노 1이면 기타
+
+    Realm realm = Realm.getDefaultInstance();
+    int musicId;
 
     /** Create this SheetMusicActivity.
      * The Intent should have two parameters:
@@ -110,38 +116,8 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         ClefSymbol.LoadImages(this);
         TimeSigSymbol.LoadImages(this);
 
-
-
-        // Parse the MidiFile from the raw bytes
-
-        uri = this.getIntent().getData();
-        if (uri == null) {
-            this.finish();
-            return;
-        }
-
-        title = this.getIntent().getStringExtra(MidiTitleID);
-        if (title == null) {
-            title = uri.getLastPathSegment();
-        }
-
         TextView songname = findViewById(R.id.sheet2Title);
-        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
         TextView albumname = findViewById(R.id.sheet2Folder);
-        albumname.setText(uri.getPathSegments().get(4));
-
-
-        FileUri file = new FileUri(uri, title);
-        this.setTitle("MidiSheetMusic: " + title);
-        byte[] data;
-        try {
-            data = file.getData();
-            midifile = new MidiFile(data, title);
-        }
-        catch (MidiFileException e) {
-            this.finish();
-            return;
-        }
 
         lenInfo = this.getIntent().getIntegerArrayListExtra("lenInfo");
         ArrayList<Integer> banjuInfo = this.getIntent().getIntegerArrayListExtra("banjuInfo");
@@ -161,8 +137,20 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             curIdx.add(0);
         }
 
-        // Initialize the settings (MidiOptions).
-        // If previous settings have been saved, use those
+        musicId = this.getIntent().getIntExtra("MusicID", 1);
+        byte[] data;
+
+        try {
+
+            final AccompanimentDB banju = realm.where(AccompanimentDB.class).equalTo("id", musicId).findFirst();
+            final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+            data = banju.getMidi();
+            midifile = new MidiFile(data, music.getTitle());
+        }
+        catch (MidiFileException e) {
+            this.finish();
+            return;
+        }
 
         options = new MidiOptions(midifile);
         CRC32 crc = new CRC32();
@@ -177,6 +165,47 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         if (savedOptions != null) {
             options.merge(savedOptions);
         }
+
+
+
+        createViews();
+
+        init();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void init() {
+
+        ImageButton backButton = findViewById(R.id.btn_back2);
+        ImageButton rewindButton = findViewById(R.id.btn_rewind2);
+        ImageButton resetButton = findViewById(R.id.btn_replay2);
+        ImageButton playButton = findViewById(R.id.btn_play2);
+        ImageButton fastFwdButton = findViewById(R.id.btn_forward2);
+        ImageButton settingsButton = findViewById(R.id.btn_settings2);
+
+
+        player.setMidiButton(findViewById(R.id.btn_midi2));
+
+        inst = 0;
+        ImageButton instBtn = findViewById(R.id.inst_btn);
+        instBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(inst == 0){
+                    //피아노 -> 기타
+                    instBtn.setImageResource(R.drawable.piano);
+                    inst = 1;
+                }
+                else if (inst == 1){
+                    //기타 -> 피아노
+                    instBtn.setImageResource(R.drawable.guitar);
+                    inst = 0;
+                }
+                ChangeInstrument();
+            }
+        });
+
 
         ImageButton prevBtn = findViewById(R.id.down_button2);
         prevBtn.setOnClickListener(new View.OnClickListener() {
@@ -203,35 +232,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         });
 
 
-        createViews();
-
-        init();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    void init() {
-
-        ImageButton backButton = findViewById(R.id.btn_back2);
-        ImageButton rewindButton = findViewById(R.id.btn_rewind2);
-        ImageButton resetButton = findViewById(R.id.btn_replay2);
-        ImageButton playButton = findViewById(R.id.btn_play2);
-        ImageButton fastFwdButton = findViewById(R.id.btn_forward2);
-        ImageButton settingsButton = findViewById(R.id.btn_settings2);
-
-        player.setMidiButton(findViewById(R.id.btn_midi2));
-
-
-        ImageButton testButton = findViewById(R.id.up_button2);
-        testButton.setOnClickListener(v -> upChord());
-
-        ImageButton downButton = findViewById(R.id.down_button2);
-        downButton.setOnClickListener(v -> downChord());
-
-        ImageButton saveButton = findViewById(R.id.save_btn2);
-        saveButton.setOnClickListener( v -> save());
-
-
         backButton.setOnClickListener(v -> this.onBackPressed());
         rewindButton.setOnClickListener(v -> player.Rewind());
         resetButton.setOnClickListener(v -> player.Reset());
@@ -256,21 +256,21 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     public void save(){
 
 
-        FileOutputStream fos = null;
-        File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
-
-        try {
-            fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG", e.toString() +"error");
-
-        }
-
-        player.save(fos);
+//        FileOutputStream fos = null;
+//        File file = new File( uri.getPath() );
+//        Log.d("TAG", uri.getPath().toString());
+//
+//        try {
+//            fos = new FileOutputStream(file);
+//            Log.d("TAG", "heere");
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            Log.d("TAG", e.toString() +"error");
+//
+//        }
+//
+//        player.save(fos);
 
     }
 
@@ -827,9 +827,43 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         }
 
-        System.out.println(notes);
+        createSheetMusic(options);
+    }
+
+    public void ChangeInstrument(){
+
+        ArrayList<MidiTrack> tracks = midifile.getTracks();
+        MidiTrack track = tracks.get(1);
+        ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
+        ArrayList<MidiEvent> events = allevents.get(1);
+
+        int instrumentNum = track.getInstrument();
+        System.out.println("beforee insttttt   " + events.get(0).getInstrument());
+
+        if(instrumentNum == 0){//24로 바꾸기
+            track.setInstrument(24);
+
+            for(int i=0;i<events.size();i++){
+                events.get(i).setInstrument((byte) 24);
+            }
+
+            options.instruments[1] = 24;
+
+        }
+        else{
+            track.setInstrument(0);
+
+            for(int i=0;i<events.size();i++){
+                events.get(i).setInstrument((byte) 0);
+            }
+
+            options.instruments[1] = 0;
+        }
+
+        System.out.println("after insttttt   " + events.get(0).getInstrument());
 
         createSheetMusic(options);
+
     }
 }
 

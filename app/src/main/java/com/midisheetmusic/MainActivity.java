@@ -2,11 +2,9 @@ package com.midisheetmusic;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,57 +21,46 @@ import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
-public class MainActivity extends AppCompatActivity implements DiscreteScrollView.OnItemChangedListener{
+public class MainActivity extends BaseActivity implements DiscreteScrollView.OnItemChangedListener{
 
     public  static Context mContext;
 
     private DiscreteScrollView itemPicker;
     private InfiniteScrollAdapter infiniteAdapter;
-    ArrayList<Data> data = new ArrayList<>();
 
-    Data currentData = null;
+    AlbumDB currentData = null;
     TextView albumname;
     TextView numberofSong;
 
+
+    Realm realm = Realm.getDefaultInstance();
+    RealmResults<AlbumDB> realmResults;
+
     public void setAlbum(){
 
-        data = new ArrayList<>();
 
 
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone";
-        File directory = new File(path);
-
-        if(directory.exists()) {
-            File[] files = directory.listFiles();
-            for(int i=0;i<files.length;i++) {
-                File[] tmp = files[i].listFiles();
-                int n = 0;
-                if(tmp != null)
-                    n = tmp.length;
-                if(files[i].getName().equals("banju"))
-                    continue;
-                data.add(new Data(files[i].getName(), n));
-            }
-
-        }
-
-        data.add(new Data("New Album" , -1));
+        realmResults = realm.where(AlbumDB.class).findAll();
 
 
         itemPicker = (DiscreteScrollView) findViewById(R.id.item_picker);
         itemPicker.setOrientation(DSVOrientation.HORIZONTAL);
         itemPicker.addOnItemChangedListener(this);
-        infiniteAdapter = InfiniteScrollAdapter.wrap(new AlbumAdaptor(data));
+        infiniteAdapter = InfiniteScrollAdapter.wrap(new AlbumAdaptor(realmResults));
         itemPicker.setAdapter(infiniteAdapter);
         itemPicker.setItemTransformer(new ScaleTransformer.Builder()
                 .setMinScale(0.8f)
                 .build());
 
     }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,10 +69,20 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
 
         mContext = this;
+
         setAlbum();
 
+        RealmResults<AlbumDB> realmResults = realm.where(AlbumDB.class).findAll();
+        if(realmResults.isEmpty()){
+            realm.beginTransaction();
+            AlbumDB newAlbum = realm.createObject(AlbumDB.class, -2);
+            newAlbum.setAlbumInfo("New Album",null,0);
+            AlbumDB quickAlbum = realm.createObject(AlbumDB.class, -1);
+            quickAlbum.setAlbumInfo("Quick",null,0);
+            realm.commitTransaction();
+        }
 
-        ImageButton addBtn = findViewById(R.id.renameButton);
+        ImageButton editBtn = findViewById(R.id.renameButton);
         ImageButton quickBtn = findViewById(R.id.quickBtn);
         ImageButton setBtn = findViewById(R.id.settingBtn);
 
@@ -93,18 +90,14 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         albumname = findViewById(R.id.albumname);
         numberofSong = findViewById(R.id.numofsong);
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/Quick");
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //폴더 생성하는 팝업
+                //폴더 생성하는 팝업d인데 수정도같이함
                 Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
                 intent.putExtra("change",true);
-                intent.putExtra("name", currentData.getTitle());
+                intent.putExtra("name", currentData.getAlbumTitle());
                 startActivityForResult(intent, 1);
             }
         });
@@ -113,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), SetFileNameActivity.class);
                 intent.putExtra("folderName","Quick");
+                intent.putExtra("AlbumID",-1);
                 startActivity(intent);
             }
         });
@@ -129,8 +123,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
     }
 
-    public void go(){
-        if(albumname.getText().equals("New Album")){
+    public void go(String albumname){
+        if(albumname.equals("New Album")){
 
             //폴더 생성하는 팝업
             Intent intent = new Intent(getApplicationContext(), AddFolderPopupActivity.class);
@@ -143,16 +137,18 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
             Intent intent = new Intent(getApplicationContext(),ChooseSongActivity.class);
 
-            intent.putExtra("folderName",currentData.title);
+            intent.putExtra("folderName",currentData.getAlbumTitle());
+            intent.putExtra("AlbumID",currentData.getId());
             startActivity(intent);
         }
 
     }
 
-    public  void deleteLong(){
+    public  void deleteLong(String albumname){
 
         Intent intent = new Intent(getApplicationContext(), deletePopup.class);
-        if(albumname.getText().equals("Quick"))
+        intent.putExtra("albumname",albumname);
+        if(albumname.equals("Quick")||albumname.equals("New Album"))
             intent.putExtra("isQuick", true);
         else
             intent.putExtra("isQuick", false);
@@ -166,50 +162,29 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                setAlbum();
                 Toasty.custom(this, "앨범을 생성했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
-
-
+                setAlbum();
             }
             else if( resultCode == RESULT_FIRST_USER ){
                 //존재합니다 알림
-                Toasty.custom(this, "앨범을 생성하지 못하였습니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                Toasty.custom(this, "이미 존재하는 앨범입니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
             }
         }
 
-        else if( requestCode ==2){
-
+        else if(requestCode ==2) {
+            String albumname = data.getStringExtra("albumname");
+            System.out.println(albumname);
             if( resultCode == RESULT_OK){
-                // 파일 삭제
-
-                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+currentData.title);
-                if(dir.exists()){
-
-                    if(dir.isDirectory()){
-                        File[] files = dir.listFiles();
-                        for( File file : files){ // 내부파일 하나씩 지움
-                            if( !file.delete())
-                                Toasty.custom(mContext, "폴더를 삭제하지못했습니다.", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
-                        }
-                    }
-
-                    if(dir.delete()){ // 폴더삭제
-                        Toasty.custom(mContext, "폴더를 삭제했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
-
-                    }
-
-                    else{
-                        Toasty.custom(mContext, "폴더를 삭제하지못했습니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
-
-                    }
-
-
-                    setAlbum();
-
-                }
-
-
-
+                //폴더 삭제
+                realm.beginTransaction();
+                AlbumDB deleteItem = realm.where(AlbumDB.class).equalTo("albumTitle",albumname).findFirst();
+                int delAlbumId = deleteItem.getId();
+                deleteItem.deleteFromRealm();
+                // 폴더안에 파일 삭제
+                RealmResults<MusicDB> deleteItemInner = realm.where(MusicDB.class).equalTo("id",delAlbumId).findAll();
+                deleteItemInner.deleteAllFromRealm();
+                realm.commitTransaction();
+                setAlbum();
             }
             else if( resultCode == RESULT_FIRST_USER ){
                 Toasty.custom(this, "삭제할수 없는 앨범입니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
@@ -218,38 +193,24 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     }
 
 
-    private void onItemChanged(Data item) {
+    private void onItemChanged(AlbumDB item) {
         currentData = item;
-        albumname.setText(item.getTitle());
-        numberofSong.setText(item.getTracknum()+"");
-
-        if(numberofSong.getText().equals("-1"))
-            numberofSong.setText("새로운 앨범을 만들어보세요");
 
     }
     @Override
     public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {
         int positionInDataSet = infiniteAdapter.getRealPosition(position);
-        onItemChanged(data.get(positionInDataSet));
+        if(realmResults.size()!=0)
+            onItemChanged(realmResults.get(positionInDataSet));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        actList.remove(this);
+        realm.close();
     }
 }
 
-
-class Data{
-    String title;
-    int tracknum;
-    Data(String title,int tracknum){
-        this.title = title;
-        this.tracknum = tracknum;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public int getTracknum() {
-        return tracknum;
-    }
-}
 
 

@@ -50,6 +50,10 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
+
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static java.lang.Math.pow;
@@ -63,6 +67,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
     private FloatingActionButton mFloatingActionButton;
 
+    Realm realm = Realm.getDefaultInstance();
 
     //Metronome
     ReadyThread readyThread = new ReadyThread();
@@ -136,6 +141,8 @@ public class RecordingActivity extends AppCompatActivity implements
     TextView recordingTitleView;
     TextView recordingFolderView;
 
+    int albumID;
+
     public Vibrator getVibrator(){
         return vibrator;
     }
@@ -147,6 +154,7 @@ public class RecordingActivity extends AppCompatActivity implements
 
         folderName = getIntent().getStringExtra("folderName");
         fileName = getIntent().getStringExtra("fileName");
+        albumID = getIntent().getIntExtra("AlbumID", -1);
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.beep, 1);
@@ -909,15 +917,35 @@ public class RecordingActivity extends AppCompatActivity implements
      //   midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity (sequence, 127);
 
+        byte[] bytearr = null;
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
+        bytearr = midiFileMaker.writeToFile ();
 
 
-        File file = new File(dir, fileName + ".mid") ;
-        midiFileMaker.writeToFile (file);
+
+        byte[] finalBytearr = bytearr;
+        final int[] musicID = new int[1];
+        realm.executeTransaction(new Realm.Transaction(){
+            @Override
+            public void execute(Realm realm){
+
+                AlbumDB album = realm.where(AlbumDB.class).equalTo("id",albumID).findFirst();
+                album.setAlbumInfo(album.getAlbumTitle(),album.getCoverImage(),album.getTrackNum()+1);
+
+                musicID[0] = nextId();
+
+                MusicDB musicDB = realm.createObject(MusicDB.class, musicID[0]);
+                musicDB.setTitle(fileName + ".mid");
+                musicDB.setMidi(finalBytearr);
+                musicDB.setBpm(spinnerBPM);
+                musicDB.setDd(dd);
+                musicDB.setNn(nn);
+
+                musicDB.setAlbumId(albumID);
+            }
+        });
+
+        realm.close();
 
         ((MainActivity)MainActivity.mContext).setAlbum();
         Log.d("HELLO", folderName);
@@ -925,13 +953,8 @@ public class RecordingActivity extends AppCompatActivity implements
         if(!folderName.equals("Quick"))
             ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
-
-
-        Uri uri = Uri.parse(file.getPath());
-        FileUri fileUri = new FileUri(uri, file.getPath());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity.class);
-        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
+        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
+        intent.putExtra("MusicID", musicID[0]);
 
         startActivity(intent);
 
@@ -984,6 +1007,13 @@ public class RecordingActivity extends AppCompatActivity implements
         audioThread.start();
     }
 
+    int nextId() {
+        int maxId = realm.where(MusicDB.class).findAll().size();
+        if(maxId!=0){
+            return (Integer)maxId + 1;
+        }
+        return 0;
+    }
 
     public void processPitch(float pitchInHz){
 

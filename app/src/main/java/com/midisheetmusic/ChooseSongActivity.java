@@ -35,6 +35,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class ChooseSongActivity extends AppCompatActivity {
 
@@ -46,10 +48,13 @@ public class ChooseSongActivity extends AppCompatActivity {
     ArrayList<MidiSong> midiSongs = new ArrayList<>();
 
     FileUri current;
+    int currentid;
 
     public static Context cContext;
 
     boolean check = true;
+
+    int albumId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +63,9 @@ public class ChooseSongActivity extends AppCompatActivity {
         cContext = this;
         folderName = getIntent().getStringExtra("folderName");
 
-         listview = (ListView)findViewById(R.id.list);
+        listview = (ListView)findViewById(R.id.list);
+
+        albumId = getIntent().getIntExtra("AlbumID", 1);
 
         loadFile();
 
@@ -68,13 +75,15 @@ public class ChooseSongActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ChooseSongActivity.this, SetFileNameActivity.class);
                 intent.putExtra("folderName",folderName);
+                intent.putExtra("AlbumID", albumId);
                 startActivity(intent);
             }
         });
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                current =  midiSongs.get(position).fileUri;
+                //현재 선택된 midi의 id 저장
+                currentid = midiSongs.get(position).getId();
                 go();
             }
         });
@@ -95,15 +104,11 @@ public class ChooseSongActivity extends AppCompatActivity {
 
 
         Log.d("TAG", "doOpenFile");
-        byte[] data = current.getData();
-        if (data == null || data.length <= 6 || !MidiFile.hasMidiHeader(data)) {
-            return;
-        }
 
-        Intent intent = new Intent(Intent.ACTION_VIEW,current.getUri(),ChooseSongActivity.this,SheetMusicActivity.class);
-        Log.d("TAG", "make intent : " + current + " | " + SheetMusicActivity.MidiTitleID);
-        Log.d("TAG",current.toString());
-        intent.putExtra(SheetMusicActivity.MidiTitleID, current.toString());
+        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
+
+        //id넘겨줌
+        intent.putExtra("MusicID", currentid);
         startActivity(intent);
 
     }
@@ -121,25 +126,24 @@ public class ChooseSongActivity extends AppCompatActivity {
     {
         midiSongs.clear();
 
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone/"+folderName;
-        File directory = new File(path);
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            final RealmResults<MusicDB> musicList = realm.where(MusicDB.class).equalTo("albumId", albumId).findAll();
 
-        if(directory.exists()) {
-            files = directory.listFiles();
+            //뭐야 썩을
+            System.out.println("ChooseSongActivity Music DB: " + musicList + "albumId is " + albumId);
 
-            for(int i=0;i<files.length;i++) {
-                Uri uri = Uri.parse(files[i].getPath());
-                FileUri fileUri = new FileUri(uri,files[i].getPath());
-                midiSongs.add(new MidiSong(files[i].getName(),fileUri));
+            for(int i=0;i<musicList.size();i++){
+                midiSongs.add(new MidiSong(musicList.get(i).getTitle(), musicList.get(i).getId()));
             }
-
+        }
+        catch (MidiFileException e) {
+            this.finish();
+            return;
         }
 
         FileAdapter adpater = new FileAdapter(getApplicationContext(), midiSongs);
         listview.setAdapter(adpater);
-
-
-
 
     }
 
@@ -195,15 +199,14 @@ class FileAdapter extends ArrayAdapter<Object> {
 
 class MidiSong{
     String title;
-    FileUri fileUri;
-    MidiSong(String title, FileUri fileUri){
+    private int id;
+
+    MidiSong(String title, int id){
         this.title = title;
-        this.fileUri = fileUri;
+        this.id = id;
     }
     public String getTitle() {
         return title;
     }
-    public FileUri getFileUri() {
-        return fileUri;
-    }
+    public int getId(){ return id;}
 }

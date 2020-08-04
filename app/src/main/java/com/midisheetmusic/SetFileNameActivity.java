@@ -16,11 +16,13 @@ import java.io.File;
 
 public class SetFileNameActivity extends Activity {
     String folderName;
+    int albumID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         folderName = getIntent().getStringExtra("folderName");
+        albumID = getIntent().getIntExtra("AlbumID", -1);
         //타이틀바 없애기
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_set_file_name);
@@ -44,6 +46,7 @@ public class SetFileNameActivity extends Activity {
                 Intent intent = new Intent(SetFileNameActivity.this, RecordingActivity.class);
                 intent.putExtra("fileName",fileName.getText().toString());
                 intent.putExtra("folderName",folderName);
+                intent.putExtra("AlbumID", albumID);
 
                 startActivity(intent);
                 finish();
