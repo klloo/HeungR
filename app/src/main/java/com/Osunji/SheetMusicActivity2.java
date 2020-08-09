@@ -59,6 +59,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.zip.CRC32;
 
+import io.realm.Realm;
+
 /**
  * SheetMusicActivity is the main activity. The main components are:
  * <ul>
@@ -88,6 +90,10 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     ArrayList<Integer> curIdx;
     ArrayList<Integer> lenInfo;
     int key;
+    Realm realm = Realm.getDefaultInstance();
+    int musicId;
+
+
 
     /** Create this SheetMusicActivity.
      * The Intent should have two parameters:
@@ -113,35 +119,28 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
 
         // Parse the MidiFile from the raw bytes
-
-        uri = this.getIntent().getData();
-        if (uri == null) {
-            this.finish();
-            return;
-        }
-
-        title = this.getIntent().getStringExtra(MidiTitleID);
-        if (title == null) {
-            title = uri.getLastPathSegment();
-        }
-
-        TextView songname = findViewById(R.id.sheet2Title);
-        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
-        TextView albumname = findViewById(R.id.sheet2Folder);
-        albumname.setText(uri.getPathSegments().get(4));
-
-
-        FileUri file = new FileUri(uri, title);
-        this.setTitle("MidiSheetMusic: " + title);
+        musicId = this.getIntent().getIntExtra("MusicID", 1);
         byte[] data;
+
         try {
-            data = file.getData();
-            midifile = new MidiFile(data, title);
+
+            final AccompanimentDB banju = realm.where(AccompanimentDB.class).equalTo("id", musicId).findFirst();
+            final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+            data = banju.getMidi();
+            midifile = new MidiFile(data, music.getTitle());
         }
         catch (MidiFileException e) {
             this.finish();
             return;
         }
+
+        MusicDB curMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+        TextView songname = findViewById(R.id.sheet2Title);
+        songname.setText(curMusic.getTitle());
+        TextView albumname = findViewById(R.id.sheet2Folder);
+        String album = realm.where(AlbumDB.class).equalTo("id",curMusic.getAlbumId()).findFirst().getAlbumTitle();
+        albumname.setText(album);
+
 
         lenInfo = this.getIntent().getIntegerArrayListExtra("lenInfo");
         ArrayList<Integer> banjuInfo = this.getIntent().getIntegerArrayListExtra("banjuInfo");
@@ -249,21 +248,21 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     public void save(){
 
 
-        FileOutputStream fos = null;
-        File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
-
-        try {
-            fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG", e.toString() +"error");
-
-        }
-
-        player.save(fos);
+        //        FileOutputStream fos = null;
+//        File file = new File( uri.getPath() );
+//        Log.d("TAG", uri.getPath().toString());
+//
+//        try {
+//            fos = new FileOutputStream(file);
+//            Log.d("TAG", "heere");
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            Log.d("TAG", e.toString() +"error");
+//
+//        }
+//
+//        player.save(fos);
 
     }
 
@@ -324,7 +323,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
                 .withActivity(this)
                 .withInnerShadow(true)
                 .addDrawerItems(
-                     //   scrollVertically,
+                        //   scrollVertically,
                         useColors,
                         loopSettings,
                         new DividerDrawerItem()
@@ -345,7 +344,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         player = new MidiPlayer(this);
         player.setDrawer(drawer);
-      //  layout.addView(player);
+        //  layout.addView(player);
 
 
         layout.requestLayout();
@@ -679,11 +678,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
     private void saveBanju(){
         FileOutputStream fos = null;
         File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
 
         try {
             fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -710,7 +707,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             changeBanju(Idx,measure);
         }
 
-        Log.d("BANJU", "움ㅈㄱ여 ㅜㅜ ");
 
     }
 
@@ -730,7 +726,6 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
             changeBanju(Idx,measure);
         }
 
-        Log.d("BANJU", "움ㅈㄱ여");
     }
 
     public void changeBanju(int Idx, int madi)
@@ -748,9 +743,8 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         int num;
         boolean isMinor7 , is7;
-        int c1 = 0,c2 = 0,c3 = 0,c4 = 0;
+        int c1 = 0, c2 = 0,c3 = 0,c4 = 0;
 
-        System.out.println(c1+c2+c3+c4);
 
         int index = banju.get(madi).get(Idx);
         num = Ckey[index] + key;
@@ -779,15 +773,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
         int t = 0;
 
 
-        System.out.println("ccccccccccccccccccccccc");
-        System.out.println(c[0]);
-        System.out.println(c[1]);
-        System.out.println(c[2]);
-        System.out.println(c[3]);
 
         //반주 수정
 
-        System.out.println(notes);
         for(int i=0;i<notes.size();i++) {
             MidiNote note = notes.get(i);
             //쌓이는 음표 개수가 3->4
@@ -834,10 +822,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
         }
 
-        System.out.println(notes);
+        Log.v("TAG", notes.toString());
 
         createSheetMusic(options);
     }
 
 }
-

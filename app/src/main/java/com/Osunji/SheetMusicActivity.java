@@ -1,15 +1,3 @@
-/*
- * Copyright (c) 2011-2012 Madhav Vaidyanathan
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 2.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- */
-
 package com.Osunji;
 
 import android.app.Activity;
@@ -52,7 +40,6 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -63,6 +50,7 @@ import java.util.Comparator;
 import java.util.zip.CRC32;
 
 import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
 
 /**
  * SheetMusicActivity is the main activity. The main components are:
@@ -92,12 +80,18 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     String folderName = "banju";
     String fileName;
 
+    Realm realm = Realm.getDefaultInstance();
+    int musicId;
+
+    int octa = 0;
+    int count = 0;
+
 
     /** Create this SheetMusicActivity.
-      * The Intent should have two parameters:
-      * - data: The uri of the midi file to open.
-      * - MidiTitleID: The title of the song (String)
-      */
+     * The Intent should have two parameters:
+     * - data: The uri of the midi file to open.
+     * - MidiTitleID: The title of the song (String)
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCreate(Bundle state) {
@@ -118,36 +112,28 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
 
 
-        // Parse the MidiFile from the raw bytes
+        musicId = this.getIntent().getIntExtra("MusicID", 1);
 
-        uri = this.getIntent().getData();
-        if (uri == null) {
-            this.finish();
-            return;
-        }
-
-        title = this.getIntent().getStringExtra(MidiTitleID);
-        if (title == null) {
-            title = uri.getLastPathSegment();
-        }
-
-        TextView songname = findViewById(R.id.sheet1Title);
-        songname.setText(uri.getLastPathSegment().substring(0,uri.getLastPathSegment().length()-4));
-        TextView albumname = findViewById(R.id.sheet1Folder);
-        albumname.setText(uri.getPathSegments().get(4));
-     //   Log.v("TAG", uri.getPathSegments().toString());
-
-        FileUri file = new FileUri(uri, title);
-        this.setTitle("MidiSheetMusic: " + title);
         byte[] data;
+
         try {
-            data = file.getData();
-            midifile = new MidiFile(data, title);
+
+            final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+            data = music.getMidi();
+            midifile = new MidiFile(data, music.getTitle());
         }
         catch (MidiFileException e) {
             this.finish();
             return;
         }
+
+        MusicDB curMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+        TextView songname = findViewById(R.id.sheet1Title);
+        songname.setText(curMusic.getTitle());
+        TextView albumname = findViewById(R.id.sheet1Folder);
+        String album = realm.where(AlbumDB.class).equalTo("id",curMusic.getAlbumId()).findFirst().getAlbumTitle();
+        albumname.setText(album);
+        //   Log.v("TAG", uri.getPathSegments().toString());
 
 
 
@@ -300,25 +286,23 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     public void save(){
-
-
-        FileOutputStream fos = null;
-        File file = new File( uri.getPath() );
-        Log.d("TAG", uri.getPath().toString());
-
-        try {
-            fos = new FileOutputStream(file);
-            Log.d("TAG", "heere");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG", e.toString() +"error");
-
-        }
-
-        player.save(fos);
-
+        realm.executeTransaction(new Realm.Transaction(){
+            @Override
+            public void execute(Realm realm){
+                MusicDB editMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+                MidiFileMaker midiFileMaker = new MidiFileMaker();
+                midiFileMaker.setTempo(editMusic.getBpm());
+                midiFileMaker.setTimeSignature(editMusic.getDd(),editMusic.getNn());
+                //   midiFileMaker.setKeySignature(key);
+                midiFileMaker.noteSequenceFixedVelocity (getSequence(), 127);
+                byte[] bytearr = null;
+                bytearr = midiFileMaker.writeToFile ();
+                editMusic.setMidi(bytearr);
+            }
+        });
+        realm.close();
         Toasty.custom(this, "수정내용을 저장했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+
 
     }
 
@@ -379,7 +363,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 .withActivity(this)
                 .withInnerShadow(true)
                 .addDrawerItems(
-                     //   scrollVertically,
+                        //   scrollVertically,
                         useColors,
                         loopSettings,
                         new DividerDrawerItem()
@@ -456,8 +440,8 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         }
 
 
-     //   System.out.println("track0");
-      //  printSequence(sequence);
+        //   System.out.println("track0");
+        //  printSequence(sequence);
 
 
 
@@ -553,6 +537,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                 AvoidTable[i][j] = (AvoidTable[i][j] +=key)%12;
         }
 
+
         for (ArrayList<Integer> bar : bars){
             // score 계산
 
@@ -564,14 +549,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
                     for(int j = 0 ; j < AvoidTable[i].length ; j++){
                         if(AvoidTable[i][j] == (ele%12) )
                             score[i] -= 100;
+                        octa += ele;
+                        count ++;
                     }
                     // Chord table 계산
                     if( score[i] < 0)
                         continue; //Avoid 있으면 계산할 가치없음 그냥 x
 
                     for(int j = 0 ; j < ChordTable[i].length ; j++){
-                        if(ChordTable[i][j] == (ele%12) )
-                            score[i] += (11 - (j*2));
+                        if(ChordTable[i][j] == (ele%12) ) {
+                            score[i] += (11 - (j * 2));
+                            octa += ele;
+                            count++;
+                        }
                     }
                 }
             }
@@ -593,79 +583,107 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             banju = new ArrayList<>();
         }
         System.out.println("banjuList : " + banjuList.toString());
-
+        System.out.println("average  : " + octa/count);
 
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
 
+    public boolean isChanged(File file, String newtitle){
+
+        if(file.exists()){
+
+            File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
+                    +uri.getPathSegments().get(4));
+            File humming = new File(hummingAlbum, newtitle);
+
+            Log.v("TAG" , " humming : " + humming.lastModified());
+            Log.v("TAG" , " banju   : " + file.lastModified());
+
+
+            // 멜로디 파일 수정시간 <  반주파일 수정시간
+            if( file.lastModified() > humming.lastModified()){
+                Log.v("TAG","반주 재사용");
+                return false;
+
+            }
+            else { // 멜로디 파일 수정시간 > 반주 파일 수정시간
+                //멜로디가 수정되었으니까 반주도 수정해야됨
+                Log.v("TAG","반주 재생성");
+                return true;
+            }
+
+
+        }
+        else{ //파일 존재안함
+            return true; //파일 생성해야하므로
+        }
+
+
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void makeMidiFile(){
+    public void makeMidiFile() {
         ArrayList<Integer> sequence = getSequence();
         ArrayList<ArrayList<Integer>> banju = makeChords();
 
         TimeSignature timeSignature = midifile.getTimesig();
         int nn = timeSignature.getNumerator();
         int bpm = (60 * 1000000) / timeSignature.getTempo();
-        int key = (getKeySignature() -3 ) % 12 ;
+        int key = (getKeySignature() - 3) % 12;
         // A가 0
         MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
 
 
         midiFileMaker.setTempo(bpm);
         midiFileMaker.setTimeSignature(2, nn);
-   //     midiFileMaker.setKeySignature(key);
+        //     midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity(sequence, 127);
 
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/" + folderName);
 
-        if(!dir.exists()){
-            dir.mkdirs();
+        byte[] bytearr = null;
+
+        bytearr = midiFileMaker.writeToFile(banju, key, nn, 127);
+
+        byte[] finalBytearr = bytearr;
+
+        final AccompanimentDB accompaniment = realm.where(AccompanimentDB.class).equalTo("id", musicId).findFirst();
+        if (accompaniment == null) {
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    AccompanimentDB accompanimentDB = realm.createObject(AccompanimentDB.class, musicId);
+                    accompanimentDB.setMidi(finalBytearr);
+                }
+            });
+
+            realm.close();
         }
 
 
-        Log.d("TAG", "sheet) title  : " +  uri.getLastPathSegment());
-
-        String newtitle = uri.getLastPathSegment();
-        File file = new File(dir, newtitle) ;
-
-        //여기 조건문 하나 달려야 함 파일 생성시간 비교하는.. 누군가 하세요
-        if(!file.exists()) //존재하지않을때 파일생성
-            midiFileMaker.writeToFile(file, banju,key, nn, 127);
-        else{ // 존재할때 확인
-            File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
-                    +uri.getPathSegments().get(4));
-            File humming = new File(hummingAlbum, newtitle);
-            if( file.lastModified() < humming.lastModified()){
-
-                midiFileMaker.writeToFile(file, banju,key, nn, 127);
-            }
-
-        }
-
-        Uri uri2 = Uri.parse(file.getPath());
-        FileUri fileUri = new FileUri(uri2, file.getPath());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity2.class);
-        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
+        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity2.class);
+        intent.putExtra("MusicID", musicId);
 
         //반주 코드 배열 전달
         ArrayList<Integer> lenInfo = new ArrayList<>();
         ArrayList<Integer> banjuInfo = new ArrayList<>();
         int len = banju.size();
-        for(int i=0;i<len;i++) {
+        for (int i = 0; i < len; i++) {
             lenInfo.add(banju.get(i).size());
-            for(int b:banju.get(i))
+            for (int b : banju.get(i))
                 banjuInfo.add(b);
         }
 
 
-        intent.putExtra("lenInfo",lenInfo);
-        intent.putExtra("banjuInfo",banjuInfo);
-        intent.putExtra("key",key);
+        intent.putExtra("lenInfo", lenInfo);
+        intent.putExtra("banjuInfo", banjuInfo);
+        intent.putExtra("key", key);
 
 
         startActivity(intent);
-    }
+
+
+}
 
 
     public void printSequence(ArrayList<Integer> seq ){
@@ -675,8 +693,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         }
     }
-
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -767,20 +783,20 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
     /* Show the "Save As Images" dialog */
     private void showSaveImagesDialog() {
-         LayoutInflater inflator = LayoutInflater.from(this);
-         final View dialogView= inflator.inflate(R.layout.save_images_dialog, layout, false);
-         final EditText filenameView = dialogView.findViewById(R.id.save_images_filename);
-         filenameView.setText(midifile.getFileName().replace("_", " ") );
-         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-         builder.setTitle(R.string.save_images_str);
-         builder.setView(dialogView);
-         builder.setPositiveButton("OK",
-                 (builder1, whichButton) -> saveAsImages(filenameView.getText().toString()));
-         builder.setNegativeButton("Cancel",
-                 (builder12, whichButton) -> {
-         });
-         AlertDialog dialog = builder.create();
-         dialog.show();
+        LayoutInflater inflator = LayoutInflater.from(this);
+        final View dialogView= inflator.inflate(R.layout.save_images_dialog, layout, false);
+        final EditText filenameView = dialogView.findViewById(R.id.save_images_filename);
+        filenameView.setText(midifile.getFileName().replace("_", " ") );
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.save_images_str);
+        builder.setView(dialogView);
+        builder.setPositiveButton("OK",
+                (builder1, whichButton) -> saveAsImages(filenameView.getText().toString()));
+        builder.setNegativeButton("Cancel",
+                (builder12, whichButton) -> {
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
@@ -881,12 +897,12 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             return;
         }
         options = (MidiOptions)
-            intent.getSerializableExtra(SettingsActivity.settingsID);
+                intent.getSerializableExtra(SettingsActivity.settingsID);
 
         // Check whether the default instruments have changed.
         for (int i = 0; i < options.instruments.length; i++) {
             if (options.instruments[i] !=
-                midifile.getTracks().get(i).getInstrument()) {
+                    midifile.getTracks().get(i).getInstrument()) {
                 options.useDefaultInstruments = false;
             }
         }

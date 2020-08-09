@@ -35,7 +35,9 @@ public class deletePopup extends Activity {
             @Override
             public void onClick(View view) {
                 boolean check = getIntent().getBooleanExtra("isQuick" , false);
+                String albumname = getIntent().getStringExtra("albumname");
                 Intent intent = new Intent();
+                intent.putExtra("albumname",albumname);
                 if(check) //삭제하면안됨
                     setResult(RESULT_FIRST_USER, intent);
 
