@@ -49,8 +49,12 @@ public class SetFileNameActivity extends Activity {
                 int albumid = realm.where(AlbumDB.class).equalTo("albumTitle",folderName).findFirst().getId();
                 RealmResults<MusicDB> realmResults = realm.where(MusicDB.class).equalTo("title",fileName.getText().toString()+".mid")
                         .equalTo("albumId",albumid).findAll();
-                if(realmResults.size() > 0)
-                    Toasty.custom(ChooseSongActivity.cContext, "이미 존재하는 파일명 입니다", R.drawable.warning, R.color.Faded_Denim,  Toast.LENGTH_SHORT, true, true).show();
+                if(realmResults.size() > 0) {
+                    if(ChooseSongActivity.cContext!=null)
+                        Toasty.custom(ChooseSongActivity.cContext, "이미 존재하는 파일명 입니다", R.drawable.warning, R.color.Faded_Denim, Toast.LENGTH_SHORT, true, true).show();
+                    else
+                        Toasty.custom(MainActivity.mContext, "이미 존재하는 파일명 입니다", R.drawable.warning, R.color.Faded_Denim, Toast.LENGTH_SHORT, true, true).show();
+                }
                 else{
                     Intent intent = new Intent(SetFileNameActivity.this, RecordingActivity.class);
                     intent.putExtra("fileName", fileName.getText().toString());

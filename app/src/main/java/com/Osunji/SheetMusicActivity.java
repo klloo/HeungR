@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2011-2012 Madhav Vaidyanathan
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ */
+
 package com.Osunji;
 
 import android.app.Activity;
@@ -8,7 +20,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,8 +77,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     public static final int ID_LOOP_ENABLE = 10;
     public static final int ID_LOOP_START = 11;
     public static final int ID_LOOP_END = 12;
-    public Uri uri;
-    public String title;
 
     private MidiPlayer player;   /* The play/stop/rewind toolbar */
     private SheetMusic sheet;    /* The sheet music */
@@ -76,9 +85,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     public MidiOptions options; /* The options for sheet music and sound */
     private long midiCRC;        /* CRC of the midi bytes */
     private Drawer drawer;
-
-    String folderName = "banju";
-    String fileName;
 
     Realm realm = Realm.getDefaultInstance();
     int musicId;
@@ -112,8 +118,9 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
 
 
-        musicId = this.getIntent().getIntExtra("MusicID", 1);
+        // Parse the MidiFile from the raw bytes
 
+        musicId = this.getIntent().getIntExtra("MusicID", 1);
         byte[] data;
 
         try {
@@ -134,6 +141,17 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         String album = realm.where(AlbumDB.class).equalTo("id",curMusic.getAlbumId()).findFirst().getAlbumTitle();
         albumname.setText(album);
         //   Log.v("TAG", uri.getPathSegments().toString());
+
+        try {
+
+            final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+            data = music.getMidi();
+            midifile = new MidiFile(data, music.getTitle());
+        }
+        catch (MidiFileException e) {
+            this.finish();
+            return;
+        }
 
 
 
@@ -160,7 +178,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         init();
 
 
-        printSequence(getSequence());
+//        printSequence(getSequence());
 
     }
 
@@ -212,7 +230,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         ArrayList<MidiTrack> tracks = midifile.getTracks();
         ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
-
+        if(tracks.size()<=0){
+            Toasty.custom(this, "멜로디가 없습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+            return;
+        }
         ArrayList<MidiEvent> events = allevents.get(0);
         MidiTrack  track = tracks.get(0);
         ArrayList<MidiNote> notes = track.getNotes();
@@ -250,6 +271,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         ArrayList<MidiTrack> tracks = midifile.getTracks();
         ArrayList<ArrayList<MidiEvent>> allevents = midifile.getAllEvents();
+        if(tracks.size()<=0){
+            Toasty.custom(this, "멜로디가 없습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+            return;
+        }
 
         ArrayList<MidiEvent> events = allevents.get(0);
         MidiTrack  track = tracks.get(0);
@@ -286,23 +311,25 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     public void save(){
+
         realm.executeTransaction(new Realm.Transaction(){
             @Override
             public void execute(Realm realm){
-                MusicDB editMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
-                MidiFileMaker midiFileMaker = new MidiFileMaker();
-                midiFileMaker.setTempo(editMusic.getBpm());
-                midiFileMaker.setTimeSignature(editMusic.getDd(),editMusic.getNn());
-                //   midiFileMaker.setKeySignature(key);
-                midiFileMaker.noteSequenceFixedVelocity (getSequence(), 127);
-                byte[] bytearr = null;
-                bytearr = midiFileMaker.writeToFile ();
-                editMusic.setMidi(bytearr);
+                if(getSequence().size()>0){
+                    MusicDB editMusic = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
+                    MidiFileMaker midiFileMaker = new MidiFileMaker();
+                    midiFileMaker.setTempo(editMusic.getBpm());
+                    midiFileMaker.setTimeSignature(editMusic.getDd(),editMusic.getNn());
+                    //   midiFileMaker.setKeySignature(key);
+                    midiFileMaker.noteSequenceFixedVelocity (getSequence(), 127);
+                    byte[] bytearr = null;
+                    bytearr = midiFileMaker.writeToFile ();
+                    editMusic.setMidi(bytearr);
+                }
             }
         });
         realm.close();
         Toasty.custom(this, "수정내용을 저장했습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
-
 
     }
 
@@ -426,17 +453,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         int time = 0;
 
-        MidiTrack track = tracks.get(0);
-        ArrayList<MidiNote> notes = track.getNotes();
-        for (MidiNote note : notes) {
-            if( time != note.getStartTime()){
-                sequence.add(-1);
-                sequence.add( note.getStartTime() - time);
-                time = note.getStartTime();
+        if(tracks.size()>0) {
+            MidiTrack track = tracks.get(0);
+            ArrayList<MidiNote> notes = track.getNotes();
+            for (MidiNote note : notes) {
+                if (time != note.getStartTime()) {
+                    sequence.add(-1);
+                    sequence.add(note.getStartTime() - time);
+                    time = note.getStartTime();
+                }
+                sequence.add(note.getNumber());
+                sequence.add(note.getDuration());
+                time += note.getDuration();
             }
-            sequence.add(note.getNumber());
-            sequence.add(note.getDuration());
-            time +=  note.getDuration();
         }
 
 
@@ -587,7 +616,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
-
+/*
     public boolean isChanged(File file, String newtitle){
 
         if(file.exists()){
@@ -615,22 +644,28 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         }
         else{ //파일 존재안함
-            return true; //파일 생성해야하므로
+           return true; //파일 생성해야하므로
         }
 
 
 
     }
 
+ */
+
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void makeMidiFile() {
+    public void makeMidiFile(){
         ArrayList<Integer> sequence = getSequence();
+        if(sequence.size()<=0){
+            Toasty.custom(this, "멜로디가 없습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
+            return;
+        }
         ArrayList<ArrayList<Integer>> banju = makeChords();
 
         TimeSignature timeSignature = midifile.getTimesig();
         int nn = timeSignature.getNumerator();
         int bpm = (60 * 1000000) / timeSignature.getTempo();
-        int key = (getKeySignature() - 3) % 12;
+        int key = (getKeySignature() -3 ) % 12 ;
         // A가 0
         MidiFileMaker2 midiFileMaker = new MidiFileMaker2();
 
@@ -639,7 +674,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         midiFileMaker.setTimeSignature(2, nn);
         //     midiFileMaker.setKeySignature(key);
         midiFileMaker.noteSequenceFixedVelocity(sequence, 127);
-
 
         byte[] bytearr = null;
 
@@ -660,7 +694,6 @@ public class SheetMusicActivity extends MidiHandlingActivity {
             realm.close();
         }
 
-
         Intent intent = new Intent(getApplicationContext(), SheetMusicActivity2.class);
         intent.putExtra("MusicID", musicId);
 
@@ -668,22 +701,19 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         ArrayList<Integer> lenInfo = new ArrayList<>();
         ArrayList<Integer> banjuInfo = new ArrayList<>();
         int len = banju.size();
-        for (int i = 0; i < len; i++) {
+        for(int i=0;i<len;i++) {
             lenInfo.add(banju.get(i).size());
-            for (int b : banju.get(i))
+            for(int b:banju.get(i))
                 banjuInfo.add(b);
         }
 
 
-        intent.putExtra("lenInfo", lenInfo);
-        intent.putExtra("banjuInfo", banjuInfo);
-        intent.putExtra("key", key);
-
+        intent.putExtra("lenInfo",lenInfo);
+        intent.putExtra("banjuInfo",banjuInfo);
+        intent.putExtra("key",key);
 
         startActivity(intent);
-
-
-}
+    }
 
 
     public void printSequence(ArrayList<Integer> seq ){

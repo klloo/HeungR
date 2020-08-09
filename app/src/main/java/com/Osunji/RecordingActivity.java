@@ -1,19 +1,13 @@
 package com.Osunji;
 
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
@@ -23,13 +17,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import be.tarsos.dsp.AudioDispatcher;
@@ -1123,7 +1120,8 @@ public class RecordingActivity extends BaseActivity implements
         ((MainActivity)MainActivity.mContext).setAlbum();
         Log.d("HELLO", folderName);
 
-        ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
+        if((ChooseSongActivity.cContext!=null))
+            ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
         Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
         intent.putExtra("MusicID", musicID[0]);
