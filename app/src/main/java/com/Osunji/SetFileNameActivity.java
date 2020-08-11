@@ -8,14 +8,22 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class SetFileNameActivity extends Activity {
     String folderName;
+    int albumID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         folderName = getIntent().getStringExtra("folderName");
+        albumID = getIntent().getIntExtra("AlbumID", -1);
+
         //타이틀바 없애기
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_set_file_name);
@@ -36,12 +44,26 @@ public class SetFileNameActivity extends Activity {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SetFileNameActivity.this, RecordingActivity.class);
-                intent.putExtra("fileName",fileName.getText().toString());
-                intent.putExtra("folderName",folderName);
+                Realm realm = Realm.getDefaultInstance();
 
-                startActivity(intent);
-                finish();
+                int albumid = realm.where(AlbumDB.class).equalTo("albumTitle",folderName).findFirst().getId();
+                RealmResults<MusicDB> realmResults = realm.where(MusicDB.class).equalTo("title",fileName.getText().toString()+".mid")
+                        .equalTo("albumId",albumid).findAll();
+                if(realmResults.size() > 0) {
+                    if(ChooseSongActivity.cContext!=null)
+                        Toasty.custom(ChooseSongActivity.cContext, "이미 존재하는 파일명 입니다", R.drawable.warning, R.color.Faded_Denim, Toast.LENGTH_SHORT, true, true).show();
+                    else
+                        Toasty.custom(MainActivity.mContext, "이미 존재하는 파일명 입니다", R.drawable.warning, R.color.Faded_Denim, Toast.LENGTH_SHORT, true, true).show();
+                }
+                else{
+                    Intent intent = new Intent(SetFileNameActivity.this, RecordingActivity.class);
+                    intent.putExtra("fileName", fileName.getText().toString());
+                    intent.putExtra("folderName", folderName);
+                    intent.putExtra("AlbumID", albumID);
+
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }

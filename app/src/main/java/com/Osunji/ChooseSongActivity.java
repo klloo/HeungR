@@ -1,13 +1,8 @@
 package com.Osunji;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,23 +14,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import java.io.File;
 import java.util.ArrayList;
 
 import es.dmoral.toasty.Toasty;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class ChooseSongActivity extends BaseActivity {
 
     String folderName;
-    File[] files;
-    File selectFile;
+    MusicDB deleteItem;
     ListView listview;
     ArrayList<MidiSong> midiSongs = new ArrayList<>();
 
-    FileUri current;
+
+    Realm realm = Realm.getDefaultInstance();
+    RealmResults<AlbumDB> realmResults;
+
+    int currentid;
 
     public static Context cContext;
+
+    boolean check = true;
+
+    int albumId;
 
 
     @Override
@@ -43,7 +45,6 @@ public class ChooseSongActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_song);
         cContext = this;
-
         folderName = getIntent().getStringExtra("folderName");
 
         TextView title = findViewById(R.id.chooseSongAlbum);
@@ -51,6 +52,7 @@ public class ChooseSongActivity extends BaseActivity {
 
 
         listview = (ListView)findViewById(R.id.list);
+        albumId = getIntent().getIntExtra("AlbumID", 1);
 
         loadFile();
 
@@ -60,13 +62,15 @@ public class ChooseSongActivity extends BaseActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ChooseSongActivity.this, SetFileNameActivity.class);
                 intent.putExtra("folderName",folderName);
+                intent.putExtra("AlbumID", albumId);
                 startActivity(intent);
             }
         });
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                current =  midiSongs.get(position).fileUri;
+                //현재 선택된 midi의 id 저장
+                currentid = midiSongs.get(position).getId();
                 go();
             }
         });
@@ -74,13 +78,8 @@ public class ChooseSongActivity extends BaseActivity {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                selectFile = files[position];
-                current =  midiSongs.get(position).fileUri;
-
-                Intent intent = new Intent(getApplicationContext(), songEditActivity.class);
-
-                startActivityForResult(intent, 1);
-
+                deleteItem = realm.where(MusicDB.class).equalTo("id",midiSongs.get(position).getId()).findFirst();
+                delete();
                 return true;
             }
         });
@@ -90,26 +89,19 @@ public class ChooseSongActivity extends BaseActivity {
 
     public void go(){
 
+        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
 
-        Log.d("TAG", "doOpenFile");
-        byte[] data = current.getData();
-        if (data == null || data.length <= 6 || !MidiFile.hasMidiHeader(data)) {
-            return;
-        }
-
-        Intent intent = new Intent(Intent.ACTION_VIEW,current.getUri(),ChooseSongActivity.this,SheetMusicActivity.class);
-        Log.d("TAG", "make intent : " + current + " | " + SheetMusicActivity.MidiTitleID);
-        Log.d("TAG",current.toString());
-        intent.putExtra(SheetMusicActivity.MidiTitleID, current.toString());
+        //id넘겨줌
+        intent.putExtra("MusicID", currentid);
         startActivity(intent);
 
     }
 
     public void delete(){
-
+        check = false;
         Intent intent = new Intent(getApplicationContext(), deletePopup.class);
         startActivityForResult(intent, 2);
-
+        check = true;
 
     }
 
@@ -119,8 +111,8 @@ public class ChooseSongActivity extends BaseActivity {
         Intent intent = new Intent(getApplicationContext(), RenameFilePopup.class);
 
         intent.putExtra("album", folderName);
-        Log.d("YUJIN" , current.getUri().getLastPathSegment());
-        intent.putExtra("song",   current.getUri().getLastPathSegment().toString());
+
+        intent.putExtra("musicId", currentid);
 
         startActivityForResult(intent, 3);
 
@@ -131,24 +123,23 @@ public class ChooseSongActivity extends BaseActivity {
     {
         midiSongs.clear();
 
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Capstone/"+folderName;
-        File directory = new File(path);
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            final RealmResults<MusicDB> musicList = realm.where(MusicDB.class).equalTo("albumId", albumId).findAll();
 
-        if(directory.exists()) {
-            files = directory.listFiles();
+            System.out.println("ChooseSongActivity Music DB: " + musicList + "albumId is " + albumId);
 
-            for(int i=0;i<files.length;i++) {
-                Uri uri = Uri.parse(files[i].getPath());
-                FileUri fileUri = new FileUri(uri,files[i].getPath());
-                midiSongs.add(new MidiSong(files[i].getName(),fileUri));
+            for(int i=0;i<musicList.size();i++){
+                midiSongs.add(new MidiSong(musicList.get(i).getTitle(), musicList.get(i).getId()));
             }
-
+        }
+        catch (MidiFileException e) {
+            this.finish();
+            return;
         }
 
         FileAdapter adpater = new FileAdapter(getApplicationContext(), midiSongs);
         listview.setAdapter(adpater);
-
-
 
 
     }
@@ -170,8 +161,9 @@ public class ChooseSongActivity extends BaseActivity {
 
             if( resultCode == RESULT_OK){
                 // 파일 삭제
-
-                selectFile.delete();
+                realm.beginTransaction();
+                deleteItem.deleteFromRealm();
+                realm.commitTransaction();
                 Toasty.custom(this, "파일을 삭제했습니다", R.drawable.success, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
 
 
@@ -181,9 +173,9 @@ public class ChooseSongActivity extends BaseActivity {
             }
 
 
-           loadFile();
+            loadFile();
 
-           ((MainActivity)MainActivity.mContext).setAlbum();
+            ((MainActivity)MainActivity.mContext).setAlbum();
         }
         else if( requestCode == 3 ){
 
@@ -238,15 +230,14 @@ class FileAdapter extends ArrayAdapter<Object> {
 
 class MidiSong{
     String title;
-    FileUri fileUri;
-    MidiSong(String title, FileUri fileUri){
+    private int id;
+
+    MidiSong(String title, int id){
         this.title = title;
-        this.fileUri = fileUri;
+        this.id = id;
     }
     public String getTitle() {
         return title;
     }
-    public FileUri getFileUri() {
-        return fileUri;
-    }
+    public int getId(){ return id;}
 }

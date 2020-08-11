@@ -1,19 +1,13 @@
 package com.Osunji;
 
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.view.View;
@@ -22,13 +16,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import be.tarsos.dsp.AudioDispatcher;
@@ -38,6 +35,8 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
+import io.realm.Realm;
+
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static java.lang.Math.pow;
@@ -52,6 +51,7 @@ public class RecordingActivity extends BaseActivity implements
 
     private FloatingActionButton mFloatingActionButton;
 
+    Realm realm = Realm.getDefaultInstance();
 
     //Metronome
     ReadyThread readyThread = new ReadyThread();
@@ -115,6 +115,7 @@ public class RecordingActivity extends BaseActivity implements
     TextView recordingTitleView;
     TextView recordingFolderView;
 
+    int albumID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,7 @@ public class RecordingActivity extends BaseActivity implements
 
         folderName = getIntent().getStringExtra("folderName");
         fileName = getIntent().getStringExtra("fileName");
+        albumID = getIntent().getIntExtra("AlbumID", -1);
 
         soundPool = new SoundPool(1,AudioManager.STREAM_MUSIC, 0);
         clap = soundPool.load(this, R.raw.beep, 1);
@@ -333,8 +335,8 @@ public class RecordingActivity extends BaseActivity implements
                         metronomeThread.setImageView(imageview);
                         mFloatingActionButton.setImageResource(R.drawable.muted);
 
-                       timer.start();
-                       middlestop[0] = 1;
+                        timer.start();
+                        middlestop[0] = 1;
 
                     }
 
@@ -615,6 +617,7 @@ public class RecordingActivity extends BaseActivity implements
             else{ //아니라면...
                 Sequence2.add(Sequence1.get(i-1));
                 Sequence2.add(count);
+
             }
 
         }
@@ -624,6 +627,7 @@ public class RecordingActivity extends BaseActivity implements
             if (Sequence2.size() == 2) {
                 return Sequence2;
             }
+
             Sequence2.remove(0);
             Sequence2.remove(0);
         }
@@ -1041,7 +1045,7 @@ public class RecordingActivity extends BaseActivity implements
             if(isFlat(key, midinum)){
                 if( !isFlat(key, midinum+1)){
                     midinum++;
-                  //  seq.set(i, midinum);
+                    //  seq.set(i, midinum);
                     sequence.add(midinum); //midinumber
                     sequence.add(seq.get(i+1)); //길이
                 }
@@ -1084,30 +1088,47 @@ public class RecordingActivity extends BaseActivity implements
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
 
+
         midiFileMaker.noteSequenceFixedVelocity (sequence2, 127);
 
-
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"+folderName);
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
+        byte[] bytearr = null;
 
 
-        File file = new File(dir, fileName + ".mid") ;
-        midiFileMaker.writeToFile (file);
+        bytearr = midiFileMaker.writeToFile ();
+
+
+
+        byte[] finalBytearr = bytearr;
+        final int[] musicID = new int[1];
+        realm.executeTransaction(new Realm.Transaction(){
+            @Override
+            public void execute(Realm realm){
+
+
+                musicID[0] = nextId();
+
+                MusicDB musicDB = realm.createObject(MusicDB.class, musicID[0]);
+                musicDB.setTitle(fileName + ".mid");
+                musicDB.setMidi(finalBytearr);
+                musicDB.setBpm(spinnerBPM);
+                musicDB.setDd(dd);
+                musicDB.setNn(nn);
+
+                musicDB.setAlbumId(albumID);
+            }
+        });
+
+        realm.close();
 
         ((MainActivity)MainActivity.mContext).setAlbum();
 
-        if(!folderName.equals("Quick"))
+        if((ChooseSongActivity.cContext!=null))
             ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
+        Intent intent = new Intent(getApplicationContext(), S0
+                              tMusicActivity.class);
+        intent.putExtra("MusicID", musicID[0]);
 
-
-        Uri uri = Uri.parse(file.getPath());
-        FileUri fileUri = new FileUri(uri, file.getPath());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, fileUri.getUri() , this, SheetMusicActivity.class);
-        intent.putExtra(SheetMusicActivity.MidiTitleID, file.toString());
 
         startActivity(intent);
 
@@ -1159,6 +1180,15 @@ public class RecordingActivity extends BaseActivity implements
         startTime = SystemClock.elapsedRealtime();
         audioThread.start();
     }
+
+    int nextId() {
+        Number maxId = realm.where(MusicDB.class).max("id");
+        if(maxId!=null){
+            return maxId.intValue() + 1;
+        }
+        return 0;
+    }
+
 
 
     public void processPitch(float pitchInHz){

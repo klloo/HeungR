@@ -2,12 +2,6 @@ package com.Osunji;
 
 //JinJin Branch
 
-import android.util.Log;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -153,90 +147,93 @@ class MidiFileMaker {
      * Write the stored MIDI events to a file
      */
 
-    public void writeToFile(File file) { //throws IOException {
+    public byte[] writeToFile() { //throws IOException {
 
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("TAG",e.toString() + "write To File ");
+        ArrayList<Byte> output = null;
+
+
+        output = new ArrayList<>();
+        for(int i=0;i<header.length;i++){
+            output.add((byte) header[i]);
+        }
+
+//             Calculate the amount of track data
+//
+//             _Do_ include the footer but _do not_ include the
+//
+//             track header
+
+
+        int size = tempoEvent.length + keySigEvent.length + timeSigEvent.length
+
+                + footer.length;
+
+
+        for (int i = 0; i < playEvents.size(); i++)
+
+            size += playEvents.elementAt(i).length;
+
+
+        // Write out the track data size in big-endian format
+
+        // Note that this math is only valid for up to 64k of data
+
+        //  (but that's a lot of notes)
+
+        int high = size / 256;
+
+        int low = size - (high * 256);
+
+        output.add((byte) 0);
+
+        output.add((byte) 0);
+
+        output.add((byte) high);
+
+        output.add((byte) low);
+
+
+        // Write the standard metadata — tempo, etc
+
+        // At present, tempo is stuck at crotchet=60
+
+        for(int i=0;i<tempoEvent.length;i++){
+            output.add((byte) tempoEvent[i]);
+        }
+
+        for(int i=0;i<keySigEvent.length;i++){
+            output.add((byte) keySigEvent[i]);
+        }
+
+        for(int i=0;i<timeSigEvent.length;i++){
+            output.add((byte) timeSigEvent[i]);
         }
 
 
-        try {
-            fos.write(intArrayToByteArray(header));
+        // Write out the note, etc., events
 
-            // Calculate the amount of track data
-
-            // _Do_ include the footer but _do not_ include the
-
-            // track header
-
-
-            int size = tempoEvent.length + keySigEvent.length + timeSigEvent.length
-
-                    + footer.length;
-
-
-            for (int i = 0; i < playEvents.size(); i++)
-
-                size += playEvents.elementAt(i).length;
-
-
-            // Write out the track data size in big-endian format
-
-            // Note that this math is only valid for up to 64k of data
-
-            //  (but that's a lot of notes)
-
-            int high = size / 256;
-
-            int low = size - (high * 256);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) 0);
-
-            fos.write((byte) high);
-
-            fos.write((byte) low);
-
-
-            // Write the standard metadata — tempo, etc
-
-            // At present, tempo is stuck at crotchet=60
-
-            fos.write(intArrayToByteArray(tempoEvent));
-
-            fos.write(intArrayToByteArray(keySigEvent));
-
-            fos.write(intArrayToByteArray(timeSigEvent));
-
-
-            // Write out the note, etc., events
-
-            for (int i = 0; i < playEvents.size(); i++) {
-
-                fos.write(intArrayToByteArray(playEvents.elementAt(i)));
-
+        for (int i = 0; i < playEvents.size(); i++) {
+            int[] arr = playEvents.elementAt(i);
+            for(int j=0;j<arr.length;j++){
+                output.add((byte) arr[j]);
             }
-
-
-            // Write the footer and close
-
-            fos.write(intArrayToByteArray(footer));
-            fos.flush();
-            fos.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            Log.d("TAG",e.toString() + "write To File ");
         }
 
 
+        // Write the footer and close
+
+        //fos.write(intArrayToByteArray(footer));
+        for(int i=0;i<footer.length;i++){
+            output.add((byte) footer[i]);
+        }
+
+        byte[] byteArr = new byte[output.size()];
+        for(int i=0;i<byteArr.length;i++){
+            byteArr[i] = output.get(i);
+        }
+
+        return byteArr;
     }
 
 

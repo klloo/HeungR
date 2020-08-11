@@ -10,9 +10,12 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name=".MyApplication"
         android:icon="@drawable/appicon2"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true">
         <activity android:name="com.Osunji.RenameFilePopup"></activity>
         <activity android:name="com.Osunji.songEditActivity" />
         <activity android:name="com.Osunji.Girls" />
