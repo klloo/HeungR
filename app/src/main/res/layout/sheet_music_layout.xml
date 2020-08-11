@@ -139,7 +139,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="100dp"
         android:background="@color/Phantom_Green"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -246,11 +246,13 @@
         android:id="@+id/btn_back"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="30dp"
         android:background="#00FFFFFF"
         android:contentDescription="@string/back"
         android:src="@drawable/ic_back"
         android:tint="@color/Smoke_Pine"
-        tools:layout_editor_absoluteX="28dp"
-        tools:layout_editor_absoluteY="65dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

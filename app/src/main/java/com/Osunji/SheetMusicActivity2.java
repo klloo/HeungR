@@ -95,6 +95,9 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
 
 
+
+
+
     /** Create this SheetMusicActivity.
      * The Intent should have two parameters:
      * - data: The uri of the midi file to open.
@@ -263,6 +266,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 //        }
 //
 //        player.save(fos);
+
 
     }
 

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -618,6 +617,7 @@ public class RecordingActivity extends BaseActivity implements
             else{ //아니라면...
                 Sequence2.add(Sequence1.get(i-1));
                 Sequence2.add(count);
+
             }
 
         }
@@ -627,6 +627,7 @@ public class RecordingActivity extends BaseActivity implements
             if (Sequence2.size() == 2) {
                 return Sequence2;
             }
+
             Sequence2.remove(0);
             Sequence2.remove(0);
         }
@@ -1087,9 +1088,11 @@ public class RecordingActivity extends BaseActivity implements
         midiFileMaker.setTempo(spinnerBPM);
         midiFileMaker.setTimeSignature(dd,nn);
 
+
         midiFileMaker.noteSequenceFixedVelocity (sequence2, 127);
 
         byte[] bytearr = null;
+
 
         bytearr = midiFileMaker.writeToFile ();
 
@@ -1118,12 +1121,12 @@ public class RecordingActivity extends BaseActivity implements
         realm.close();
 
         ((MainActivity)MainActivity.mContext).setAlbum();
-        Log.d("HELLO", folderName);
 
         if((ChooseSongActivity.cContext!=null))
             ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
-        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
+        Intent intent = new Intent(getApplicationContext(), S0
+                              tMusicActivity.class);
         intent.putExtra("MusicID", musicID[0]);
 
 
