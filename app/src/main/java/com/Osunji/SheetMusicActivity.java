@@ -20,6 +20,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -92,9 +93,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     int octa = 0;
     int count = 0;
 
-
-    int octa = 0;
-    int count = 0;
+    Uri uri;
 
 
     /** Create this SheetMusicActivity.
@@ -664,7 +663,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         if(file.exists()){
 
             File hummingAlbum = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Capstone/"
-                    +uri.getPathSegments().get(4));
+                    + uri.getPathSegments().get(4));
             File humming = new File(hummingAlbum, newtitle);
 
             Log.v("TAG" , " humming : " + humming.lastModified());
@@ -717,7 +716,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         byte[] bytearr = null;
 
-        bytearr = midiFileMaker.writeToFile(banju, key, nn, 127);
+        bytearr = midiFileMaker.writeToFile(banju, key, nn, 127, octa);
 
         byte[] finalBytearr = bytearr;
 

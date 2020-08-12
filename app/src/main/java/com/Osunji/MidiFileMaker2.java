@@ -39,7 +39,7 @@ class MidiFileMaker2 extends MidiFileMaker{
     };
 
 
-    public byte[] writeToFile(ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity) { //throws IOException {
+    public byte[] writeToFile(ArrayList<ArrayList<Integer>> chords,  int key, int nn, int velocity, int octa) { //throws IOException {
 
 
         ArrayList<Byte> output = null;
@@ -117,7 +117,7 @@ class MidiFileMaker2 extends MidiFileMaker{
         }
 
         //반주 이벤트
-        makebPlayEvents(chords, key, nn);
+        makebPlayEvents(chords, octa, key, nn);
 
         for (int i = 0; i < trackHeader.length; i++) {
             output.add((byte) trackHeader[i]);

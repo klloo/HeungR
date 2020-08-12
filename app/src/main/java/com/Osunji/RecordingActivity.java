@@ -727,9 +727,6 @@ public class RecordingActivity extends BaseActivity implements
         }
 */
 
-        for ( i = 1; i < Sequence2.size(); i += 2) {
-            Log.d("seq", "SEMI Final - MidiNum:" + Sequence2.get(i - 1) + " || NoteNum:" + Sequence2.get(i));
-        }
 
         //마디 계산.
         ArrayList<Integer> madiSeq = MadiCalcul(Sequence2, nn);
@@ -1125,8 +1122,7 @@ public class RecordingActivity extends BaseActivity implements
         if((ChooseSongActivity.cContext!=null))
             ((ChooseSongActivity)ChooseSongActivity.cContext).loadFile();
 
-        Intent intent = new Intent(getApplicationContext(), S0
-                              tMusicActivity.class);
+        Intent intent = new Intent(getApplicationContext(), SheetMusicActivity.class);
         intent.putExtra("MusicID", musicID[0]);
 
 
