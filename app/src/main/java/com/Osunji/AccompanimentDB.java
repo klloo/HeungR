@@ -6,7 +6,7 @@ import io.realm.annotations.PrimaryKey;
 public class AccompanimentDB extends RealmObject {
     @PrimaryKey
     private int id;
-    private byte[] midi;
+    public byte[] midi;
 
     public void setId(int id) { this.id = id; }
 

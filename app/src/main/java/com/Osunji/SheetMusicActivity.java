@@ -619,6 +619,9 @@ public class SheetMusicActivity extends MidiHandlingActivity {
         System.out.println("banjuList : " + banjuList.toString());
         System.out.println("average  : " + octa/count);
 
+        octa/=count;
+
+
         return banjuList;//  ( 마디별로 코드 하나씩 )
     }
 /*
@@ -693,7 +696,7 @@ public class SheetMusicActivity extends MidiHandlingActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void makeMidiFile(){
+    public void makeMidiFile() {
         ArrayList<Integer> sequence = getSequence();
         if(sequence.size()<=0){
             Toasty.custom(this, "멜로디가 없습니다", R.drawable.music_96, R.color.Greenery,  Toast.LENGTH_SHORT, true, true).show();
@@ -716,7 +719,10 @@ public class SheetMusicActivity extends MidiHandlingActivity {
 
         byte[] bytearr = null;
 
+
         bytearr = midiFileMaker.writeToFile(banju, key, nn, 127, octa);
+
+
 
         byte[] finalBytearr = bytearr;
 

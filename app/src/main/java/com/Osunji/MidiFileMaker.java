@@ -2,6 +2,12 @@ package com.Osunji;
 
 //JinJin Branch
 
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -149,6 +155,7 @@ class MidiFileMaker {
 
     public byte[] writeToFile() { //throws IOException {
 
+        Log.d("MAKE", "maker1 making!!!!!0!");
 
         ArrayList<Byte> output = null;
 
@@ -232,6 +239,32 @@ class MidiFileMaker {
         for(int i=0;i<byteArr.length;i++){
             byteArr[i] = output.get(i);
         }
+
+
+
+/*
+
+        File root = android.os.Environment.getExternalStorageDirectory();
+        String path = root.getAbsolutePath() + "/hello_.mid";
+
+
+        File file = new File(path) ;
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d("TAG",e.toString() + "write To File ");
+        }
+        try {
+            fos.write(byteArr);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+*/
 
         return byteArr;
     }

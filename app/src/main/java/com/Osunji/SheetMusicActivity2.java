@@ -129,7 +129,7 @@ public class SheetMusicActivity2 extends MidiHandlingActivity {
 
             final AccompanimentDB banju = realm.where(AccompanimentDB.class).equalTo("id", musicId).findFirst();
             final MusicDB music = realm.where(MusicDB.class).equalTo("id", musicId).findFirst();
-            data = banju.getMidi();
+            data = banju.getMidi().clone();
             midifile = new MidiFile(data, music.getTitle());
         }
         catch (MidiFileException e) {

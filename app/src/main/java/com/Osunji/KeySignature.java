@@ -13,6 +13,8 @@
 package com.Osunji;
 
 
+import android.util.Log;
+
 import com.Osunji.sheets.Accid;
 import com.Osunji.sheets.AccidSymbol;
 import com.Osunji.sheets.Clef;
@@ -572,13 +574,29 @@ public class KeySignature {
     public static KeySignature Guess(ListInt notes) {
         CreateAccidentalMaps();
 
+       // Log.d("TAG", "=========GUESS=============");
+
         /* Get the frequency count of each note in the 12-note scale */
         int[] notecount = new int[12];
-        for (int i = 0; i < notes.size(); i++) {
+        for (int i = 0; i < notes.size() ; i++) {
             int notenumber = notes.get(i);
+
+
             int notescale = (notenumber + 3) % 12;
+
+        /*    if(notescale < 0) {
+                notescale += 12;
+                notescale %= 12;
+            }
+*//*
+            Log.d("TAG", "note number :" + notenumber);
+            Log.d("TAG", "note scale  :" + notescale + "\n");
+*/
             notecount[notescale] += 1;
         }
+
+  //      Log.d("TAG", "=========END=============");
+
 
         /* For each key signature, count the total number of accidentals
          * needed to display all the notes.  Choose the key signature

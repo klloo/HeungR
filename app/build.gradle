@@ -15,7 +15,7 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "com.midisheetmusic"
+        applicationId "com.Osunji"
         minSdkVersion 21
         targetSdkVersion 28
     }
@@ -49,6 +49,8 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "com.google.android.material:material:1.0.0"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+
+
     //녹음?
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //  implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

@@ -17,6 +17,7 @@ import java.util.*;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
+import android.util.Log;
 import android.view.*;
 
 import com.Osunji.sheets.AccidSymbol;
@@ -157,6 +158,7 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         }
         numtracks = tracks.size();
 
+
         int lastStart = file.EndTime() + options.shifttime;
 
         /* Create all the music symbols (notes, rests, vertical bars, and
@@ -168,8 +170,15 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
         ArrayList<ArrayList<MusicSymbol>> allsymbols =
           new ArrayList<ArrayList<MusicSymbol> >(numtracks);
 
-        for (int tracknum = 0; tracknum < numtracks; tracknum++) {
+
+        Log.d("TAG",  "============");
+        Log.d("TAG", "num of tracks: " + numtracks );
+        Log.d("TAG", "=========track ===========\n" +  tracks+ "\n\n" );
+
+        for (int tracknum = 0; tracknum < numtracks ; tracknum++) {
+
             MidiTrack track = tracks.get(tracknum);
+
             ClefMeasures clefs = new ClefMeasures(track.getNotes(), time.getMeasure());
             ArrayList<ChordSymbol> chords = CreateChords(track.getNotes(), mainkey, time, clefs);
             allsymbols.add(CreateSymbols(chords, clefs, time, lastStart));
@@ -271,11 +280,18 @@ public class SheetMusic extends SurfaceView implements SurfaceHolder.Callback, S
     /** Get the best key signature given the midi notes in all the tracks. */
     public static KeySignature GetKeySignature(ArrayList<MidiTrack> tracks) {
         ListInt notenums = new ListInt();
-        for (MidiTrack track : tracks) {
+  /*      for (MidiTrack track : tracks) {
             for (MidiNote note : track.getNotes()) {
                 notenums.add(note.getNumber());
             }
         }
+*/
+
+        MidiTrack track = tracks.get(0);
+        for (MidiNote note : track.getNotes()) {
+            notenums.add(note.getNumber());
+        }
+        
         return KeySignature.Guess(notenums);
     }
 
